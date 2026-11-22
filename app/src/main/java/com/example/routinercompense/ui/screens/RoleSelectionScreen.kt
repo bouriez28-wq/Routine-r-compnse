@@ -151,7 +151,9 @@ private fun RoleCard(
     onClick: () -> Unit
 ) {
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
-    val bgColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surface
+    val bgColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val titleColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
+    val subtitleColor = if (isSelected) Color.White.copy(alpha = 0.85f) else Color.Gray
 
     Card(
         colors = CardDefaults.cardColors(containerColor = bgColor),
@@ -166,13 +168,26 @@ private fun RoleCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp,
+                    color = titleColor
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = subtitle, fontSize = 13.sp, color = Color.Gray)
+                Text(
+                    text = subtitle,
+                    fontSize = 13.sp,
+                    color = subtitleColor
+                )
             }
             RadioButton(
                 selected = isSelected,
-                onClick = onClick
+                onClick = onClick,
+                colors = RadioButtonDefaults.colors(
+                    selectedColor = Color.White,
+                    unselectedColor = Color.Gray
+                )
             )
         }
     }
