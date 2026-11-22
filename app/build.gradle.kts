@@ -36,6 +36,10 @@ android {
     }
 }
 
+base {
+    archivesName.set("Routine_Recompenses")
+}
+
 dependencies {
     implementation(libs.material)
     implementation(libs.androidx.core.ktx)
