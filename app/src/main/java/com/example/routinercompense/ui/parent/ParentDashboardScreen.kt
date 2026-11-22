@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,7 +44,8 @@ fun ParentDashboardScreen(
     onDeleteRoutine: (RoutineItem) -> Unit,
     onAddOrUpdateReward: (RewardItem) -> Unit,
     onDeleteReward: (RewardItem) -> Unit,
-    onResetTodayRoutines: () -> Unit
+    onResetTodayRoutines: () -> Unit,
+    onCheckForUpdatesClick: () -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("📋 Routines", "🎁 Récompenses", "⚙️ Paramètres")
@@ -121,7 +123,8 @@ fun ParentDashboardScreen(
                     onSetChildName = onSetChildName,
                     onSetParentPin = onSetParentPin,
                     onSetTotalStars = onSetTotalStars,
-                    onResetTodayRoutines = onResetTodayRoutines
+                    onResetTodayRoutines = onResetTodayRoutines,
+                    onCheckForUpdatesClick = onCheckForUpdatesClick
                 )
             }
         }
@@ -285,7 +288,8 @@ private fun ParentSettingsTab(
     onSetChildName: (String) -> Unit,
     onSetParentPin: (String) -> Unit,
     onSetTotalStars: (Int) -> Unit,
-    onResetTodayRoutines: () -> Unit
+    onResetTodayRoutines: () -> Unit,
+    onCheckForUpdatesClick: () -> Unit
 ) {
     var nameInput by remember(childName) { mutableStateOf(childName) }
     var pinInput by remember { mutableStateOf("") }
@@ -436,6 +440,29 @@ private fun ParentSettingsTab(
                         onClick = onChangeRoleClick
                     ) {
                         Text("Changer le rôle ou le Code Famille")
+                    }
+                }
+            }
+        }
+
+        // Check For Updates
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "🚀 Mise à jour de l'application", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Vérifier si une nouvelle version de Routine & Récompense est disponible.", fontSize = 13.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = onCheckForUpdatesClick,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(imageVector = Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Rechercher une mise à jour", fontWeight = FontWeight.Bold)
                     }
                 }
             }

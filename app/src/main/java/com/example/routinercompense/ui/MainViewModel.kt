@@ -58,6 +58,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _updateInfo = MutableStateFlow<AppUpdateInfo?>(null)
     val updateInfo: StateFlow<AppUpdateInfo?> = _updateInfo.asStateFlow()
 
+    private val _updateMessage = MutableStateFlow<String?>(null)
+    val updateMessage: StateFlow<String?> = _updateMessage.asStateFlow()
+
     init {
         loadData()
         startCloudSyncLoop()
@@ -142,6 +145,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dismissUpdateDialog() {
         _updateInfo.value = null
+    }
+
+    fun dismissUpdateMessage() {
+        _updateMessage.value = null
+    }
+
+    fun manualCheckForAppUpdates() {
+        viewModelScope.launch {
+            val info = updateChecker.checkForUpdates("https://files.catbox.moe/jhg68y.json")
+            if (info != null && info.hasUpdate) {
+                _updateInfo.value = info
+            } else {
+                _updateMessage.value = "Votre application est déjà à jour (v${com.example.routinercompense.BuildConfig.VERSION_NAME})."
+            }
+        }
     }
 
     fun checkForAppUpdates(versionJsonUrl: String) {

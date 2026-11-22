@@ -63,6 +63,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val isParentMode by viewModel.isParentMode.collectAsState()
     val showPinDialog by viewModel.showPinDialog.collectAsState()
     val updateInfo by viewModel.updateInfo.collectAsState()
+    val updateMessage by viewModel.updateMessage.collectAsState()
 
     var selectedBottomTab by remember { mutableIntStateOf(0) }
 
@@ -94,7 +95,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
             onDeleteRoutine = { viewModel.deleteRoutine(it) },
             onAddOrUpdateReward = { viewModel.addOrUpdateReward(it) },
             onDeleteReward = { viewModel.deleteReward(it) },
-            onResetTodayRoutines = { viewModel.resetTodayRoutines() }
+            onResetTodayRoutines = { viewModel.resetTodayRoutines() },
+            onCheckForUpdatesClick = { viewModel.manualCheckForAppUpdates() }
         )
     } else {
         Scaffold(
@@ -212,6 +214,19 @@ fun MainAppScreen(viewModel: MainViewModel) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 context.startActivity(intent)
                 viewModel.dismissUpdateDialog()
+            }
+        )
+    }
+
+    updateMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissUpdateMessage() },
+            title = { Text(text = "📱 Mise à jour", fontWeight = FontWeight.Bold) },
+            text = { Text(text = msg) },
+            confirmButton = {
+                Button(onClick = { viewModel.dismissUpdateMessage() }) {
+                    Text(text = "OK")
+                }
             }
         )
     }
