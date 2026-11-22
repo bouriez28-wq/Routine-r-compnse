@@ -6,12 +6,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.ui.graphics.asImageBitmap
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.qrcode.QRCodeWriter
+import android.graphics.Bitmap
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -317,6 +323,7 @@ private fun ParentSettingsTab(
 
     var showResetConfirmation by remember { mutableStateOf(false) }
     var showVersionInfoDialog by remember { mutableStateOf(false) }
+    var showQrCodeDialog by remember { mutableStateOf(false) }
     var saveNotificationMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(saveNotificationMessage) {
@@ -552,6 +559,29 @@ private fun ParentSettingsTab(
             }
         }
 
+        // QR Code Sharing Section
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "📲 Partager l'application", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Afficher le QR Code d'installation pour scanner depuis un autre téléphone (Enfant ou Parent).", fontSize = 13.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { showQrCodeDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(imageVector = Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Afficher le QR Code d'installation", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+
         // App Version Info Section
         item {
             Card(
@@ -632,6 +662,57 @@ private fun ParentSettingsTab(
             },
             confirmButton = {
                 TextButton(onClick = { showVersionInfoDialog = false }) {
+                    Text("Fermer")
+                }
+            }
+        )
+    }
+
+    if (showQrCodeDialog) {
+        val downloadUrl = "https://drive.google.com/file/d/1BC9NZlXCJHqYKcR27OZUxo6i2mqL9pv3/view?usp=sharing"
+        val qrBitmap = remember(downloadUrl) { generateQrCodeBitmap(downloadUrl) }
+
+        AlertDialog(
+            onDismissRequest = { showQrCodeDialog = false },
+            title = {
+                Text(
+                    text = "📲 QR Code d'installation",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showQrCodeDialog = false }
+                ) {
+                    Text(
+                        text = "Scannez ce QR Code avec l'appareil photo de l'autre téléphone pour télécharger l'application :",
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Image(
+                        bitmap = qrBitmap,
+                        contentDescription = "QR Code d'installation",
+                        modifier = Modifier
+                            .size(220.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Toucher l'écran pour fermer",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showQrCodeDialog = false }) {
                     Text("Fermer")
                 }
             }
@@ -951,4 +1032,22 @@ private fun IconLibraryDialog(
             }
         }
     )
+}
+
+private fun generateQrCodeBitmap(content: String, size: Int = 512): androidx.compose.ui.graphics.ImageBitmap {
+    return try {
+        val writer = QRCodeWriter()
+        val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size)
+        val width = bitMatrix.width
+        val height = bitMatrix.height
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                bitmap.setPixel(x, y, if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
+            }
+        }
+        bitmap.asImageBitmap()
+    } catch (e: Exception) {
+        Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).asImageBitmap()
+    }
 }
