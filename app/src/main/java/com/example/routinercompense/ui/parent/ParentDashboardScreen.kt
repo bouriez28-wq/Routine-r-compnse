@@ -22,9 +22,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import com.example.routinercompense.model.RewardItem
 import com.example.routinercompense.model.RoutineItem
 import com.example.routinercompense.model.TimeOfDay
+import com.example.routinercompense.ui.theme.AppThemePalette
+import com.example.routinercompense.ui.theme.DarkThemeOption
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +40,8 @@ fun ParentDashboardScreen(
     syncStatus: String,
     routines: List<RoutineItem>,
     rewards: List<RewardItem>,
+    themePalette: AppThemePalette,
+    darkThemeOption: DarkThemeOption,
     onExitParentMode: () -> Unit,
     onChangeRoleClick: () -> Unit,
     onSetChildName: (String) -> Unit,
@@ -45,7 +52,9 @@ fun ParentDashboardScreen(
     onAddOrUpdateReward: (RewardItem) -> Unit,
     onDeleteReward: (RewardItem) -> Unit,
     onResetTodayRoutines: () -> Unit,
-    onCheckForUpdatesClick: () -> Unit
+    onCheckForUpdatesClick: () -> Unit,
+    onSelectPalette: (AppThemePalette) -> Unit,
+    onSelectDarkOption: (DarkThemeOption) -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("📋 Routines", "🎁 Récompenses", "⚙️ Paramètres")
@@ -119,12 +128,16 @@ fun ParentDashboardScreen(
                     childName = childName,
                     totalStars = totalStars,
                     familyCode = familyCode,
+                    themePalette = themePalette,
+                    darkThemeOption = darkThemeOption,
                     onChangeRoleClick = onChangeRoleClick,
                     onSetChildName = onSetChildName,
                     onSetParentPin = onSetParentPin,
                     onSetTotalStars = onSetTotalStars,
                     onResetTodayRoutines = onResetTodayRoutines,
-                    onCheckForUpdatesClick = onCheckForUpdatesClick
+                    onCheckForUpdatesClick = onCheckForUpdatesClick,
+                    onSelectPalette = onSelectPalette,
+                    onSelectDarkOption = onSelectDarkOption
                 )
             }
         }
@@ -284,12 +297,16 @@ private fun ParentSettingsTab(
     childName: String,
     totalStars: Int,
     familyCode: String,
+    themePalette: AppThemePalette,
+    darkThemeOption: DarkThemeOption,
     onChangeRoleClick: () -> Unit,
     onSetChildName: (String) -> Unit,
     onSetParentPin: (String) -> Unit,
     onSetTotalStars: (Int) -> Unit,
     onResetTodayRoutines: () -> Unit,
-    onCheckForUpdatesClick: () -> Unit
+    onCheckForUpdatesClick: () -> Unit,
+    onSelectPalette: (AppThemePalette) -> Unit,
+    onSelectDarkOption: (DarkThemeOption) -> Unit
 ) {
     var nameInput by remember(childName) { mutableStateOf(childName) }
     var pinInput by remember { mutableStateOf("") }
@@ -329,6 +346,54 @@ private fun ParentSettingsTab(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
+                    }
+                }
+            }
+        }
+
+        // Theme & Color Palette Settings
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "🎨 Thème et Couleurs", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Personnaliser l'apparence visuelle de l'application.", fontSize = 13.sp, color = Color.Gray)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = "Mode d'affichage :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DarkThemeOption.values().forEach { option ->
+                            FilterChip(
+                                selected = darkThemeOption == option,
+                                onClick = { onSelectDarkOption(option) },
+                                label = { Text(option.displayName) }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = "Palette de couleurs :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        AppThemePalette.values().forEach { palette ->
+                            FilterChip(
+                                selected = themePalette == palette,
+                                onClick = { onSelectPalette(palette) },
+                                label = { Text(palette.displayName) },
+                                leadingIcon = {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(palette.primaryColor)
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -525,8 +590,7 @@ private fun RoutineEditDialog(
     var icon by remember { mutableStateOf(item.icon) }
     var timeOfDay by remember { mutableStateOf(item.timeOfDay) }
     var starsReward by remember { mutableStateOf(item.starsReward.toString()) }
-
-    val emojis = listOf("🛏️", "🪥", "🥣", "🎒", "📚", "🧸", "🚿", "📖", "🍎", "🚴", "🎨", "🧹", "🐶")
+    var showIconLibrary by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -543,15 +607,20 @@ private fun RoutineEditDialog(
 
                 Text(text = "Icône :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    emojis.take(7).forEach { e ->
-                        FilterChip(
-                            selected = icon == e,
-                            onClick = { icon = e },
-                            label = { Text(e, fontSize = 18.sp) }
-                        )
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(text = icon, fontSize = 26.sp)
+                        }
+                    }
+                    OutlinedButton(onClick = { showIconLibrary = true }) {
+                        Text("🎨 Choisir dans la bibliothèque")
                     }
                 }
 
@@ -594,6 +663,17 @@ private fun RoutineEditDialog(
             }
         }
     )
+
+    if (showIconLibrary) {
+        IconLibraryDialog(
+            selectedIcon = icon,
+            onDismiss = { showIconLibrary = false },
+            onIconSelected = { selected ->
+                icon = selected
+                showIconLibrary = false
+            }
+        )
+    }
 }
 
 @Composable
@@ -605,8 +685,7 @@ private fun RewardEditDialog(
     var title by remember { mutableStateOf(item.title) }
     var icon by remember { mutableStateOf(item.icon) }
     var starCost by remember { mutableStateOf(item.starCost.toString()) }
-
-    val emojis = listOf("🎮", "🍕", "🛝", "🌙", "🍦", "🎁", "🎨", "🚴", "🎬", "🍿")
+    var showIconLibrary by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -623,15 +702,20 @@ private fun RewardEditDialog(
 
                 Text(text = "Icône :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    emojis.take(6).forEach { e ->
-                        FilterChip(
-                            selected = icon == e,
-                            onClick = { icon = e },
-                            label = { Text(e, fontSize = 18.sp) }
-                        )
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(text = icon, fontSize = 26.sp)
+                        }
+                    }
+                    OutlinedButton(onClick = { showIconLibrary = true }) {
+                        Text("🎨 Choisir dans la bibliothèque")
                     }
                 }
 
@@ -660,6 +744,86 @@ private fun RewardEditDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("Annuler")
+            }
+        }
+    )
+
+    if (showIconLibrary) {
+        IconLibraryDialog(
+            selectedIcon = icon,
+            onDismiss = { showIconLibrary = false },
+            onIconSelected = { selected ->
+                icon = selected
+                showIconLibrary = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun IconLibraryDialog(
+    selectedIcon: String,
+    onDismiss: () -> Unit,
+    onIconSelected: (String) -> Unit
+) {
+    val categories = mapOf(
+        "🌅 Matin" to listOf("🛏️", "🪥", "🚿", "🧼", "👗", "💇", "🚽", "🧦", "👟", "🧴"),
+        "🥣 Repas" to listOf("🥣", "🍎", "🥛", "🍽️", "🥦", "🧃", "🍌", "🥞", "🥪", "🥤"),
+        "🎒 Devoirs" to listOf("🎒", "📚", "📖", "✏️", "💻", "🎨", "📐", "📝", "🧩", "🎹"),
+        "🧹 Rangement" to listOf("🧹", "🧸", "🧺", "🐶", "🐱", "🪴", "🗑️", "🧽", "📦", "🚗"),
+        "🌙 Nuit" to listOf("🌙", "🥱", "📖", "🧸", "🤫", "⏰", "🛌", "💡", "✨", "💤"),
+        "⚽ Loisirs" to listOf("⚽", "🚴", "🏊", "🎮", "🛹", "🏃", "🛝", "🎯", "🎲", "🏆")
+    )
+
+    var selectedCategoryIndex by remember { mutableIntStateOf(0) }
+    val categoryNames = categories.keys.toList()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "🎨 Bibliothèque d'icônes", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        },
+        text = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                ScrollableTabRow(selectedTabIndex = selectedCategoryIndex) {
+                    categoryNames.forEachIndexed { index, name ->
+                        Tab(
+                            selected = selectedCategoryIndex == index,
+                            onClick = { selectedCategoryIndex = index },
+                            text = { Text(name, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val currentIcons = categories[categoryNames[selectedCategoryIndex]] ?: emptyList()
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(5),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.height(200.dp)
+                ) {
+                    items(currentIcons) { emoji ->
+                        Surface(
+                            onClick = {
+                                onIconSelected(emoji)
+                                onDismiss()
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (selectedIcon == emoji) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                            modifier = Modifier.size(44.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(text = emoji, fontSize = 22.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Fermer")
             }
         }
     )

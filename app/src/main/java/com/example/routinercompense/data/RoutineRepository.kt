@@ -7,6 +7,8 @@ import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
 import com.example.routinercompense.model.RoutineItem
 import com.example.routinercompense.model.TimeOfDay
+import com.example.routinercompense.ui.theme.AppThemePalette
+import com.example.routinercompense.ui.theme.DarkThemeOption
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -76,6 +78,24 @@ class RoutineRepository(context: Context) {
 
     fun setParentPin(pin: String) {
         prefs.edit().putString(KEY_PARENT_PIN, pin).apply()
+    }
+
+    fun getThemePalette(): AppThemePalette {
+        val name = prefs.getString("theme_palette", AppThemePalette.OCEAN.name)
+        return try { AppThemePalette.valueOf(name ?: "") } catch (e: Exception) { AppThemePalette.OCEAN }
+    }
+
+    fun setThemePalette(palette: AppThemePalette) {
+        prefs.edit().putString("theme_palette", palette.name).apply()
+    }
+
+    fun getDarkThemeOption(): DarkThemeOption {
+        val name = prefs.getString("dark_theme_option", DarkThemeOption.SYSTEM.name)
+        return try { DarkThemeOption.valueOf(name ?: "") } catch (e: Exception) { DarkThemeOption.SYSTEM }
+    }
+
+    fun setDarkThemeOption(option: DarkThemeOption) {
+        prefs.edit().putString("dark_theme_option", option.name).apply()
     }
 
     fun getTotalStars(): Int {

@@ -12,6 +12,8 @@ import com.example.routinercompense.model.DeviceRole
 import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
 import com.example.routinercompense.model.RoutineItem
+import com.example.routinercompense.ui.theme.AppThemePalette
+import com.example.routinercompense.ui.theme.DarkThemeOption
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -61,6 +63,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _updateMessage = MutableStateFlow<String?>(null)
     val updateMessage: StateFlow<String?> = _updateMessage.asStateFlow()
 
+    private val _themePalette = MutableStateFlow(AppThemePalette.OCEAN)
+    val themePalette: StateFlow<AppThemePalette> = _themePalette.asStateFlow()
+
+    private val _darkThemeOption = MutableStateFlow(DarkThemeOption.SYSTEM)
+    val darkThemeOption: StateFlow<DarkThemeOption> = _darkThemeOption.asStateFlow()
+
     init {
         loadData()
         startCloudSyncLoop()
@@ -79,6 +87,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _routines.value = repository.loadRoutines()
         _rewards.value = repository.loadRewards()
         _history.value = repository.loadHistory()
+        _themePalette.value = repository.getThemePalette()
+        _darkThemeOption.value = repository.getDarkThemeOption()
     }
 
     private fun startCloudSyncLoop() {
@@ -149,6 +159,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dismissUpdateMessage() {
         _updateMessage.value = null
+    }
+
+    fun setThemePalette(palette: AppThemePalette) {
+        _themePalette.value = palette
+        repository.setThemePalette(palette)
+    }
+
+    fun setDarkThemeOption(option: DarkThemeOption) {
+        _darkThemeOption.value = option
+        repository.setDarkThemeOption(option)
     }
 
     fun manualCheckForAppUpdates() {

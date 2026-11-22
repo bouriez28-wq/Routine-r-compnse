@@ -41,7 +41,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            RoutineTheme {
+            val themePalette by viewModel.themePalette.collectAsState()
+            val darkThemeOption by viewModel.darkThemeOption.collectAsState()
+
+            RoutineTheme(
+                palette = themePalette,
+                themeOption = darkThemeOption
+            ) {
                 MainAppScreen(viewModel = viewModel)
             }
         }
@@ -64,6 +70,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val showPinDialog by viewModel.showPinDialog.collectAsState()
     val updateInfo by viewModel.updateInfo.collectAsState()
     val updateMessage by viewModel.updateMessage.collectAsState()
+    val themePalette by viewModel.themePalette.collectAsState()
+    val darkThemeOption by viewModel.darkThemeOption.collectAsState()
 
     var selectedBottomTab by remember { mutableIntStateOf(0) }
 
@@ -82,6 +90,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
             syncStatus = syncStatus,
             routines = routines,
             rewards = rewards,
+            themePalette = themePalette,
+            darkThemeOption = darkThemeOption,
             onExitParentMode = {
                 (context as? Activity)?.finish()
             },
@@ -96,7 +106,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
             onAddOrUpdateReward = { viewModel.addOrUpdateReward(it) },
             onDeleteReward = { viewModel.deleteReward(it) },
             onResetTodayRoutines = { viewModel.resetTodayRoutines() },
-            onCheckForUpdatesClick = { viewModel.manualCheckForAppUpdates() }
+            onCheckForUpdatesClick = { viewModel.manualCheckForAppUpdates() },
+            onSelectPalette = { viewModel.setThemePalette(it) },
+            onSelectDarkOption = { viewModel.setDarkThemeOption(it) }
         )
     } else {
         Scaffold(
