@@ -1,5 +1,6 @@
 package com.example.routinercompense
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -81,7 +82,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
             routines = routines,
             rewards = rewards,
             onExitParentMode = {
-                viewModel.exitParentMode()
+                (context as? Activity)?.finish()
             },
             onChangeRoleClick = {
                 viewModel.setDeviceRoleAndFamilyCode(DeviceRole.UNSELECTED, familyCode)
