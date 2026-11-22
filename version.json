@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 20,
-  "latestVersionName": "3.1",
-  "releaseNotes": "Mise à jour v3.1 : Correctif de synchronisation cloud en direct et en-têtes réseau Chrome Mobile.",
-  "downloadUrl": "https://files.catbox.moe/4kwsw5.apk"
+  "latestVersionCode": 25,
+  "latestVersionName": "3.2",
+  "releaseNotes": "Version officielle v3.2 : Téléchargement binaire direct GitHub sans aucun blocage.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
