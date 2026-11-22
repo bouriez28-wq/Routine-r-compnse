@@ -1,0 +1,639 @@
+package com.example.routinercompense.ui.parent
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.routinercompense.model.RewardItem
+import com.example.routinercompense.model.RoutineItem
+import com.example.routinercompense.model.TimeOfDay
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ParentDashboardScreen(
+    childName: String,
+    totalStars: Int,
+    familyCode: String,
+    syncStatus: String,
+    routines: List<RoutineItem>,
+    rewards: List<RewardItem>,
+    onExitParentMode: () -> Unit,
+    onChangeRoleClick: () -> Unit,
+    onSetChildName: (String) -> Unit,
+    onSetParentPin: (String) -> Unit,
+    onSetTotalStars: (Int) -> Unit,
+    onAddOrUpdateRoutine: (RoutineItem) -> Unit,
+    onDeleteRoutine: (RoutineItem) -> Unit,
+    onAddOrUpdateReward: (RewardItem) -> Unit,
+    onDeleteReward: (RewardItem) -> Unit,
+    onResetTodayRoutines: () -> Unit
+) {
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val tabs = listOf("📋 Routines", "🎁 Récompenses", "⚙️ Paramètres")
+
+    var editingRoutine by remember { mutableStateOf<RoutineItem?>(null) }
+    var isAddingRoutine by remember { mutableStateOf(false) }
+
+    var editingReward by remember { mutableStateOf<RewardItem?>(null) }
+    var isAddingReward by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "Espace Parent 🔒", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Surface(
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(text = syncStatus, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                            }
+                        }
+                        Text(text = "Code Famille : $familyCode", fontSize = 12.sp, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f), fontWeight = FontWeight.SemiBold)
+                    }
+                },
+                actions = {
+                    TextButton(onClick = onExitParentMode) {
+                        Icon(imageVector = Icons.Filled.ExitToApp, contentDescription = "Quitter")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = "Quitter", fontWeight = FontWeight.Bold)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            TabRow(selectedTabIndex = selectedTab) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = { Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
+                    )
+                }
+            }
+
+            when (selectedTab) {
+                0 -> ParentRoutinesTab(
+                    routines = routines,
+                    onAddClick = { isAddingRoutine = true },
+                    onEditClick = { editingRoutine = it },
+                    onDeleteClick = onDeleteRoutine
+                )
+                1 -> ParentRewardsTab(
+                    rewards = rewards,
+                    onAddClick = { isAddingReward = true },
+                    onEditClick = { editingReward = it },
+                    onDeleteClick = onDeleteReward
+                )
+                2 -> ParentSettingsTab(
+                    childName = childName,
+                    totalStars = totalStars,
+                    familyCode = familyCode,
+                    onChangeRoleClick = onChangeRoleClick,
+                    onSetChildName = onSetChildName,
+                    onSetParentPin = onSetParentPin,
+                    onSetTotalStars = onSetTotalStars,
+                    onResetTodayRoutines = onResetTodayRoutines
+                )
+            }
+        }
+    }
+
+    // Routine Edit/Add Dialog
+    if (isAddingRoutine || editingRoutine != null) {
+        RoutineEditDialog(
+            item = editingRoutine ?: RoutineItem(title = "", icon = "⭐", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
+            onDismiss = {
+                isAddingRoutine = false
+                editingRoutine = null
+            },
+            onSave = { updated ->
+                onAddOrUpdateRoutine(updated)
+                isAddingRoutine = false
+                editingRoutine = null
+            }
+        )
+    }
+
+    // Reward Edit/Add Dialog
+    if (isAddingReward || editingReward != null) {
+        RewardEditDialog(
+            item = editingReward ?: RewardItem(title = "", icon = "🎁", starCost = 5),
+            onDismiss = {
+                isAddingReward = false
+                editingReward = null
+            },
+            onSave = { updated ->
+                onAddOrUpdateReward(updated)
+                isAddingReward = false
+                editingReward = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun ParentRoutinesTab(
+    routines: List<RoutineItem>,
+    onAddClick: () -> Unit,
+    onEditClick: (RoutineItem) -> Unit,
+    onDeleteClick: (RoutineItem) -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(routines, key = { it.id }) { item ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = item.icon, fontSize = 28.sp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(
+                                text = "${item.timeOfDay.displayName} • +${item.starsReward} ⭐",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        IconButton(onClick = { onEditClick(item) }) {
+                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier", tint = MaterialTheme.colorScheme.primary)
+                        }
+                        IconButton(onClick = { onDeleteClick(item) }) {
+                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Supprimer", tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = onAddClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter routine")
+        }
+    }
+}
+
+@Composable
+private fun ParentRewardsTab(
+    rewards: List<RewardItem>,
+    onAddClick: () -> Unit,
+    onEditClick: (RewardItem) -> Unit,
+    onDeleteClick: (RewardItem) -> Unit
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(rewards, key = { it.id }) { item ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = item.icon, fontSize = 28.sp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(
+                                text = "Coût : ${item.starCost} ⭐ • Débloqué ${item.timesClaimed} fois",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        IconButton(onClick = { onEditClick(item) }) {
+                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier", tint = MaterialTheme.colorScheme.primary)
+                        }
+                        IconButton(onClick = { onDeleteClick(item) }) {
+                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Supprimer", tint = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = onAddClick,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter récompense")
+        }
+    }
+}
+
+@Composable
+private fun ParentSettingsTab(
+    childName: String,
+    totalStars: Int,
+    familyCode: String,
+    onChangeRoleClick: () -> Unit,
+    onSetChildName: (String) -> Unit,
+    onSetParentPin: (String) -> Unit,
+    onSetTotalStars: (Int) -> Unit,
+    onResetTodayRoutines: () -> Unit
+) {
+    var nameInput by remember(childName) { mutableStateOf(childName) }
+    var pinInput by remember { mutableStateOf("") }
+    var starsInput by remember(totalStars) { mutableStateOf(totalStars.toString()) }
+
+    var showResetConfirmation by remember { mutableStateOf(false) }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Family Code Banner
+        item {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "📲 Code de Synchronisation Famille", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Entrez ce code sur le téléphone de l'enfant et des autres parents pour relier les 3 appareils :",
+                        fontSize = 13.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = familyCode,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        // Child Name Setting
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "👶 Prénom de l'enfant", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = nameInput,
+                        onValueChange = { nameInput = it },
+                        label = { Text("Prénom") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { onSetChildName(nameInput) },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Enregistrer le prénom")
+                    }
+                }
+            }
+        }
+
+        // Stars Balance Setting
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "⭐ Ajuster le solde d'étoiles", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = starsInput,
+                        onValueChange = { starsInput = it.filter { c -> c.isDigit() } },
+                        label = { Text("Nombre d'étoiles") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            val count = starsInput.toIntOrNull() ?: 0
+                            onSetTotalStars(count)
+                        },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Mettre à jour les étoiles")
+                    }
+                }
+            }
+        }
+
+        // Parent PIN Setting
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "🔑 Changer le code PIN parent", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = pinInput,
+                        onValueChange = { if (it.length <= 6) pinInput = it },
+                        label = { Text("Nouveau code PIN") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            if (pinInput.isNotEmpty()) {
+                                onSetParentPin(pinInput)
+                                pinInput = ""
+                            }
+                        },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Changer le PIN")
+                    }
+                }
+            }
+        }
+
+        // Change Role / Reset Device Configuration
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "📱 Rôle du téléphone", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Changer l'utilisation de cet appareil (Passer de Parent à Enfant ou réinitialiser le Code Famille).", fontSize = 13.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedButton(
+                        onClick = onChangeRoleClick
+                    ) {
+                        Text("Changer le rôle ou le Code Famille")
+                    }
+                }
+            }
+        }
+
+        // Reset Routines
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "🔄 Réinitialiser la journée", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color(0xFFC62828))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Décocher toutes les routines accomplies aujourd'hui.", fontSize = 13.sp, color = Color.DarkGray)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { showResetConfirmation = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+                    ) {
+                        Text("Réinitialiser les routines")
+                    }
+                }
+            }
+        }
+    }
+
+    if (showResetConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirmation = false },
+            title = { Text("Confirmer la réinitialisation") },
+            text = { Text("Voulez-vous vraiment réinitialiser toutes les routines d'aujourd'hui ?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onResetTodayRoutines()
+                        showResetConfirmation = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+                ) {
+                    Text("Oui, réinitialiser")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetConfirmation = false }) {
+                    Text("Annuler")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun RoutineEditDialog(
+    item: RoutineItem,
+    onDismiss: () -> Unit,
+    onSave: (RoutineItem) -> Unit
+) {
+    var title by remember { mutableStateOf(item.title) }
+    var icon by remember { mutableStateOf(item.icon) }
+    var timeOfDay by remember { mutableStateOf(item.timeOfDay) }
+    var starsReward by remember { mutableStateOf(item.starsReward.toString()) }
+
+    val emojis = listOf("🛏️", "🪥", "🥣", "🎒", "📚", "🧸", "🚿", "📖", "🍎", "🚴", "🎨", "🧹", "🐶")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (item.title.isEmpty()) "Ajouter une routine" else "Modifier la routine") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Titre de la tâche") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(text = "Icône :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    emojis.take(7).forEach { e ->
+                        FilterChip(
+                            selected = icon == e,
+                            onClick = { icon = e },
+                            label = { Text(e, fontSize = 18.sp) }
+                        )
+                    }
+                }
+
+                Text(text = "Moment de la journée :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TimeOfDay.values().forEach { tod ->
+                        FilterChip(
+                            selected = timeOfDay == tod,
+                            onClick = { timeOfDay = tod },
+                            label = { Text(tod.displayName) }
+                        )
+                    }
+                }
+
+                OutlinedTextField(
+                    value = starsReward,
+                    onValueChange = { starsReward = it.filter { c -> c.isDigit() } },
+                    label = { Text("Récompense en étoiles") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (title.isNotEmpty()) {
+                        val stars = starsReward.toIntOrNull() ?: 1
+                        onSave(item.copy(title = title, icon = icon, timeOfDay = timeOfDay, starsReward = stars))
+                    }
+                }
+            ) {
+                Text("Enregistrer")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annuler")
+            }
+        }
+    )
+}
+
+@Composable
+private fun RewardEditDialog(
+    item: RewardItem,
+    onDismiss: () -> Unit,
+    onSave: (RewardItem) -> Unit
+) {
+    var title by remember { mutableStateOf(item.title) }
+    var icon by remember { mutableStateOf(item.icon) }
+    var starCost by remember { mutableStateOf(item.starCost.toString()) }
+
+    val emojis = listOf("🎮", "🍕", "🛝", "🌙", "🍦", "🎁", "🎨", "🚴", "🎬", "🍿")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(if (item.title.isEmpty()) "Ajouter une récompense" else "Modifier la récompense") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Titre de la récompense") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(text = "Icône :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    emojis.take(6).forEach { e ->
+                        FilterChip(
+                            selected = icon == e,
+                            onClick = { icon = e },
+                            label = { Text(e, fontSize = 18.sp) }
+                        )
+                    }
+                }
+
+                OutlinedTextField(
+                    value = starCost,
+                    onValueChange = { starCost = it.filter { c -> c.isDigit() } },
+                    label = { Text("Coût en étoiles") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (title.isNotEmpty()) {
+                        val cost = starCost.toIntOrNull() ?: 5
+                        onSave(item.copy(title = title, icon = icon, starCost = cost))
+                    }
+                }
+            ) {
+                Text("Enregistrer")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Annuler")
+            }
+        }
+    )
+}
