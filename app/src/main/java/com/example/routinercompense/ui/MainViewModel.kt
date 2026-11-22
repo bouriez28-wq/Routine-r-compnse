@@ -1,6 +1,8 @@
 package com.example.routinercompense.ui
 
 import android.app.Application
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.routinercompense.data.ApkInstaller
@@ -223,12 +225,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startApkDownloadAndInstall(url: String) {
-        val success = apkInstaller.downloadAndInstallWithDownloadManager(url)
-        if (success) {
-            _updateInfo.value = null
-            _updateMessage.value = "📥 Téléchargement en cours dans la barre de notifications..."
-        } else {
-            _updateMessage.value = "⚠️ Téléchargement impossible. Ouverture dans le navigateur..."
+        viewModelScope.launch {
+            _downloadProgress.value = 0
+            val success = apkInstaller.downloadAndInstallApk(url) { percent ->
+                _downloadProgress.value = percent
+            }
+            if (!success) {
+                _downloadProgress.value = null
+                _updateMessage.value = "⚠️ Échec du téléchargement. Ouverture dans le navigateur..."
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                getApplication<Application>().startActivity(intent)
+            } else {
+                _downloadProgress.value = null
+                _updateInfo.value = null
+            }
         }
     }
 
