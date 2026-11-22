@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -79,7 +80,7 @@ class ApkInstaller(private val context: Context) {
             inputStream.close()
             connection.disconnect()
 
-            if (apkFile.exists() && apkFile.length() > 500000) {
+            if (apkFile.exists() && apkFile.length() > 500000 && isApkValidZip(apkFile)) {
                 launchInstaller(apkFile)
                 return@withContext true
             } else {
@@ -88,6 +89,19 @@ class ApkInstaller(private val context: Context) {
         } catch (e: Exception) {
             e.printStackTrace()
             return@withContext false
+        }
+    }
+
+    private fun isApkValidZip(file: File): Boolean {
+        return try {
+            if (file.length() < 100) return false
+            val bytes = ByteArray(4)
+            val fis = FileInputStream(file)
+            val read = fis.read(bytes)
+            fis.close()
+            read == 4 && bytes[0] == 0x50.toByte() && bytes[1] == 0x4B.toByte() && bytes[2] == 0x03.toByte() && bytes[3] == 0x04.toByte()
+        } catch (e: Exception) {
+            false
         }
     }
 
