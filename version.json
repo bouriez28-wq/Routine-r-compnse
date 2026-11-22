@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 5,
-  "latestVersionName": "2.2",
-  "releaseNotes": "Version officielle v2.2 : Thèmes, bibliothèque d'icônes, bouton Quitter et synchronisation cloud.",
-  "downloadUrl": "https://files.catbox.moe/kj71er.apk"
+  "latestVersionCode": 6,
+  "latestVersionName": "2.3",
+  "releaseNotes": "Version v2.3 : Initialisation cloud automatique du statut En direct dès le premier lancement.",
+  "downloadUrl": "https://files.catbox.moe/kjflyw.apk"
 }
