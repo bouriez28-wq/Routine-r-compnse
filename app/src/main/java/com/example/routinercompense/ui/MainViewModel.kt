@@ -61,6 +61,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     init {
         loadData()
         startCloudSyncLoop()
+        checkForUpdatesFromNetwork()
+    }
+
+    private fun checkForUpdatesFromNetwork() {
+        checkForAppUpdates("https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/version.json")
     }
 
     private fun loadData() {
