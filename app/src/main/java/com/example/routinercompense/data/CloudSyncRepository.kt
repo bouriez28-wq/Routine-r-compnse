@@ -51,7 +51,9 @@ class CloudSyncRepository {
                 reader.close()
 
                 val rootObj = JSONObject(response.toString())
-                return rootObj.optJSONObject("data") ?: JSONObject()
+                val dataObj = rootObj.optJSONObject("data") ?: JSONObject()
+                val indexJsonStr = dataObj.optString("indexJson", "{}")
+                return try { JSONObject(indexJsonStr) } catch (e: Exception) { JSONObject() }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -61,9 +63,12 @@ class CloudSyncRepository {
 
     private fun updateMasterIndex(indexObj: JSONObject): Boolean {
         try {
+            val dataObj = JSONObject()
+            dataObj.put("indexJson", indexObj.toString())
+
             val rootObj = JSONObject()
             rootObj.put("name", "ROUTINE_FAMILY_INDEX")
-            rootObj.put("data", indexObj)
+            rootObj.put("data", dataObj)
 
             val url = URL("$apiBaseUrl/$masterIndexId")
             val connection = url.openConnection() as HttpURLConnection
