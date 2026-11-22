@@ -62,8 +62,8 @@ class UpdateChecker {
             val url = URL(versionJsonUrl)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
-            connection.setRequestProperty("Accept", "application/json")
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36")
+            connection.setRequestProperty("Accept", "application/json, text/plain, */*")
             connection.connectTimeout = 8000
             connection.readTimeout = 8000
             connection.instanceFollowRedirects = true
