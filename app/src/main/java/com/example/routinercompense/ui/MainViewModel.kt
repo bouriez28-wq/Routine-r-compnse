@@ -65,7 +65,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkForUpdatesFromNetwork() {
-        checkForAppUpdates("https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/version.json")
+        checkForAppUpdates("https://files.catbox.moe/hpm2pv.json")
     }
 
     private fun loadData() {
@@ -239,6 +239,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun exitParentMode() {
         _isParentMode.value = false
+        if (_deviceRole.value == DeviceRole.PARENT) {
+            _deviceRole.value = DeviceRole.UNSELECTED
+            repository.setDeviceRole(DeviceRole.UNSELECTED)
+        }
     }
 
     fun setParentPin(newPin: String) {

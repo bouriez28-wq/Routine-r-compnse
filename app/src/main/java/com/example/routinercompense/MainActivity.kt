@@ -81,9 +81,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
             routines = routines,
             rewards = rewards,
             onExitParentMode = {
-                if (deviceRole == DeviceRole.CHILD) {
-                    viewModel.exitParentMode()
-                }
+                viewModel.exitParentMode()
             },
             onChangeRoleClick = {
                 viewModel.setDeviceRoleAndFamilyCode(DeviceRole.UNSELECTED, familyCode)
