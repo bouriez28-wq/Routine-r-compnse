@@ -152,7 +152,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             _syncStatus.value = "🟢 En direct"
         } else {
-            pushToCloud()
+            val data = FamilyCloudData(
+                childName = _childName.value,
+                totalStars = _totalStars.value,
+                routines = _routines.value,
+                rewards = _rewards.value,
+                history = _history.value
+            )
+            val success = cloudSync.saveFamilyData(_familyCode.value, data)
+            if (success) {
+                _syncStatus.value = "🟢 En direct"
+            } else {
+                _syncStatus.value = "⚪ Hors-ligne"
+            }
         }
     }
 
@@ -167,7 +179,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
             val success = cloudSync.saveFamilyData(_familyCode.value, data)
             if (success) {
-                _syncStatus.value = "🟢 Synchro OK"
+                _syncStatus.value = "🟢 En direct"
+            } else {
+                _syncStatus.value = "⚪ Hors-ligne"
             }
         }
     }
