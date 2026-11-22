@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.Settings
 import androidx.core.content.FileProvider
 import java.io.File
 
@@ -15,6 +16,16 @@ class ApkInstaller(private val context: Context) {
 
     fun downloadAndInstallWithDownloadManager(downloadUrl: String): Boolean {
         try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (!context.packageManager.canRequestPackageInstalls()) {
+                    val permIntent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:${context.packageName}")
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    }
+                    context.startActivity(permIntent)
+                }
+            }
+
             var urlStr = downloadUrl
             if (urlStr.contains("drive.google.com") && urlStr.contains("/file/d/")) {
                 val fileId = urlStr.substringAfter("/file/d/").substringBefore("/")
@@ -29,7 +40,7 @@ class ApkInstaller(private val context: Context) {
 
             val request = DownloadManager.Request(Uri.parse(urlStr))
                 .setTitle("Routine & Récompenses")
-                .setDescription("Téléchargement de la mise à jour...")
+                .setDescription("Mise à jour en cours...")
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "Routine_Recompenses_update.apk")
                 .setMimeType("application/vnd.android.package-archive")
@@ -80,7 +91,7 @@ class ApkInstaller(private val context: Context) {
         }
     }
 
-    private fun launchInstaller(apkFile: File) {
+    fun launchInstaller(apkFile: File) {
         val apkUri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             FileProvider.getUriForFile(
                 context,
@@ -93,11 +104,16 @@ class ApkInstaller(private val context: Context) {
         launchInstallerWithUri(apkUri)
     }
 
-    private fun launchInstallerWithUri(apkUri: Uri) {
+    fun launchInstallerWithUri(apkUri: Uri) {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(apkUri, "application/vnd.android.package-archive")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
         }
-        context.startActivity(intent)
+        try {
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
