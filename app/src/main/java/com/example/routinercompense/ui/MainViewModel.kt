@@ -65,7 +65,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkForUpdatesFromNetwork() {
-        checkForAppUpdates("https://files.catbox.moe/hpm2pv.json")
+        checkForAppUpdates("https://files.catbox.moe/jhg68y.json")
     }
 
     private fun loadData() {
