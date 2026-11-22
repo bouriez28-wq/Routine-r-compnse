@@ -1,11 +1,15 @@
 package com.example.routinercompense.data
 
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.routinercompense.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -110,6 +114,7 @@ class UpdateChecker {
 @Composable
 fun UpdateDialog(
     updateInfo: AppUpdateInfo,
+    downloadProgress: Int? = null,
     onDismiss: () -> Unit,
     onDownloadClick: (String) -> Unit
 ) {
@@ -119,16 +124,35 @@ fun UpdateDialog(
             Text(text = "🎉 Nouvelle mise à jour v${updateInfo.latestVersionName}", fontWeight = FontWeight.Bold)
         },
         text = {
-            Text(text = updateInfo.releaseNotes, fontSize = 14.sp)
+            Column {
+                Text(text = updateInfo.releaseNotes, fontSize = 14.sp)
+                if (downloadProgress != null) {
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Text(
+                        text = if (downloadProgress in 0..99) "Téléchargement en cours... $downloadProgress%" else "Lancement de l'installation...",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                        progress = { if (downloadProgress > 0) downloadProgress / 100f else 0f },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         },
         confirmButton = {
-            Button(onClick = { onDownloadClick(updateInfo.downloadUrl) }) {
-                Text(text = "Télécharger et installer")
+            if (downloadProgress == null) {
+                Button(onClick = { onDownloadClick(updateInfo.downloadUrl) }) {
+                    Text(text = "Télécharger et installer")
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = "Plus tard")
+            if (downloadProgress == null) {
+                TextButton(onClick = onDismiss) {
+                    Text(text = "Plus tard")
+                }
             }
         }
     )

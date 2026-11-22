@@ -70,6 +70,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val showPinDialog by viewModel.showPinDialog.collectAsState()
     val updateInfo by viewModel.updateInfo.collectAsState()
     val updateMessage by viewModel.updateMessage.collectAsState()
+    val downloadProgress by viewModel.downloadProgress.collectAsState()
     val themePalette by viewModel.themePalette.collectAsState()
     val darkThemeOption by viewModel.darkThemeOption.collectAsState()
 
@@ -221,11 +222,10 @@ fun MainAppScreen(viewModel: MainViewModel) {
     updateInfo?.let { info ->
         UpdateDialog(
             updateInfo = info,
+            downloadProgress = downloadProgress,
             onDismiss = { viewModel.dismissUpdateDialog() },
             onDownloadClick = { url ->
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                context.startActivity(intent)
-                viewModel.dismissUpdateDialog()
+                viewModel.startApkDownloadAndInstall(url)
             }
         )
     }

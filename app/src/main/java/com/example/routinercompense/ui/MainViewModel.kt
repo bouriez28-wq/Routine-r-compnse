@@ -3,6 +3,7 @@ package com.example.routinercompense.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.routinercompense.data.ApkInstaller
 import com.example.routinercompense.data.AppUpdateInfo
 import com.example.routinercompense.data.CloudSyncRepository
 import com.example.routinercompense.data.FamilyCloudData
@@ -26,6 +27,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = RoutineRepository(application)
     private val cloudSync = CloudSyncRepository()
     private val updateChecker = UpdateChecker()
+    private val apkInstaller = ApkInstaller(application)
 
     private val _deviceRole = MutableStateFlow(DeviceRole.UNSELECTED)
     val deviceRole: StateFlow<DeviceRole> = _deviceRole.asStateFlow()
@@ -59,6 +61,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _updateInfo = MutableStateFlow<AppUpdateInfo?>(null)
     val updateInfo: StateFlow<AppUpdateInfo?> = _updateInfo.asStateFlow()
+
+    private val _downloadProgress = MutableStateFlow<Int?>(null)
+    val downloadProgress: StateFlow<Int?> = _downloadProgress.asStateFlow()
 
     private val _updateMessage = MutableStateFlow<String?>(null)
     val updateMessage: StateFlow<String?> = _updateMessage.asStateFlow()
@@ -200,6 +205,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _updateMessage.value = "✅ Votre application est déjà à jour (v${com.example.routinercompense.BuildConfig.VERSION_NAME})."
             } else {
                 _updateMessage.value = "⚠️ ${result.errorMessage ?: "Impossible de contacter le serveur de mise à jour."}"
+            }
+        }
+    }
+
+    fun startApkDownloadAndInstall(url: String) {
+        viewModelScope.launch {
+            _downloadProgress.value = 0
+            val success = apkInstaller.downloadAndInstallApk(url) { percent ->
+                _downloadProgress.value = percent
+            }
+            if (!success) {
+                _downloadProgress.value = null
+                _updateMessage.value = "⚠️ Téléchargement interrompu. Ouverture dans le navigateur..."
+            } else {
+                _downloadProgress.value = null
+                _updateInfo.value = null
             }
         }
     }
