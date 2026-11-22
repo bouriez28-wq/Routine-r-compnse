@@ -76,7 +76,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkForUpdatesFromNetwork() {
-        checkForAppUpdates("https://files.catbox.moe/jhg68y.json")
+        checkForAppUpdates("https://files.catbox.moe/yll1mr.json")
     }
 
     private fun loadData() {
@@ -173,7 +173,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun manualCheckForAppUpdates() {
         viewModelScope.launch {
-            val info = updateChecker.checkForUpdates("https://files.catbox.moe/jhg68y.json")
+            val info = updateChecker.checkForUpdates("https://files.catbox.moe/yll1mr.json")
             if (info != null && info.hasUpdate) {
                 _updateInfo.value = info
             } else {
