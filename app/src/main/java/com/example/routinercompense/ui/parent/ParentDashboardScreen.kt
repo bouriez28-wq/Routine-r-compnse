@@ -20,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -313,6 +315,7 @@ private fun ParentSettingsTab(
     var starsInput by remember(totalStars) { mutableStateOf(totalStars.toString()) }
 
     var showResetConfirmation by remember { mutableStateOf(false) }
+    var showVersionInfoDialog by remember { mutableStateOf(false) }
     var saveNotificationMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(saveNotificationMessage) {
@@ -572,6 +575,28 @@ private fun ParentSettingsTab(
             }
         }
 
+        // App Version Info Section
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showVersionInfoDialog = true },
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "ℹ️ Version de l'application", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = "Version 2.0 (Build 2) • Toucher pour afficher le numéro", fontSize = 13.sp, color = Color.Gray)
+                    }
+                    Text(text = "v2.0", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                }
+            }
+        }
+
         // Reset Routines
         item {
             Card(
@@ -592,6 +617,48 @@ private fun ParentSettingsTab(
                 }
             }
         }
+    }
+
+    if (showVersionInfoDialog) {
+        AlertDialog(
+            onDismissRequest = { showVersionInfoDialog = false },
+            icon = { Text(text = "✨", fontSize = 40.sp) },
+            title = {
+                Text(
+                    text = "Routine & Récompenses",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showVersionInfoDialog = false }
+                ) {
+                    Text(
+                        text = "Version 2.0 (Build 2)",
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Application synchronisée & à jour.\n\nToucher l'écran pour fermer.",
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showVersionInfoDialog = false }) {
+                    Text("Fermer")
+                }
+            }
+        )
     }
 
     if (showResetConfirmation) {
