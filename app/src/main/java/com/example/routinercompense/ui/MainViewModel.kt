@@ -152,7 +152,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             _syncStatus.value = "🟢 En direct"
         } else {
-            _syncStatus.value = "⚪ Local"
+            pushToCloud()
         }
     }
 
