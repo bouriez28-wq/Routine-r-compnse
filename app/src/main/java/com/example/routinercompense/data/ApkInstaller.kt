@@ -21,35 +21,41 @@ class ApkInstaller(private val context: Context) {
         onProgress: (Int) -> Unit
     ): Boolean = withContext(Dispatchers.IO) {
         try {
-            var urlStr = downloadUrl
-            if (urlStr.contains("drive.google.com") && urlStr.contains("/file/d/")) {
-                val fileId = urlStr.substringAfter("/file/d/").substringBefore("/")
-                urlStr = "https://drive.google.com/uc?export=download&id=$fileId"
+            var currentUrl = downloadUrl
+            if (currentUrl.contains("drive.google.com") && currentUrl.contains("/file/d/")) {
+                val fileId = currentUrl.substringAfter("/file/d/").substringBefore("/")
+                currentUrl = "https://drive.google.com/uc?export=download&id=$fileId"
             }
 
-            val url = URL(urlStr)
-            var connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
-            connection.connectTimeout = 15000
-            connection.readTimeout = 15000
-            connection.instanceFollowRedirects = true
-            connection.connect()
+            var connection: HttpURLConnection? = null
+            var responseCode = -1
+            var redirectCount = 0
 
-            var responseCode = connection.responseCode
-            if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == 307) {
-                val newUrl = connection.getHeaderField("Location")
-                connection.disconnect()
-                connection = URL(newUrl).openConnection() as HttpURLConnection
+            while (redirectCount < 6) {
+                val url = URL(currentUrl)
+                connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
                 connection.connectTimeout = 15000
                 connection.readTimeout = 15000
+                connection.instanceFollowRedirects = true
                 connection.connect()
+
                 responseCode = connection.responseCode
+                if (responseCode in listOf(301, 302, 303, 307, 308)) {
+                    val location = connection.getHeaderField("Location")
+                    connection.disconnect()
+                    if (!location.isNullOrBlank()) {
+                        currentUrl = if (location.startsWith("http")) location else URL(url, location).toString()
+                        redirectCount++
+                        continue
+                    }
+                }
+                break
             }
 
-            if (responseCode !in 200..299) {
+            if (connection == null || responseCode !in 200..299) {
+                connection?.disconnect()
                 return@withContext false
             }
 
