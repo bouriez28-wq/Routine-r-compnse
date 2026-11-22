@@ -225,22 +225,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startApkDownloadAndInstall(url: String) {
-        viewModelScope.launch {
-            _downloadProgress.value = 0
-            val success = apkInstaller.downloadAndInstallApk(url) { percent ->
-                _downloadProgress.value = percent
-            }
-            if (!success) {
-                _downloadProgress.value = null
-                _updateMessage.value = "⚠️ Échec du téléchargement. Ouverture dans le navigateur..."
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
-                getApplication<Application>().startActivity(intent)
-            } else {
-                _downloadProgress.value = null
-                _updateInfo.value = null
-            }
+        val success = apkInstaller.downloadAndInstallWithDownloadManager(url)
+        if (success) {
+            _updateInfo.value = null
+            _updateMessage.value = "📥 Téléchargement en cours dans vos notifications. Appuyez sur la notification une fois terminée !"
+        } else {
+            _updateMessage.value = "⚠️ Téléchargement impossible. Ouverture dans le navigateur..."
         }
     }
 
