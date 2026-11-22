@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 7,
-  "latestVersionName": "2.4",
-  "releaseNotes": "Version officielle v2.4 : Alignement parfait de la version installée et arrêt automatique de la pop-up.",
-  "downloadUrl": "https://files.catbox.moe/tnrp0c.apk"
+  "latestVersionCode": 20,
+  "latestVersionName": "3.1",
+  "releaseNotes": "Mise à jour v3.1 : Correctif de synchronisation cloud en direct et en-têtes réseau Chrome Mobile.",
+  "downloadUrl": "https://files.catbox.moe/4kwsw5.apk"
 }
