@@ -75,6 +75,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val darkThemeOption: StateFlow<DarkThemeOption> = _darkThemeOption.asStateFlow()
 
     private val updateUrls = listOf(
+        "https://files.catbox.moe/dh3nl6.json",
         "https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8"
     )
 
