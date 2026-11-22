@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.routinercompense"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "2.1"
+        versionCode = 5
+        versionName = "2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,4 +58,21 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     debugImplementation(libs.androidx.ui.tooling)
+}
+
+tasks.register("copyToGoogleDrive") {
+    doLast {
+        val driveFolder = file("G:/Mon Drive/Routine_App")
+        if (driveFolder.exists()) {
+            val rootFolder = rootProject.rootDir
+            val apkSrc = file("${rootFolder}/Routine_Recompenses.apk")
+            val jsonSrc = file("${rootFolder}/version.json")
+            if (apkSrc.exists()) {
+                apkSrc.copyTo(file("${driveFolder}/Routine_Recompenses.apk"), overwrite = true)
+            }
+            if (jsonSrc.exists()) {
+                jsonSrc.copyTo(file("${driveFolder}/version.json"), overwrite = true)
+            }
+        }
+    }
 }
