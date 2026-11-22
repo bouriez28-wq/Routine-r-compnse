@@ -76,7 +76,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkForUpdatesFromNetwork() {
-        checkForAppUpdates("https://files.catbox.moe/yll1mr.json")
+        checkForAppUpdates("https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8")
     }
 
     private fun loadData() {
@@ -173,7 +173,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun manualCheckForAppUpdates() {
         viewModelScope.launch {
-            val info = updateChecker.checkForUpdates("https://files.catbox.moe/yll1mr.json")
+            val info = updateChecker.checkForUpdates("https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8")
             if (info != null && info.hasUpdate) {
                 _updateInfo.value = info
             } else {

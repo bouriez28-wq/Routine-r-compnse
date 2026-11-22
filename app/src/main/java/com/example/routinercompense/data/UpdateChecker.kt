@@ -35,8 +35,9 @@ class UpdateChecker {
             val url = URL(versionJsonUrl)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            connection.connectTimeout = 5000
-            connection.readTimeout = 5000
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Android; Mobile)")
+            connection.connectTimeout = 8000
+            connection.readTimeout = 8000
 
             if (connection.responseCode == 200) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
@@ -47,9 +48,11 @@ class UpdateChecker {
                 }
                 reader.close()
 
-                val obj = JSONObject(response.toString())
+                val rawObj = JSONObject(response.toString())
+                val obj = rawObj.optJSONObject("data") ?: rawObj
+
                 val latestVersionCode = obj.optInt("latestVersionCode", 1)
-                val latestVersionName = obj.optString("latestVersionName", "1.0.0")
+                val latestVersionName = obj.optString("latestVersionName", "1.0")
                 val releaseNotes = obj.optString("releaseNotes", "Nouvelle mise à jour disponible.")
                 val downloadUrl = obj.optString("downloadUrl", "")
 
