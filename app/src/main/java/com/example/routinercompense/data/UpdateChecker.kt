@@ -1,8 +1,5 @@
 package com.example.routinercompense.data
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -13,6 +10,7 @@ import androidx.compose.ui.unit.sp
 import com.example.routinercompense.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -26,20 +24,48 @@ data class AppUpdateInfo(
     val downloadUrl: String
 )
 
+data class AppUpdateResult(
+    val success: Boolean,
+    val hasUpdate: Boolean,
+    val latestVersionName: String,
+    val releaseNotes: String,
+    val downloadUrl: String,
+    val errorMessage: String? = null
+)
+
 class UpdateChecker {
 
-    suspend fun checkForUpdates(versionJsonUrl: String): AppUpdateInfo? = withContext(Dispatchers.IO) {
-        if (versionJsonUrl.isBlank()) return@withContext null
+    suspend fun checkForUpdates(urls: List<String>): AppUpdateResult = withContext(Dispatchers.IO) {
+        for (urlStr in urls) {
+            if (urlStr.isBlank()) continue
+            val result = tryFetchFromUrl(urlStr)
+            if (result != null && result.success) {
+                return@withContext result
+            }
+        }
+        return@withContext AppUpdateResult(
+            success = false,
+            hasUpdate = false,
+            latestVersionName = BuildConfig.VERSION_NAME,
+            releaseNotes = "",
+            downloadUrl = "",
+            errorMessage = "Impossible de contacter le serveur de mise à jour."
+        )
+    }
 
+    private fun tryFetchFromUrl(versionJsonUrl: String): AppUpdateResult? {
         try {
             val url = URL(versionJsonUrl)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Android; Mobile)")
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
+            connection.setRequestProperty("Accept", "application/json")
             connection.connectTimeout = 8000
             connection.readTimeout = 8000
+            connection.instanceFollowRedirects = true
 
-            if (connection.responseCode == 200) {
+            val code = connection.responseCode
+            if (code in 200..299) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
                 val response = StringBuilder()
                 var line: String?
@@ -48,18 +74,26 @@ class UpdateChecker {
                 }
                 reader.close()
 
-                val rawObj = JSONObject(response.toString())
-                val obj = rawObj.optJSONObject("data") ?: rawObj
+                val rawText = response.toString().trim()
+                val obj: JSONObject = if (rawText.startsWith("[")) {
+                    val arr = JSONArray(rawText)
+                    if (arr.length() > 0) arr.getJSONObject(0) else return null
+                } else {
+                    JSONObject(rawText)
+                }
 
-                val latestVersionCode = obj.optInt("latestVersionCode", 1)
-                val latestVersionName = obj.optString("latestVersionName", "1.0")
-                val releaseNotes = obj.optString("releaseNotes", "Nouvelle mise à jour disponible.")
-                val downloadUrl = obj.optString("downloadUrl", "")
+                val dataObj = obj.optJSONObject("data") ?: obj
+
+                val latestVersionCode = dataObj.optInt("latestVersionCode", 1)
+                val latestVersionName = dataObj.optString("latestVersionName", "1.0")
+                val releaseNotes = dataObj.optString("releaseNotes", "Nouvelle mise à jour disponible.")
+                val downloadUrl = dataObj.optString("downloadUrl", "")
 
                 val currentVersionCode = BuildConfig.VERSION_CODE
                 val hasUpdate = latestVersionCode > currentVersionCode
 
-                return@withContext AppUpdateInfo(
+                return AppUpdateResult(
+                    success = true,
                     hasUpdate = hasUpdate,
                     latestVersionName = latestVersionName,
                     releaseNotes = releaseNotes,
@@ -69,8 +103,7 @@ class UpdateChecker {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
-        return@withContext null
+        return null
     }
 }
 

@@ -69,6 +69,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _darkThemeOption = MutableStateFlow(DarkThemeOption.SYSTEM)
     val darkThemeOption: StateFlow<DarkThemeOption> = _darkThemeOption.asStateFlow()
 
+    private val updateUrls = listOf(
+        "https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8",
+        "https://files.catbox.moe/yll1mr.json"
+    )
+
     init {
         loadData()
         startCloudSyncLoop()
@@ -76,7 +81,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun checkForUpdatesFromNetwork() {
-        checkForAppUpdates("https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8")
+        viewModelScope.launch {
+            val result = updateChecker.checkForUpdates(updateUrls)
+            if (result.success && result.hasUpdate) {
+                _updateInfo.value = AppUpdateInfo(
+                    hasUpdate = true,
+                    latestVersionName = result.latestVersionName,
+                    releaseNotes = result.releaseNotes,
+                    downloadUrl = result.downloadUrl
+                )
+            }
+        }
     }
 
     private fun loadData() {
@@ -173,20 +188,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun manualCheckForAppUpdates() {
         viewModelScope.launch {
-            val info = updateChecker.checkForUpdates("https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8")
-            if (info != null && info.hasUpdate) {
-                _updateInfo.value = info
+            val result = updateChecker.checkForUpdates(updateUrls)
+            if (result.success && result.hasUpdate) {
+                _updateInfo.value = AppUpdateInfo(
+                    hasUpdate = true,
+                    latestVersionName = result.latestVersionName,
+                    releaseNotes = result.releaseNotes,
+                    downloadUrl = result.downloadUrl
+                )
+            } else if (result.success) {
+                _updateMessage.value = "✅ Votre application est déjà à jour (v${com.example.routinercompense.BuildConfig.VERSION_NAME})."
             } else {
-                _updateMessage.value = "Votre application est déjà à jour (v${com.example.routinercompense.BuildConfig.VERSION_NAME})."
-            }
-        }
-    }
-
-    fun checkForAppUpdates(versionJsonUrl: String) {
-        viewModelScope.launch {
-            val info = updateChecker.checkForUpdates(versionJsonUrl)
-            if (info != null && info.hasUpdate) {
-                _updateInfo.value = info
+                _updateMessage.value = "⚠️ ${result.errorMessage ?: "Impossible de contacter le serveur de mise à jour."}"
             }
         }
     }
