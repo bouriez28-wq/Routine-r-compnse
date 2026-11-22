@@ -331,30 +331,6 @@ private fun ParentSettingsTab(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Save Notification Popup Banner
-        saveNotificationMessage?.let { msg ->
-            item {
-                Surface(
-                    color = Color(0xFF4CAF50),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "✅", fontSize = 20.sp)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = msg,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-            }
-        }
         // Family Code Banner
         item {
             Card(
@@ -455,7 +431,7 @@ private fun ParentSettingsTab(
                         onClick = {
                             if (nameInput.isNotBlank()) {
                                 onSetChildName(nameInput)
-                                saveNotificationMessage = "Modification enregistrée (Prénom : $nameInput)"
+                                saveNotificationMessage = "Le prénom $nameInput a été enregistré avec succès."
                             }
                         },
                         modifier = Modifier.align(Alignment.End)
@@ -656,6 +632,47 @@ private fun ParentSettingsTab(
             confirmButton = {
                 TextButton(onClick = { showVersionInfoDialog = false }) {
                     Text("Fermer")
+                }
+            }
+        )
+    }
+
+    saveNotificationMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { saveNotificationMessage = null },
+            icon = { Text(text = "✅", fontSize = 40.sp) },
+            title = {
+                Text(
+                    text = "Modification effectuée",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { saveNotificationMessage = null }
+                ) {
+                    Text(
+                        text = msg,
+                        textAlign = TextAlign.Center,
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Toucher l'écran pour fermer (3s).",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { saveNotificationMessage = null }) {
+                    Text("OK")
                 }
             }
         )
