@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 5,
-  "latestVersionName": "2.2",
-  "releaseNotes": "Vérification automatique au démarrage, installateur direct et section Version dans les Paramètres.",
-  "downloadUrl": "https://files.catbox.moe/jwnub7.apk"
+  "latestVersionCode": 3,
+  "latestVersionName": "2.1",
+  "releaseNotes": "Pop-up de confirmation 3s, section Version dans les Paramètres, thèmes et icônes.",
+  "downloadUrl": "https://files.catbox.moe/7ih81g.apk"
 }
