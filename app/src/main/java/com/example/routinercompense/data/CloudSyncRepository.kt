@@ -29,15 +29,17 @@ class CloudSyncRepository {
     private val apiBaseUrl = "https://api.restful-api.dev/objects"
     private val masterIndexId = "ff808181a09d98f701a204339fe61c5b"
     private val localIdCache = ConcurrentHashMap<String, String>()
+    private val userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 
     private fun fetchMasterIndex(): JSONObject {
         try {
             val url = URL("$apiBaseUrl/$masterIndexId")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
-            connection.connectTimeout = 6000
-            connection.readTimeout = 6000
+            connection.setRequestProperty("User-Agent", userAgent)
+            connection.setRequestProperty("Accept", "application/json")
+            connection.connectTimeout = 12000
+            connection.readTimeout = 12000
 
             if (connection.responseCode == 200) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
@@ -68,9 +70,9 @@ class CloudSyncRepository {
             connection.requestMethod = "PUT"
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/json")
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
-            connection.connectTimeout = 6000
-            connection.readTimeout = 6000
+            connection.setRequestProperty("User-Agent", userAgent)
+            connection.connectTimeout = 12000
+            connection.readTimeout = 12000
 
             val writer = OutputStreamWriter(connection.outputStream)
             writer.write(rootObj.toString())
@@ -108,9 +110,10 @@ class CloudSyncRepository {
             val url = URL("$apiBaseUrl/$familyObjId")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
-            connection.connectTimeout = 6000
-            connection.readTimeout = 6000
+            connection.setRequestProperty("User-Agent", userAgent)
+            connection.setRequestProperty("Accept", "application/json")
+            connection.connectTimeout = 12000
+            connection.readTimeout = 12000
 
             if (connection.responseCode == 200) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
@@ -151,9 +154,9 @@ class CloudSyncRepository {
                 connection.requestMethod = "PUT"
                 connection.doOutput = true
                 connection.setRequestProperty("Content-Type", "application/json")
-                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
-                connection.connectTimeout = 6000
-                connection.readTimeout = 6000
+                connection.setRequestProperty("User-Agent", userAgent)
+                connection.connectTimeout = 12000
+                connection.readTimeout = 12000
 
                 val writer = OutputStreamWriter(connection.outputStream)
                 writer.write(rootObj.toString())
@@ -171,9 +174,9 @@ class CloudSyncRepository {
                 connection.requestMethod = "POST"
                 connection.doOutput = true
                 connection.setRequestProperty("Content-Type", "application/json")
-                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Mobile)")
-                connection.connectTimeout = 6000
-                connection.readTimeout = 6000
+                connection.setRequestProperty("User-Agent", userAgent)
+                connection.connectTimeout = 12000
+                connection.readTimeout = 12000
 
                 val writer = OutputStreamWriter(connection.outputStream)
                 writer.write(rootObj.toString())
