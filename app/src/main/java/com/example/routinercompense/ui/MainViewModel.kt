@@ -210,18 +210,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startApkDownloadAndInstall(url: String) {
-        viewModelScope.launch {
-            _downloadProgress.value = 0
-            val success = apkInstaller.downloadAndInstallApk(url) { percent ->
-                _downloadProgress.value = percent
-            }
-            if (!success) {
-                _downloadProgress.value = null
-                _updateMessage.value = "⚠️ Téléchargement interrompu. Ouverture dans le navigateur..."
-            } else {
-                _downloadProgress.value = null
-                _updateInfo.value = null
-            }
+        val success = apkInstaller.downloadAndInstallWithDownloadManager(url)
+        if (success) {
+            _updateInfo.value = null
+            _updateMessage.value = "📥 Téléchargement en cours dans la barre de notifications..."
+        } else {
+            _updateMessage.value = "⚠️ Téléchargement impossible. Ouverture dans le navigateur..."
         }
     }
 
