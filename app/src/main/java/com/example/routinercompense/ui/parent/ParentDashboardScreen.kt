@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import com.example.routinercompense.BuildConfig
 import com.example.routinercompense.model.RewardItem
 import com.example.routinercompense.model.RoutineItem
 import com.example.routinercompense.model.TimeOfDay
@@ -566,9 +567,9 @@ private fun ParentSettingsTab(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = "ℹ️ Version de l'application", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = "Version 2.0 (Build 2) • Toucher pour afficher le numéro", fontSize = 13.sp, color = Color.Gray)
+                        Text(text = "Version ${BuildConfig.VERSION_NAME} (Build ${BuildConfig.VERSION_CODE}) • Toucher pour afficher le numéro", fontSize = 13.sp, color = Color.Gray)
                     }
-                    Text(text = "v2.0", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
+                    Text(text = "v${BuildConfig.VERSION_NAME}", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -615,7 +616,7 @@ private fun ParentSettingsTab(
                         .clickable { showVersionInfoDialog = false }
                 ) {
                     Text(
-                        text = "Version 2.0 (Build 2)",
+                        text = "Version ${BuildConfig.VERSION_NAME} (Build ${BuildConfig.VERSION_CODE})",
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.primary
