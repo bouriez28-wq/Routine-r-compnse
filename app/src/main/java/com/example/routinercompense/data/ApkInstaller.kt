@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -52,7 +53,8 @@ class ApkInstaller(private val context: Context) {
             }
 
             val fileLength = connection.contentLength
-            val apkFile = File(context.cacheDir, "Routine_Recompenses_update.apk")
+            val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: context.cacheDir
+            val apkFile = File(downloadsDir, "Routine_Recompenses.apk")
             if (apkFile.exists()) {
                 apkFile.delete()
             }
@@ -63,7 +65,7 @@ class ApkInstaller(private val context: Context) {
             var total: Long = 0
             var count: Int
 
-            while (inputStream.read(buffer).also { count = it } != null && count != -1) {
+            while (inputStream.read(buffer).also { count = it } != -1) {
                 total += count
                 if (fileLength > 0) {
                     val percent = (total * 100 / fileLength).toInt()
@@ -77,8 +79,12 @@ class ApkInstaller(private val context: Context) {
             inputStream.close()
             connection.disconnect()
 
-            launchInstaller(apkFile)
-            return@withContext true
+            if (apkFile.exists() && apkFile.length() > 500000) {
+                launchInstaller(apkFile)
+                return@withContext true
+            } else {
+                return@withContext false
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             return@withContext false
@@ -98,7 +104,7 @@ class ApkInstaller(private val context: Context) {
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(apkUri, "application/vnd.android.package-archive")
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         }
 
         context.startActivity(intent)
