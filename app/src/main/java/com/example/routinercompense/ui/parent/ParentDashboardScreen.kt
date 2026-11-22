@@ -313,6 +313,14 @@ private fun ParentSettingsTab(
     var starsInput by remember(totalStars) { mutableStateOf(totalStars.toString()) }
 
     var showResetConfirmation by remember { mutableStateOf(false) }
+    var saveNotificationMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(saveNotificationMessage) {
+        if (saveNotificationMessage != null) {
+            kotlinx.coroutines.delay(3000)
+            saveNotificationMessage = null
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -320,6 +328,30 @@ private fun ParentSettingsTab(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Save Notification Popup Banner
+        saveNotificationMessage?.let { msg ->
+            item {
+                Surface(
+                    color = Color(0xFF4CAF50),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "✅", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = msg,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
+            }
+        }
         // Family Code Banner
         item {
             Card(
@@ -417,7 +449,12 @@ private fun ParentSettingsTab(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
-                        onClick = { onSetChildName(nameInput) },
+                        onClick = {
+                            if (nameInput.isNotBlank()) {
+                                onSetChildName(nameInput)
+                                saveNotificationMessage = "Modification enregistrée (Prénom : $nameInput)"
+                            }
+                        },
                         modifier = Modifier.align(Alignment.End)
                     ) {
                         Text("Enregistrer le prénom")
@@ -448,6 +485,7 @@ private fun ParentSettingsTab(
                         onClick = {
                             val count = starsInput.toIntOrNull() ?: 0
                             onSetTotalStars(count)
+                            saveNotificationMessage = "Modification enregistrée ($count étoiles)"
                         },
                         modifier = Modifier.align(Alignment.End)
                     ) {
@@ -480,6 +518,7 @@ private fun ParentSettingsTab(
                             if (pinInput.isNotEmpty()) {
                                 onSetParentPin(pinInput)
                                 pinInput = ""
+                                saveNotificationMessage = "Modification enregistrée (Nouveau PIN)"
                             }
                         },
                         modifier = Modifier.align(Alignment.End)
