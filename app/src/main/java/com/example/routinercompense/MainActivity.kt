@@ -1,5 +1,7 @@
 package com.example.routinercompense
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,9 +18,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.routinercompense.data.UpdateDialog
 import com.example.routinercompense.model.DeviceRole
 import com.example.routinercompense.ui.MainViewModel
 import com.example.routinercompense.ui.parent.ParentDashboardScreen
@@ -46,6 +50,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainAppScreen(viewModel: MainViewModel) {
+    val context = LocalContext.current
     val deviceRole by viewModel.deviceRole.collectAsState()
     val familyCode by viewModel.familyCode.collectAsState()
     val syncStatus by viewModel.syncStatus.collectAsState()
@@ -56,6 +61,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val history by viewModel.history.collectAsState()
     val isParentMode by viewModel.isParentMode.collectAsState()
     val showPinDialog by viewModel.showPinDialog.collectAsState()
+    val updateInfo by viewModel.updateInfo.collectAsState()
 
     var selectedBottomTab by remember { mutableIntStateOf(0) }
 
@@ -196,6 +202,18 @@ fun MainAppScreen(viewModel: MainViewModel) {
         ParentPinDialog(
             onDismiss = { viewModel.dismissPinDialog() },
             onVerifyPin = { pin -> viewModel.verifyPin(pin) }
+        )
+    }
+
+    updateInfo?.let { info ->
+        UpdateDialog(
+            updateInfo = info,
+            onDismiss = { viewModel.dismissUpdateDialog() },
+            onDownloadClick = { url ->
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                context.startActivity(intent)
+                viewModel.dismissUpdateDialog()
+            }
         )
     }
 }

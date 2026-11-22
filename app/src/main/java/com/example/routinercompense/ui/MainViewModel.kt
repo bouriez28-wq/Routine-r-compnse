@@ -3,9 +3,11 @@ package com.example.routinercompense.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.routinercompense.data.AppUpdateInfo
 import com.example.routinercompense.data.CloudSyncRepository
 import com.example.routinercompense.data.FamilyCloudData
 import com.example.routinercompense.data.RoutineRepository
+import com.example.routinercompense.data.UpdateChecker
 import com.example.routinercompense.model.DeviceRole
 import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
@@ -21,6 +23,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = RoutineRepository(application)
     private val cloudSync = CloudSyncRepository()
+    private val updateChecker = UpdateChecker()
 
     private val _deviceRole = MutableStateFlow(DeviceRole.UNSELECTED)
     val deviceRole: StateFlow<DeviceRole> = _deviceRole.asStateFlow()
@@ -51,6 +54,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _syncStatus = MutableStateFlow("Connexion...")
     val syncStatus: StateFlow<String> = _syncStatus.asStateFlow()
+
+    private val _updateInfo = MutableStateFlow<AppUpdateInfo?>(null)
+    val updateInfo: StateFlow<AppUpdateInfo?> = _updateInfo.asStateFlow()
 
     init {
         loadData()
@@ -125,6 +131,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val success = cloudSync.saveFamilyData(_familyCode.value, data)
             if (success) {
                 _syncStatus.value = "🟢 Synchro OK"
+            }
+        }
+    }
+
+    fun dismissUpdateDialog() {
+        _updateInfo.value = null
+    }
+
+    fun checkForAppUpdates(versionJsonUrl: String) {
+        viewModelScope.launch {
+            val info = updateChecker.checkForUpdates(versionJsonUrl)
+            if (info != null && info.hasUpdate) {
+                _updateInfo.value = info
             }
         }
     }
