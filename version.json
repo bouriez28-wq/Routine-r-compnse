@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 35,
-  "latestVersionName": "3.4",
-  "releaseNotes": "Version v3.4 officielle : Intégration de Google Firebase Realtime Database pour synchronisation instantanée entre téléphones.",
+  "latestVersionCode": 1001,
+  "latestVersionName": "100.1",
+  "releaseNotes": "Version officielle v100.1 : Synchronisation instantanée Google Firebase et arrêt des pop-ups.",
   "downloadUrl": "https://drive.google.com/uc?export=download&id=1BC9NZlXCJHqYKcR27OZUxo6i2mqL9pv3"
 }
