@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 45,
-  "latestVersionName": "4.2",
-  "releaseNotes": "Mise à jour v4.2 officielle : Glisser-déplacer tactile sur appui long pour les routines et réorganisation rapide.",
-  "downloadUrl": "https://files.catbox.moe/dt8uc4.apk"
+  "latestVersionCode": 5000,
+  "latestVersionName": "5.0",
+  "releaseNotes": "Version v5.0 officielle : Hébergement direct GitHub CDN binaire ultra-rapide et installateur 1-clic.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

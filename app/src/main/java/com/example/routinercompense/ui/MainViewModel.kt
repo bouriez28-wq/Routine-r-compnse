@@ -77,7 +77,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val darkThemeOption: StateFlow<DarkThemeOption> = _darkThemeOption.asStateFlow()
 
     private val updateUrls = listOf(
-        "https://drive.google.com/uc?export=download&id=1ZPmzfwjIQuUFOAAdzCBJBpHheBsg27uO"
+        "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/version.json"
     )
 
     init {
