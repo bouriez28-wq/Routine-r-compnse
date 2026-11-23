@@ -3,6 +3,7 @@ package com.example.routinercompense.ui.parent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -78,6 +79,7 @@ fun ParentDashboardScreen(
 
     var editingRoutine by remember { mutableStateOf<RoutineItem?>(null) }
     var isAddingRoutine by remember { mutableStateOf(false) }
+    var selectedTimeOfDayForAdd by remember { mutableStateOf(TimeOfDay.MORNING) }
 
     var editingReward by remember { mutableStateOf<RewardItem?>(null) }
     var isAddingReward by remember { mutableStateOf(false) }
@@ -131,7 +133,14 @@ fun ParentDashboardScreen(
             when (selectedTab) {
                 0 -> ParentRoutinesTab(
                     routines = routines,
-                    onAddClick = { isAddingRoutine = true },
+                    onAddClick = {
+                        selectedTimeOfDayForAdd = TimeOfDay.MORNING
+                        isAddingRoutine = true
+                    },
+                    onAddSectionClick = { tod ->
+                        selectedTimeOfDayForAdd = tod
+                        isAddingRoutine = true
+                    },
                     onEditClick = { editingRoutine = it },
                     onDeleteClick = onDeleteRoutine,
                     onMoveUpClick = { item ->
@@ -229,6 +238,7 @@ fun ParentDashboardScreen(
 private fun ParentRoutinesTab(
     routines: List<RoutineItem>,
     onAddClick: () -> Unit,
+    onAddSectionClick: (TimeOfDay) -> Unit,
     onEditClick: (RoutineItem) -> Unit,
     onDeleteClick: (RoutineItem) -> Unit,
     onMoveUpClick: (RoutineItem) -> Unit,
@@ -247,7 +257,11 @@ private fun ParentRoutinesTab(
         ) {
             // Morning Section
             item {
-                RoutineSectionHeader(timeOfDay = TimeOfDay.MORNING, count = morningRoutines.size)
+                RoutineSectionHeader(
+                    timeOfDay = TimeOfDay.MORNING,
+                    count = morningRoutines.size,
+                    onAddClick = { onAddSectionClick(TimeOfDay.MORNING) }
+                )
             }
             if (morningRoutines.isEmpty()) {
                 item { EmptySectionCard("Aucune routine le matin") }
@@ -267,7 +281,11 @@ private fun ParentRoutinesTab(
             // Afternoon Section
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                RoutineSectionHeader(timeOfDay = TimeOfDay.AFTERNOON, count = afternoonRoutines.size)
+                RoutineSectionHeader(
+                    timeOfDay = TimeOfDay.AFTERNOON,
+                    count = afternoonRoutines.size,
+                    onAddClick = { onAddSectionClick(TimeOfDay.AFTERNOON) }
+                )
             }
             if (afternoonRoutines.isEmpty()) {
                 item { EmptySectionCard("Aucune routine l'après-midi") }
@@ -287,7 +305,11 @@ private fun ParentRoutinesTab(
             // Evening Section
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                RoutineSectionHeader(timeOfDay = TimeOfDay.EVENING, count = eveningRoutines.size)
+                RoutineSectionHeader(
+                    timeOfDay = TimeOfDay.EVENING,
+                    count = eveningRoutines.size,
+                    onAddClick = { onAddSectionClick(TimeOfDay.EVENING) }
+                )
             }
             if (eveningRoutines.isEmpty()) {
                 item { EmptySectionCard("Aucune routine le soir") }
@@ -318,7 +340,11 @@ private fun ParentRoutinesTab(
 }
 
 @Composable
-private fun RoutineSectionHeader(timeOfDay: TimeOfDay, count: Int) {
+private fun RoutineSectionHeader(
+    timeOfDay: TimeOfDay,
+    count: Int,
+    onAddClick: () -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
@@ -329,9 +355,9 @@ private fun RoutineSectionHeader(timeOfDay: TimeOfDay, count: Int) {
             text = timeOfDay.displayName,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f)
         )
-        Spacer(modifier = Modifier.width(8.dp))
         Surface(
             color = MaterialTheme.colorScheme.primaryContainer,
             shape = RoundedCornerShape(12.dp)
@@ -342,6 +368,14 @@ private fun RoutineSectionHeader(timeOfDay: TimeOfDay, count: Int) {
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(4.dp))
+        IconButton(onClick = onAddClick) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Ajouter routine",
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -1014,6 +1048,44 @@ private fun RoutineEditDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Text(text = "💡 Suggestions rapides (1 clic) :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                val suggestions = when (timeOfDay) {
+                    TimeOfDay.MORNING -> listOf(
+                        "🛏️ Faire son lit" to ("🛏️" to 1),
+                        "🪥 Brosser les dents" to ("🪥" to 1),
+                        "🥣 Petit-déjeuner" to ("🥣" to 1),
+                        "👗 S'habiller" to ("👗" to 1),
+                        "🎒 Cartable" to ("🎒" to 1)
+                    )
+                    TimeOfDay.AFTERNOON -> listOf(
+                        "📚 Devoirs" to ("📚" to 2),
+                        "🍎 Goûter" to ("🍎" to 1),
+                        "🧺 Ranger le linge" to ("🧺" to 1),
+                        "🎨 Dessin" to ("🎨" to 1),
+                        "🚴 Jouer dehors" to ("🚴" to 2)
+                    )
+                    TimeOfDay.EVENING -> listOf(
+                        "🚿 Douche / Bain" to ("🚿" to 1),
+                        "🥱 Pyjama" to ("🥱" to 1),
+                        "🪥 Dents du soir" to ("🪥" to 1),
+                        "🧸 Ranger chambre" to ("🧸" to 2),
+                        "📖 Histoire" to ("📖" to 1)
+                    )
+                }
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    items(suggestions) { (label, dataPair) ->
+                        FilterChip(
+                            selected = title == label.substringAfter(" "),
+                            onClick = {
+                                title = label.substringAfter(" ")
+                                icon = dataPair.first
+                                starsReward = dataPair.second.toString()
+                            },
+                            label = { Text(label, fontSize = 12.sp) }
+                        )
+                    }
+                }
 
                 Text(text = "Icône :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Row(
