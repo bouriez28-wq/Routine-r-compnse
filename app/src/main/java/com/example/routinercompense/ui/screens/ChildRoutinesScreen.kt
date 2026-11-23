@@ -29,12 +29,13 @@ fun ChildRoutinesScreen(
     onToggleRoutine: (RoutineItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val morningRoutines = routines.filter { it.timeOfDay == TimeOfDay.MORNING }
-    val afternoonRoutines = routines.filter { it.timeOfDay == TimeOfDay.AFTERNOON }
-    val eveningRoutines = routines.filter { it.timeOfDay == TimeOfDay.EVENING }
+    val todayRoutines = routines.filter { isRoutineDueToday(it) }.sortedBy { it.orderIndex }
+    val morningRoutines = todayRoutines.filter { it.timeOfDay == TimeOfDay.MORNING }
+    val afternoonRoutines = todayRoutines.filter { it.timeOfDay == TimeOfDay.AFTERNOON }
+    val eveningRoutines = todayRoutines.filter { it.timeOfDay == TimeOfDay.EVENING }
 
-    val completedCount = routines.count { it.isCompleted }
-    val totalCount = routines.size
+    val completedCount = todayRoutines.count { it.isCompleted }
+    val totalCount = todayRoutines.size
     val progress = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
 
     LazyColumn(
@@ -218,6 +219,42 @@ private fun RoutineCard(
                         modifier = Modifier.size(32.dp)
                     )
                 }
+            }
+        }
+    }
+}
+
+private fun isRoutineDueToday(item: RoutineItem, currentDate: java.util.Date = java.util.Date()): Boolean {
+    val calendar = java.util.Calendar.getInstance(java.util.Locale.getDefault())
+    calendar.time = currentDate
+
+    val calDayOfWeek = calendar.get(java.util.Calendar.DAY_OF_WEEK)
+    val dayOfWeek = if (calDayOfWeek == java.util.Calendar.SUNDAY) 7 else calDayOfWeek - 1
+    val dayOfMonth = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+    val todayStr = sdf.format(currentDate)
+
+    return when (item.frequency) {
+        com.example.routinercompense.model.RoutineFrequency.DAILY -> {
+            item.daysOfWeek.isEmpty() || item.daysOfWeek.contains(dayOfWeek)
+        }
+        com.example.routinercompense.model.RoutineFrequency.WEEKLY -> {
+            item.daysOfWeek.contains(dayOfWeek)
+        }
+        com.example.routinercompense.model.RoutineFrequency.MONTHLY -> {
+            if (item.specificDates.isNotEmpty()) {
+                item.specificDates.contains(todayStr)
+            } else {
+                dayOfMonth == 1
+            }
+        }
+        com.example.routinercompense.model.RoutineFrequency.SEASONAL -> {
+            if (item.startDate.isNotBlank() && item.endDate.isNotBlank()) {
+                todayStr >= item.startDate && todayStr <= item.endDate
+            } else if (item.specificDates.isNotEmpty()) {
+                item.specificDates.contains(todayStr)
+            } else {
+                true
             }
         }
     }

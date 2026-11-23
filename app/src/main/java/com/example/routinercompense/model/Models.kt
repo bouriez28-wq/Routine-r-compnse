@@ -14,6 +14,13 @@ enum class TimeOfDay(val displayName: String, val icon: String) {
     EVENING("Soir", "🌙")
 }
 
+enum class RoutineFrequency(val displayName: String, val icon: String) {
+    DAILY("Quotidienne", "🔄"),
+    WEEKLY("Hebdomadaire", "📅"),
+    MONTHLY("Mensuelle", "📆"),
+    SEASONAL("Saisonnière", "🍂")
+}
+
 data class RoutineItem(
     val id: String = UUID.randomUUID().toString(),
     val title: String,
@@ -22,7 +29,13 @@ data class RoutineItem(
     val timeOfDay: TimeOfDay = TimeOfDay.MORNING,
     val starsReward: Int = 1,
     val isCompleted: Boolean = false,
-    val completedDate: String = "" // Formatted YYYY-MM-DD
+    val completedDate: String = "", // Formatted YYYY-MM-DD
+    val frequency: RoutineFrequency = RoutineFrequency.DAILY,
+    val daysOfWeek: List<Int> = listOf(1, 2, 3, 4, 5, 6, 7),
+    val specificDates: List<String> = emptyList(),
+    val startDate: String = "",
+    val endDate: String = "",
+    val orderIndex: Int = 0
 )
 
 data class RewardItem(

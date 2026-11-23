@@ -7,13 +7,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
+import com.example.routinercompense.model.RoutineFrequency
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
@@ -125,7 +130,31 @@ fun ParentDashboardScreen(
                     routines = routines,
                     onAddClick = { isAddingRoutine = true },
                     onEditClick = { editingRoutine = it },
-                    onDeleteClick = onDeleteRoutine
+                    onDeleteClick = onDeleteRoutine,
+                    onMoveUpClick = { item ->
+                        val list = routines.sortedBy { it.orderIndex }.toMutableList()
+                        val index = list.indexOfFirst { it.id == item.id }
+                        if (index > 0) {
+                            val prev = list[index - 1]
+                            val curr = list[index]
+                            val newPrev = prev.copy(orderIndex = index)
+                            val newCurr = curr.copy(orderIndex = index - 1)
+                            onAddOrUpdateRoutine(newPrev)
+                            onAddOrUpdateRoutine(newCurr)
+                        }
+                    },
+                    onMoveDownClick = { item ->
+                        val list = routines.sortedBy { it.orderIndex }.toMutableList()
+                        val index = list.indexOfFirst { it.id == item.id }
+                        if (index != -1 && index < list.size - 1) {
+                            val next = list[index + 1]
+                            val curr = list[index]
+                            val newNext = next.copy(orderIndex = index)
+                            val newCurr = curr.copy(orderIndex = index + 1)
+                            onAddOrUpdateRoutine(newNext)
+                            onAddOrUpdateRoutine(newCurr)
+                        }
+                    }
                 )
                 1 -> ParentRewardsTab(
                     rewards = rewards,
@@ -190,7 +219,9 @@ private fun ParentRoutinesTab(
     routines: List<RoutineItem>,
     onAddClick: () -> Unit,
     onEditClick: (RoutineItem) -> Unit,
-    onDeleteClick: (RoutineItem) -> Unit
+    onDeleteClick: (RoutineItem) -> Unit,
+    onMoveUpClick: (RoutineItem) -> Unit,
+    onMoveDownClick: (RoutineItem) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -215,10 +246,16 @@ private fun ParentRoutinesTab(
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                             Text(
-                                text = "${item.timeOfDay.displayName} • +${item.starsReward} ⭐",
+                                text = "${item.timeOfDay.displayName} • ${item.frequency.displayName} • +${item.starsReward} ⭐",
                                 fontSize = 12.sp,
                                 color = Color.Gray
                             )
+                        }
+                        IconButton(onClick = { onMoveUpClick(item) }) {
+                            Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = "Monter", tint = Color.Gray)
+                        }
+                        IconButton(onClick = { onMoveDownClick(item) }) {
+                            Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "Descendre", tint = Color.Gray)
                         }
                         IconButton(onClick = { onEditClick(item) }) {
                             Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier", tint = MaterialTheme.colorScheme.primary)

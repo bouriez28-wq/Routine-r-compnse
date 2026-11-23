@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 1001,
-  "latestVersionName": "100.1",
-  "releaseNotes": "Mise à jour v100.1 officielle : Téléchargement binaire 100% direct CDN GitHub sans aucun blocage.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
+  "latestVersionCode": 40,
+  "latestVersionName": "4.0",
+  "releaseNotes": "Mise à jour v4.0 majeure : Programmation avancée des routines (Quotidienne, Hebdomadaire, Mensuelle, Saisonnière), jours de la semaine, réorganisation et filtrage automatique Aujourd'hui pour l'enfant.",
+  "downloadUrl": "https://files.catbox.moe/ldl9al.apk"
 }

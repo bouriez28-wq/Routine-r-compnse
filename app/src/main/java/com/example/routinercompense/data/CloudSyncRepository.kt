@@ -2,6 +2,7 @@ package com.example.routinercompense.data
 
 import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
+import com.example.routinercompense.model.RoutineFrequency
 import com.example.routinercompense.model.RoutineItem
 import com.example.routinercompense.model.TimeOfDay
 import kotlinx.coroutines.Dispatchers
@@ -108,6 +109,23 @@ class CloudSyncRepository {
         if (routinesJson != null) {
             for (i in 0 until routinesJson.length()) {
                 val rObj = routinesJson.getJSONObject(i)
+                val freqStr = rObj.optString("frequency", RoutineFrequency.DAILY.name)
+                val freq = try { RoutineFrequency.valueOf(freqStr) } catch (e: Exception) { RoutineFrequency.DAILY }
+
+                val daysList = mutableListOf<Int>()
+                val daysArr = rObj.optJSONArray("daysOfWeek")
+                if (daysArr != null) {
+                    for (j in 0 until daysArr.length()) { daysList.add(daysArr.getInt(j)) }
+                } else {
+                    daysList.addAll(listOf(1, 2, 3, 4, 5, 6, 7))
+                }
+
+                val datesList = mutableListOf<String>()
+                val datesArr = rObj.optJSONArray("specificDates")
+                if (datesArr != null) {
+                    for (j in 0 until datesArr.length()) { datesList.add(datesArr.getString(j)) }
+                }
+
                 routinesList.add(
                     RoutineItem(
                         id = rObj.getString("id"),
@@ -117,7 +135,13 @@ class CloudSyncRepository {
                         timeOfDay = try { TimeOfDay.valueOf(rObj.getString("timeOfDay")) } catch (e: Exception) { TimeOfDay.MORNING },
                         starsReward = rObj.optInt("starsReward", 1),
                         isCompleted = rObj.optBoolean("isCompleted", false),
-                        completedDate = rObj.optString("completedDate", "")
+                        completedDate = rObj.optString("completedDate", ""),
+                        frequency = freq,
+                        daysOfWeek = daysList,
+                        specificDates = datesList,
+                        startDate = rObj.optString("startDate", ""),
+                        endDate = rObj.optString("endDate", ""),
+                        orderIndex = rObj.optInt("orderIndex", i)
                     )
                 )
             }
@@ -187,6 +211,20 @@ class CloudSyncRepository {
             rObj.put("starsReward", item.starsReward)
             rObj.put("isCompleted", item.isCompleted)
             rObj.put("completedDate", item.completedDate)
+            rObj.put("frequency", item.frequency.name)
+
+            val daysArray = JSONArray()
+            item.daysOfWeek.forEach { daysArray.put(it) }
+            rObj.put("daysOfWeek", daysArray)
+
+            val datesArray = JSONArray()
+            item.specificDates.forEach { datesArray.put(it) }
+            rObj.put("specificDates", datesArray)
+
+            rObj.put("startDate", item.startDate)
+            rObj.put("endDate", item.endDate)
+            rObj.put("orderIndex", item.orderIndex)
+
             routinesArray.put(rObj)
         }
         rootObj.put("routines", routinesArray)

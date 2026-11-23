@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.example.routinercompense.model.DeviceRole
 import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
+import com.example.routinercompense.model.RoutineFrequency
 import com.example.routinercompense.model.RoutineItem
 import com.example.routinercompense.model.TimeOfDay
 import com.example.routinercompense.ui.theme.AppThemePalette
@@ -133,6 +134,23 @@ class RoutineRepository(context: Context) {
                 val isCompleted = if (isNewDay) false else obj.optBoolean("isCompleted", false)
                 val completedDate = if (isNewDay) "" else obj.optString("completedDate", "")
 
+                val freqStr = obj.optString("frequency", RoutineFrequency.DAILY.name)
+                val freq = try { RoutineFrequency.valueOf(freqStr) } catch (e: Exception) { RoutineFrequency.DAILY }
+
+                val daysList = mutableListOf<Int>()
+                val daysArr = obj.optJSONArray("daysOfWeek")
+                if (daysArr != null) {
+                    for (j in 0 until daysArr.length()) { daysList.add(daysArr.getInt(j)) }
+                } else {
+                    daysList.addAll(listOf(1, 2, 3, 4, 5, 6, 7))
+                }
+
+                val datesList = mutableListOf<String>()
+                val datesArr = obj.optJSONArray("specificDates")
+                if (datesArr != null) {
+                    for (j in 0 until datesArr.length()) { datesList.add(datesArr.getString(j)) }
+                }
+
                 list.add(
                     RoutineItem(
                         id = obj.getString("id"),
@@ -146,7 +164,13 @@ class RoutineRepository(context: Context) {
                         },
                         starsReward = obj.optInt("starsReward", 1),
                         isCompleted = isCompleted,
-                        completedDate = completedDate
+                        completedDate = completedDate,
+                        frequency = freq,
+                        daysOfWeek = daysList,
+                        specificDates = datesList,
+                        startDate = obj.optString("startDate", ""),
+                        endDate = obj.optString("endDate", ""),
+                        orderIndex = obj.optInt("orderIndex", i)
                     )
                 )
             }
@@ -162,7 +186,43 @@ class RoutineRepository(context: Context) {
             saveRoutines(list)
         }
 
-        return list
+        return list.sortedBy { it.orderIndex }
+    }
+
+    fun isRoutineDueToday(item: RoutineItem, currentDate: Date = Date()): Boolean {
+        val calendar = java.util.Calendar.getInstance(Locale.getDefault())
+        calendar.time = currentDate
+
+        val calDayOfWeek = calendar.get(java.util.Calendar.DAY_OF_WEEK)
+        val dayOfWeek = if (calDayOfWeek == java.util.Calendar.SUNDAY) 7 else calDayOfWeek - 1
+        val dayOfMonth = calendar.get(java.util.Calendar.DAY_OF_MONTH)
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val todayStr = sdf.format(currentDate)
+
+        return when (item.frequency) {
+            RoutineFrequency.DAILY -> {
+                item.daysOfWeek.isEmpty() || item.daysOfWeek.contains(dayOfWeek)
+            }
+            RoutineFrequency.WEEKLY -> {
+                item.daysOfWeek.contains(dayOfWeek)
+            }
+            RoutineFrequency.MONTHLY -> {
+                if (item.specificDates.isNotEmpty()) {
+                    item.specificDates.contains(todayStr)
+                } else {
+                    dayOfMonth == 1
+                }
+            }
+            RoutineFrequency.SEASONAL -> {
+                if (item.startDate.isNotBlank() && item.endDate.isNotBlank()) {
+                    todayStr >= item.startDate && todayStr <= item.endDate
+                } else if (item.specificDates.isNotEmpty()) {
+                    item.specificDates.contains(todayStr)
+                } else {
+                    true
+                }
+            }
+        }
     }
 
     fun saveRoutines(routines: List<RoutineItem>) {
@@ -177,6 +237,20 @@ class RoutineRepository(context: Context) {
             obj.put("starsReward", item.starsReward)
             obj.put("isCompleted", item.isCompleted)
             obj.put("completedDate", item.completedDate)
+            obj.put("frequency", item.frequency.name)
+
+            val daysArray = JSONArray()
+            item.daysOfWeek.forEach { daysArray.put(it) }
+            obj.put("daysOfWeek", daysArray)
+
+            val datesArray = JSONArray()
+            item.specificDates.forEach { datesArray.put(it) }
+            obj.put("specificDates", datesArray)
+
+            obj.put("startDate", item.startDate)
+            obj.put("endDate", item.endDate)
+            obj.put("orderIndex", item.orderIndex)
+
             jsonArray.put(obj)
         }
         prefs.edit().putString(KEY_ROUTINES_JSON, jsonArray.toString()).apply()
