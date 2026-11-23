@@ -13,7 +13,6 @@ import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.concurrent.ConcurrentHashMap
 
 data class FamilyCloudData(
     val childName: String,
@@ -26,99 +25,23 @@ data class FamilyCloudData(
 
 class CloudSyncRepository {
 
-    private val apiBaseUrl = "https://api.restful-api.dev/objects"
-    private val masterIndexId = "ff808181a09d98f701a204339fe61c5b"
-    private val localIdCache = ConcurrentHashMap<String, String>()
-    private val userAgent = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-
-    private fun fetchMasterIndex(): JSONObject {
-        try {
-            val url = URL("$apiBaseUrl/$masterIndexId")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", userAgent)
-            connection.setRequestProperty("Accept", "application/json")
-            connection.connectTimeout = 12000
-            connection.readTimeout = 12000
-
-            if (connection.responseCode == 200) {
-                val reader = BufferedReader(InputStreamReader(connection.inputStream))
-                val response = StringBuilder()
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    response.append(line)
-                }
-                reader.close()
-
-                val rootObj = JSONObject(response.toString())
-                val dataObj = rootObj.optJSONObject("data") ?: JSONObject()
-                val indexJsonStr = dataObj.optString("indexJson", "{}")
-                return try { JSONObject(indexJsonStr) } catch (e: Exception) { JSONObject() }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return JSONObject()
-    }
-
-    private fun updateMasterIndex(indexObj: JSONObject): Boolean {
-        try {
-            val dataObj = JSONObject()
-            dataObj.put("indexJson", indexObj.toString())
-
-            val rootObj = JSONObject()
-            rootObj.put("name", "ROUTINE_FAMILY_INDEX")
-            rootObj.put("data", dataObj)
-
-            val url = URL("$apiBaseUrl/$masterIndexId")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "PUT"
-            connection.doOutput = true
-            connection.setRequestProperty("Content-Type", "application/json")
-            connection.setRequestProperty("User-Agent", userAgent)
-            connection.connectTimeout = 12000
-            connection.readTimeout = 12000
-
-            val writer = OutputStreamWriter(connection.outputStream)
-            writer.write(rootObj.toString())
-            writer.flush()
-            writer.close()
-
-            return connection.responseCode in 200..299
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
-        }
-    }
-
-    private fun findObjectIdForFamily(familyCode: String): String? {
-        val cleanCode = familyCode.trim().uppercase()
-        if (localIdCache.containsKey(cleanCode)) {
-            return localIdCache[cleanCode]
-        }
-
-        val indexData = fetchMasterIndex()
-        val familyObjId = indexData.optString(cleanCode, "")
-        if (familyObjId.isNotBlank()) {
-            localIdCache[cleanCode] = familyObjId
-            return familyObjId
-        }
-        return null
-    }
+    private val firebaseBaseUrl = "https://routinerecompenses-default-rtdb.europe-west1.firebasedatabase.app"
 
     suspend fun fetchFamilyData(familyCode: String, customBaseUrl: String = ""): FamilyCloudData? = withContext(Dispatchers.IO) {
         val cleanCode = familyCode.trim().uppercase()
         if (cleanCode.isBlank()) return@withContext null
 
+        val baseUrl = if (customBaseUrl.isNotBlank()) customBaseUrl.trimEnd('/') else firebaseBaseUrl
+        val urlString = "$baseUrl/families/$cleanCode.json"
+
         try {
-            val familyObjId = findObjectIdForFamily(cleanCode) ?: return@withContext null
-            val url = URL("$apiBaseUrl/$familyObjId")
+            val url = URL(urlString)
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
-            connection.setRequestProperty("User-Agent", userAgent)
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; K)")
             connection.setRequestProperty("Accept", "application/json")
-            connection.connectTimeout = 12000
-            connection.readTimeout = 12000
+            connection.connectTimeout = 8000
+            connection.readTimeout = 8000
 
             if (connection.responseCode == 200) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
@@ -129,10 +52,13 @@ class CloudSyncRepository {
                 }
                 reader.close()
 
-                val rootObj = JSONObject(response.toString())
-                val dataObj = rootObj.optJSONObject("data") ?: return@withContext null
+                val jsonStr = response.toString().trim()
+                if (jsonStr == "null" || jsonStr.isBlank()) {
+                    return@withContext null
+                }
 
-                return@withContext parseFamilyJson(dataObj)
+                val obj = JSONObject(jsonStr)
+                return@withContext parseFamilyJson(obj)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -145,73 +71,30 @@ class CloudSyncRepository {
         val cleanCode = familyCode.trim().uppercase()
         if (cleanCode.isBlank()) return@withContext false
 
+        val baseUrl = if (customBaseUrl.isNotBlank()) customBaseUrl.trimEnd('/') else firebaseBaseUrl
+        val urlString = "$baseUrl/families/$cleanCode.json"
+
         try {
-            val existingObjId = findObjectIdForFamily(cleanCode)
-            val familyPayload = serializeFamilyData(data)
+            val rootObj = serializeFamilyData(data)
+            val url = URL(urlString)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "PUT"
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/json")
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; K)")
+            connection.connectTimeout = 8000
+            connection.readTimeout = 8000
 
-            if (existingObjId != null) {
-                val rootObj = JSONObject()
-                rootObj.put("name", "FAMILY_$cleanCode")
-                rootObj.put("data", familyPayload)
+            val writer = OutputStreamWriter(connection.outputStream)
+            writer.write(rootObj.toString())
+            writer.flush()
+            writer.close()
 
-                val url = URL("$apiBaseUrl/$existingObjId")
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "PUT"
-                connection.doOutput = true
-                connection.setRequestProperty("Content-Type", "application/json")
-                connection.setRequestProperty("User-Agent", userAgent)
-                connection.connectTimeout = 12000
-                connection.readTimeout = 12000
-
-                val writer = OutputStreamWriter(connection.outputStream)
-                writer.write(rootObj.toString())
-                writer.flush()
-                writer.close()
-
-                return@withContext connection.responseCode in 200..299
-            } else {
-                val rootObj = JSONObject()
-                rootObj.put("name", "FAMILY_$cleanCode")
-                rootObj.put("data", familyPayload)
-
-                val url = URL(apiBaseUrl)
-                val connection = url.openConnection() as HttpURLConnection
-                connection.requestMethod = "POST"
-                connection.doOutput = true
-                connection.setRequestProperty("Content-Type", "application/json")
-                connection.setRequestProperty("User-Agent", userAgent)
-                connection.connectTimeout = 12000
-                connection.readTimeout = 12000
-
-                val writer = OutputStreamWriter(connection.outputStream)
-                writer.write(rootObj.toString())
-                writer.flush()
-                writer.close()
-
-                if (connection.responseCode in 200..299) {
-                    val reader = BufferedReader(InputStreamReader(connection.inputStream))
-                    val response = StringBuilder()
-                    var line: String?
-                    while (reader.readLine().also { line = it } != null) {
-                        response.append(line)
-                    }
-                    reader.close()
-
-                    val resObj = JSONObject(response.toString())
-                    val newId = resObj.optString("id", "")
-                    if (newId.isNotBlank()) {
-                        localIdCache[cleanCode] = newId
-                        val indexObj = fetchMasterIndex()
-                        indexObj.put(cleanCode, newId)
-                        updateMasterIndex(indexObj)
-                    }
-                    return@withContext true
-                }
-            }
+            return@withContext connection.responseCode in 200..299
         } catch (e: Exception) {
             e.printStackTrace()
+            return@withContext false
         }
-        return@withContext false
     }
 
     private fun parseFamilyJson(obj: JSONObject): FamilyCloudData {
