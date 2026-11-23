@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 25,
-  "latestVersionName": "3.2",
-  "releaseNotes": "Version officielle v3.2 : Téléchargement binaire direct GitHub sans aucun blocage.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
+  "latestVersionCode": 35,
+  "latestVersionName": "3.4",
+  "releaseNotes": "Version v3.4 officielle : Intégration de Google Firebase Realtime Database pour synchronisation instantanée entre téléphones.",
+  "downloadUrl": "https://drive.google.com/uc?export=download&id=1BC9NZlXCJHqYKcR27OZUxo6i2mqL9pv3"
 }
