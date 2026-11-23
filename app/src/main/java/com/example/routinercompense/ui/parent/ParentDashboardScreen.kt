@@ -998,7 +998,7 @@ private fun ParentSettingsTab(
     }
 
     if (showQrCodeDialog) {
-        val downloadUrl = "https://drive.google.com/file/d/1BC9NZlXCJHqYKcR27OZUxo6i2mqL9pv3/view?usp=sharing"
+        val downloadUrl = "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
         val qrBitmap = remember(downloadUrl) { generateQrCodeBitmap(downloadUrl) }
 
         AlertDialog(
