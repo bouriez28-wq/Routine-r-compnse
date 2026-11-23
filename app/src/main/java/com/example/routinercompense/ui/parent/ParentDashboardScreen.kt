@@ -143,10 +143,6 @@ fun ParentDashboardScreen(
                 )
                 1 -> ParentRoutinesTab(
                     routines = routines,
-                    onAddClick = {
-                        selectedTimeOfDayForAdd = TimeOfDay.MORNING
-                        isAddingRoutine = true
-                    },
                     onAddSectionClick = { tod ->
                         selectedTimeOfDayForAdd = tod
                         isAddingRoutine = true
@@ -247,7 +243,6 @@ fun ParentDashboardScreen(
 @Composable
 private fun ParentRoutinesTab(
     routines: List<RoutineItem>,
-    onAddClick: () -> Unit,
     onAddSectionClick: (TimeOfDay) -> Unit,
     onEditClick: (RoutineItem) -> Unit,
     onDeleteClick: (RoutineItem) -> Unit,
@@ -255,38 +250,64 @@ private fun ParentRoutinesTab(
     onMoveDownClick: (RoutineItem) -> Unit,
     onChangeTimeOfDayClick: (RoutineItem) -> Unit
 ) {
-    val morningRoutines = routines.filter { it.timeOfDay == TimeOfDay.MORNING }.sortedBy { it.orderIndex }
-    val afternoonRoutines = routines.filter { it.timeOfDay == TimeOfDay.AFTERNOON }.sortedBy { it.orderIndex }
-    val eveningRoutines = routines.filter { it.timeOfDay == TimeOfDay.EVENING }.sortedBy { it.orderIndex }
+    var selectedFreqIndex by remember { mutableIntStateOf(0) }
+    val freqTabs = listOf(
+        RoutineFrequency.DAILY,
+        RoutineFrequency.WEEKLY,
+        RoutineFrequency.MONTHLY,
+        RoutineFrequency.SEASONAL
+    )
+    val currentFreq = freqTabs[selectedFreqIndex]
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+    val filteredRoutines = routines.filter { it.frequency == currentFreq }.sortedBy { it.orderIndex }
+    
+    val morningRoutines = filteredRoutines.filter { it.timeOfDay == TimeOfDay.MORNING }
+    val afternoonRoutines = filteredRoutines.filter { it.timeOfDay == TimeOfDay.AFTERNOON }
+    val eveningRoutines = filteredRoutines.filter { it.timeOfDay == TimeOfDay.EVENING }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        ScrollableTabRow(
+            selectedTabIndex = selectedFreqIndex,
+            edgePadding = 8.dp,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ) {
-            // Morning Section
-            item {
-                RoutineSectionHeader(
-                    timeOfDay = TimeOfDay.MORNING,
-                    count = morningRoutines.size,
-                    onAddClick = { onAddSectionClick(TimeOfDay.MORNING) }
+            freqTabs.forEachIndexed { index, freq ->
+                Tab(
+                    selected = selectedFreqIndex == index,
+                    onClick = { selectedFreqIndex = index },
+                    text = { Text(text = "${freq.icon} ${freq.displayName}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
                 )
             }
-            if (morningRoutines.isEmpty()) {
-                item { EmptySectionCard("Aucune routine le matin") }
-            } else {
-                items(morningRoutines, key = { it.id }) { item ->
-                    ParentRoutineCard(
-                        item = item,
-                        onEditClick = onEditClick,
-                        onDeleteClick = onDeleteClick,
-                        onMoveUpClick = onMoveUpClick,
-                        onMoveDownClick = onMoveDownClick,
-                        onChangeTimeOfDayClick = onChangeTimeOfDayClick
+        }
+
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Morning Section
+                item {
+                    RoutineSectionHeader(
+                        timeOfDay = TimeOfDay.MORNING,
+                        count = morningRoutines.size,
+                        onAddClick = { onAddSectionClick(TimeOfDay.MORNING) }
                     )
                 }
-            }
+                if (morningRoutines.isEmpty()) {
+                    item { EmptySectionCard("Aucune routine le matin") }
+                } else {
+                    items(morningRoutines, key = { it.id }) { item ->
+                        ParentRoutineCard(
+                            item = item,
+                            onEditClick = onEditClick,
+                            onDeleteClick = onDeleteClick,
+                            onMoveUpClick = onMoveUpClick,
+                            onMoveDownClick = onMoveDownClick,
+                            onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                        )
+                    }
+                }
 
             // Afternoon Section
             item {
@@ -337,14 +358,6 @@ private fun ParentRoutinesTab(
             }
         }
 
-        FloatingActionButton(
-            onClick = onAddClick,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(24.dp),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter routine")
         }
     }
 }
@@ -1127,13 +1140,11 @@ private fun RoutineEditDialog(
     var showIconLibrary by remember { mutableStateOf(false) }
 
     var frequency by remember { mutableStateOf(item.frequency) }
-    var showDaysDialog by remember { mutableStateOf(false) }
     var selectedDays by remember { mutableStateOf(item.daysOfWeek) }
     val dayNames = listOf("L", "M", "M", "J", "V", "S", "D")
 
     var showSpecificDatesDialog by remember { mutableStateOf(false) }
     var specificDates by remember { mutableStateOf(item.specificDates) }
-    var newDateInput by remember { mutableStateOf("") }
 
     var showSeasonalDialog by remember { mutableStateOf(false) }
     var season by remember { mutableStateOf(item.season) }
@@ -1242,16 +1253,39 @@ private fun RoutineEditDialog(
                 }
 
                 if (frequency == com.example.routinercompense.model.RoutineFrequency.WEEKLY) {
-                    OutlinedButton(onClick = { showDaysDialog = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text("📅 Choisir les jours (${selectedDays.size}/7)")
-                    }
-                } else if (frequency == com.example.routinercompense.model.RoutineFrequency.SPECIFIC_DATE) {
-                    OutlinedButton(onClick = { showSpecificDatesDialog = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text("📍 Gérer les dates (${specificDates.size})")
+                    Text(text = "Jours de la semaine :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        dayNames.forEachIndexed { index, dName ->
+                            val dayInt = index + 1
+                            val isSelected = selectedDays.contains(dayInt)
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clickable {
+                                        val newDays = selectedDays.toMutableList()
+                                        if (isSelected) newDays.remove(dayInt) else newDays.add(dayInt)
+                                        selectedDays = newDays
+                                    },
+                                contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(dName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                }
+                            }
+                        }
                     }
                 } else if (frequency == com.example.routinercompense.model.RoutineFrequency.SEASONAL) {
                     OutlinedButton(onClick = { showSeasonalDialog = true }, modifier = Modifier.fillMaxWidth()) {
                         Text("🍂 Choisir la saison ${if (season != null) "(${season?.displayName})" else ""}")
+                    }
+                } else if (frequency == com.example.routinercompense.model.RoutineFrequency.SPECIFIC_DATE) {
+                    OutlinedButton(onClick = { showSpecificDatesDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text("📍 Gérer les dates (${specificDates.size})")
                     }
                 }
 
@@ -1270,7 +1304,16 @@ private fun RoutineEditDialog(
                 onClick = {
                     if (title.isNotEmpty()) {
                         val stars = starsReward.toIntOrNull() ?: 1
-                        onSave(item.copy(title = title, icon = icon, timeOfDay = timeOfDay, starsReward = stars))
+                        onSave(item.copy(
+                            title = title,
+                            icon = icon,
+                            timeOfDay = timeOfDay,
+                            starsReward = stars,
+                            frequency = frequency,
+                            daysOfWeek = selectedDays,
+                            specificDates = specificDates,
+                            season = season
+                        ))
                     }
                 }
             ) {
@@ -1291,6 +1334,17 @@ private fun RoutineEditDialog(
             onIconSelected = { selected ->
                 icon = selected
                 showIconLibrary = false
+            }
+        )
+    }
+
+    if (showSeasonalDialog) {
+        SeasonSelectionDialog(
+            selectedSeason = season,
+            onDismiss = { showSeasonalDialog = false },
+            onSeasonSelected = { 
+                season = it
+                showSeasonalDialog = false 
             }
         )
     }
@@ -1449,6 +1503,38 @@ private fun IconLibraryDialog(
     )
 }
 
+@Composable
+private fun SeasonSelectionDialog(
+    selectedSeason: com.example.routinercompense.model.Season?,
+    onDismiss: () -> Unit,
+    onSeasonSelected: (com.example.routinercompense.model.Season) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Choisir une saison") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                com.example.routinercompense.model.Season.values().forEach { s ->
+                    Button(
+                        onClick = { onSeasonSelected(s) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedSeason == s) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = if (selectedSeason == s) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("${s.icon} ${s.displayName}")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Annuler") }
+        }
+    )
+}
+
+
 private fun generateQrCodeBitmap(content: String, size: Int = 512): androidx.compose.ui.graphics.ImageBitmap {
     return try {
         val writer = QRCodeWriter()
@@ -1463,6 +1549,7 @@ private fun generateQrCodeBitmap(content: String, size: Int = 512): androidx.com
         }
         bitmap.asImageBitmap()
     } catch (e: Exception) {
+        e.printStackTrace()
         Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).asImageBitmap()
     }
 }
