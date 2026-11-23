@@ -7,8 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -369,10 +372,46 @@ private fun ParentRoutineCard(
     onMoveDownClick: (RoutineItem) -> Unit,
     onChangeTimeOfDayClick: (RoutineItem) -> Unit
 ) {
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+
+    val elevation = if (isDragging) 8.dp else 1.dp
+    val scale = if (isDragging) 1.03f else 1.0f
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+                translationY = offsetY
+            }
+            .pointerInput(item.id) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = {
+                        isDragging = true
+                    },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        offsetY += dragAmount.y
+                    },
+                    onDragEnd = {
+                        isDragging = false
+                        if (offsetY < -50f) {
+                            onMoveUpClick(item)
+                        } else if (offsetY > 50f) {
+                            onMoveDownClick(item)
+                        }
+                        offsetY = 0f
+                    },
+                    onDragCancel = {
+                        isDragging = false
+                        offsetY = 0f
+                    }
+                )
+            },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
         Row(
             modifier = Modifier
