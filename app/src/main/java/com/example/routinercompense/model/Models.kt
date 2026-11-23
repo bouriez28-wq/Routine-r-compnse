@@ -18,7 +18,15 @@ enum class RoutineFrequency(val displayName: String, val icon: String) {
     DAILY("Quotidienne", "🔄"),
     WEEKLY("Hebdomadaire", "📅"),
     MONTHLY("Mensuelle", "📆"),
-    SEASONAL("Saisonnière", "🍂")
+    SEASONAL("Saisonnière", "🍂"),
+    SPECIFIC_DATE("Date précise", "📍")
+}
+
+enum class Season(val displayName: String, val icon: String) {
+    SPRING("Printemps", "🌸"),
+    SUMMER("Été", "☀️"),
+    AUTUMN("Automne", "🍂"),
+    WINTER("Hiver", "❄️")
 }
 
 data class RoutineItem(
@@ -35,6 +43,7 @@ data class RoutineItem(
     val specificDates: List<String> = emptyList(),
     val startDate: String = "",
     val endDate: String = "",
+    val season: Season? = null,
     val orderIndex: Int = 0
 )
 

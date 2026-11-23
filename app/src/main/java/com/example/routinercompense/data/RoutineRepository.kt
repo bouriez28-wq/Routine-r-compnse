@@ -151,6 +151,11 @@ class RoutineRepository(context: Context) {
                     for (j in 0 until datesArr.length()) { datesList.add(datesArr.getString(j)) }
                 }
 
+                val seasonStr = obj.optString("season", "")
+                val parsedSeason = if (seasonStr.isNotBlank()) {
+                    try { com.example.routinercompense.model.Season.valueOf(seasonStr) } catch (e: Exception) { null }
+                } else null
+
                 list.add(
                     RoutineItem(
                         id = obj.getString("id"),
@@ -170,6 +175,7 @@ class RoutineRepository(context: Context) {
                         specificDates = datesList,
                         startDate = obj.optString("startDate", ""),
                         endDate = obj.optString("endDate", ""),
+                        season = parsedSeason,
                         orderIndex = obj.optInt("orderIndex", i)
                     )
                 )
@@ -213,14 +219,23 @@ class RoutineRepository(context: Context) {
                     dayOfMonth == 1
                 }
             }
-            RoutineFrequency.SEASONAL -> {
-                if (item.startDate.isNotBlank() && item.endDate.isNotBlank()) {
+            com.example.routinercompense.model.RoutineFrequency.SEASONAL -> {
+                if (item.season != null) {
+                    val currentMonth = calendar.get(java.util.Calendar.MONTH) + 1 // 1..12
+                    when (item.season) {
+                        com.example.routinercompense.model.Season.SPRING -> currentMonth in 3..5
+                        com.example.routinercompense.model.Season.SUMMER -> currentMonth in 6..8
+                        com.example.routinercompense.model.Season.AUTUMN -> currentMonth in 9..11
+                        com.example.routinercompense.model.Season.WINTER -> currentMonth == 12 || currentMonth in 1..2
+                    }
+                } else if (item.startDate.isNotBlank() && item.endDate.isNotBlank()) {
                     todayStr >= item.startDate && todayStr <= item.endDate
-                } else if (item.specificDates.isNotEmpty()) {
-                    item.specificDates.contains(todayStr)
                 } else {
                     true
                 }
+            }
+            com.example.routinercompense.model.RoutineFrequency.SPECIFIC_DATE -> {
+                item.specificDates.contains(todayStr)
             }
         }
     }
@@ -249,6 +264,9 @@ class RoutineRepository(context: Context) {
 
             obj.put("startDate", item.startDate)
             obj.put("endDate", item.endDate)
+            if (item.season != null) {
+                obj.put("season", item.season.name)
+            }
             obj.put("orderIndex", item.orderIndex)
 
             jsonArray.put(obj)

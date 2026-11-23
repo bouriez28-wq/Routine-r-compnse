@@ -126,6 +126,13 @@ class CloudSyncRepository {
                     for (j in 0 until datesArr.length()) { datesList.add(datesArr.getString(j)) }
                 }
 
+                val seasonStr = rObj.optString("season", "")
+                val parsedSeason = if (seasonStr.isNotBlank()) {
+                    try { com.example.routinercompense.model.Season.valueOf(seasonStr) } catch (e: Exception) { null }
+                } else null
+
+
+
                 routinesList.add(
                     RoutineItem(
                         id = rObj.getString("id"),
@@ -141,6 +148,7 @@ class CloudSyncRepository {
                         specificDates = datesList,
                         startDate = rObj.optString("startDate", ""),
                         endDate = rObj.optString("endDate", ""),
+                        season = parsedSeason,
                         orderIndex = rObj.optInt("orderIndex", i)
                     )
                 )
@@ -223,6 +231,9 @@ class CloudSyncRepository {
 
             rObj.put("startDate", item.startDate)
             rObj.put("endDate", item.endDate)
+            if (item.season != null) {
+                rObj.put("season", item.season.name)
+            }
             rObj.put("orderIndex", item.orderIndex)
 
             routinesArray.put(rObj)
