@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 2000,
-  "latestVersionName": "4.0",
-  "releaseNotes": "Mise à jour v4.0 majeure : Programmation avancée des routines (Quotidienne, Hebdomadaire, Mensuelle, Saisonnière), jours de la semaine, réorganisation et filtrage automatique Aujourd'hui pour l'enfant.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
+  "latestVersionCode": 41,
+  "latestVersionName": "4.1",
+  "releaseNotes": "Mise à jour v4.1 : Classification des routines par sections Matin, Après-midi, Soir, boutons de réorganisation et programmation par onglets.",
+  "downloadUrl": "https://drive.google.com/uc?export=download&id=1BC9NZlXCJHqYKcR27OZUxo6i2mqL9pv3"
 }

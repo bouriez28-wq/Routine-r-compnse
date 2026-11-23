@@ -154,6 +154,14 @@ fun ParentDashboardScreen(
                             onAddOrUpdateRoutine(newNext)
                             onAddOrUpdateRoutine(newCurr)
                         }
+                    },
+                    onChangeTimeOfDayClick = { item ->
+                        val nextTod = when (item.timeOfDay) {
+                            TimeOfDay.MORNING -> TimeOfDay.AFTERNOON
+                            TimeOfDay.AFTERNOON -> TimeOfDay.EVENING
+                            TimeOfDay.EVENING -> TimeOfDay.MORNING
+                        }
+                        onAddOrUpdateRoutine(item.copy(timeOfDay = nextTod))
                     }
                 )
                 1 -> ParentRewardsTab(
@@ -221,49 +229,75 @@ private fun ParentRoutinesTab(
     onEditClick: (RoutineItem) -> Unit,
     onDeleteClick: (RoutineItem) -> Unit,
     onMoveUpClick: (RoutineItem) -> Unit,
-    onMoveDownClick: (RoutineItem) -> Unit
+    onMoveDownClick: (RoutineItem) -> Unit,
+    onChangeTimeOfDayClick: (RoutineItem) -> Unit
 ) {
+    val morningRoutines = routines.filter { it.timeOfDay == TimeOfDay.MORNING }.sortedBy { it.orderIndex }
+    val afternoonRoutines = routines.filter { it.timeOfDay == TimeOfDay.AFTERNOON }.sortedBy { it.orderIndex }
+    val eveningRoutines = routines.filter { it.timeOfDay == TimeOfDay.EVENING }.sortedBy { it.orderIndex }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(routines, key = { it.id }) { item ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = item.icon, fontSize = 28.sp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                            Text(
-                                text = "${item.timeOfDay.displayName} • ${item.frequency.displayName} • +${item.starsReward} ⭐",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
-                        IconButton(onClick = { onMoveUpClick(item) }) {
-                            Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = "Monter", tint = Color.Gray)
-                        }
-                        IconButton(onClick = { onMoveDownClick(item) }) {
-                            Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "Descendre", tint = Color.Gray)
-                        }
-                        IconButton(onClick = { onEditClick(item) }) {
-                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier", tint = MaterialTheme.colorScheme.primary)
-                        }
-                        IconButton(onClick = { onDeleteClick(item) }) {
-                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Supprimer", tint = MaterialTheme.colorScheme.error)
-                        }
-                    }
+            // Morning Section
+            item {
+                RoutineSectionHeader(timeOfDay = TimeOfDay.MORNING, count = morningRoutines.size)
+            }
+            if (morningRoutines.isEmpty()) {
+                item { EmptySectionCard("Aucune routine le matin") }
+            } else {
+                items(morningRoutines, key = { it.id }) { item ->
+                    ParentRoutineCard(
+                        item = item,
+                        onEditClick = onEditClick,
+                        onDeleteClick = onDeleteClick,
+                        onMoveUpClick = onMoveUpClick,
+                        onMoveDownClick = onMoveDownClick,
+                        onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                    )
+                }
+            }
+
+            // Afternoon Section
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                RoutineSectionHeader(timeOfDay = TimeOfDay.AFTERNOON, count = afternoonRoutines.size)
+            }
+            if (afternoonRoutines.isEmpty()) {
+                item { EmptySectionCard("Aucune routine l'après-midi") }
+            } else {
+                items(afternoonRoutines, key = { it.id }) { item ->
+                    ParentRoutineCard(
+                        item = item,
+                        onEditClick = onEditClick,
+                        onDeleteClick = onDeleteClick,
+                        onMoveUpClick = onMoveUpClick,
+                        onMoveDownClick = onMoveDownClick,
+                        onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                    )
+                }
+            }
+
+            // Evening Section
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                RoutineSectionHeader(timeOfDay = TimeOfDay.EVENING, count = eveningRoutines.size)
+            }
+            if (eveningRoutines.isEmpty()) {
+                item { EmptySectionCard("Aucune routine le soir") }
+            } else {
+                items(eveningRoutines, key = { it.id }) { item ->
+                    ParentRoutineCard(
+                        item = item,
+                        onEditClick = onEditClick,
+                        onDeleteClick = onDeleteClick,
+                        onMoveUpClick = onMoveUpClick,
+                        onMoveDownClick = onMoveDownClick,
+                        onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                    )
                 }
             }
         }
@@ -276,6 +310,101 @@ private fun ParentRoutinesTab(
             containerColor = MaterialTheme.colorScheme.primary
         ) {
             Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter routine")
+        }
+    }
+}
+
+@Composable
+private fun RoutineSectionHeader(timeOfDay: TimeOfDay, count: Int) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+    ) {
+        Text(text = timeOfDay.icon, fontSize = 22.sp)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = timeOfDay.displayName,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Surface(
+            color = MaterialTheme.colorScheme.primaryContainer,
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = "$count",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptySectionCard(message: String) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = message,
+            fontSize = 13.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(12.dp)
+        )
+    }
+}
+
+@Composable
+private fun ParentRoutineCard(
+    item: RoutineItem,
+    onEditClick: (RoutineItem) -> Unit,
+    onDeleteClick: (RoutineItem) -> Unit,
+    onMoveUpClick: (RoutineItem) -> Unit,
+    onMoveDownClick: (RoutineItem) -> Unit,
+    onChangeTimeOfDayClick: (RoutineItem) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = item.icon, fontSize = 28.sp)
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(
+                    text = "${item.frequency.displayName} • +${item.starsReward} ⭐",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
+            IconButton(onClick = { onMoveUpClick(item) }) {
+                Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = "Monter", tint = Color.Gray)
+            }
+            IconButton(onClick = { onMoveDownClick(item) }) {
+                Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "Descendre", tint = Color.Gray)
+            }
+            IconButton(onClick = { onChangeTimeOfDayClick(item) }) {
+                Text(text = "🔄", fontSize = 14.sp)
+            }
+            IconButton(onClick = { onEditClick(item) }) {
+                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier", tint = MaterialTheme.colorScheme.primary)
+            }
+            IconButton(onClick = { onDeleteClick(item) }) {
+                Icon(imageVector = Icons.Filled.Delete, contentDescription = "Supprimer", tint = MaterialTheme.colorScheme.error)
+            }
         }
     }
 }
