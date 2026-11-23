@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 6000,
-  "latestVersionName": "6.0",
-  "releaseNotes": "Mise à jour majeure v6.0 : Boutons + par section, suggestions de routines en 1 clic et glisser-déplacer inter-sections.",
+  "latestVersionCode": 7000,
+  "latestVersionName": "7.0",
+  "releaseNotes": "Mise à jour v7.0 : Bibliothèque de Tâches séparée, boutons Saisons simplifiés (Printemps, Été, Automne, Hiver) et onglet de Programmation.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
