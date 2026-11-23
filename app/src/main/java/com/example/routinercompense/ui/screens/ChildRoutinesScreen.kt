@@ -249,13 +249,22 @@ private fun isRoutineDueToday(item: RoutineItem, currentDate: java.util.Date = j
             }
         }
         com.example.routinercompense.model.RoutineFrequency.SEASONAL -> {
-            if (item.startDate.isNotBlank() && item.endDate.isNotBlank()) {
-                todayStr >= item.startDate && todayStr <= item.endDate
-            } else if (item.specificDates.isNotEmpty()) {
-                item.specificDates.contains(todayStr)
-            } else {
-                true
+                if (item.season != null) {
+                    val currentMonth = calendar.get(java.util.Calendar.MONTH) + 1 // 1..12
+                    when (item.season) {
+                        com.example.routinercompense.model.Season.SPRING -> currentMonth in 3..5
+                        com.example.routinercompense.model.Season.SUMMER -> currentMonth in 6..8
+                        com.example.routinercompense.model.Season.AUTUMN -> currentMonth in 9..11
+                        com.example.routinercompense.model.Season.WINTER -> currentMonth == 12 || currentMonth in 1..2
+                    }
+                } else if (item.startDate.isNotBlank() && item.endDate.isNotBlank()) {
+                    todayStr >= item.startDate && todayStr <= item.endDate
+                } else {
+                    true
+                }
             }
+        com.example.routinercompense.model.RoutineFrequency.SPECIFIC_DATE -> {
+            item.specificDates.contains(todayStr)
         }
     }
 }

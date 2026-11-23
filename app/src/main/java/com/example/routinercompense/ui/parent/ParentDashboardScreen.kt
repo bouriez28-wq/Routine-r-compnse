@@ -75,7 +75,7 @@ fun ParentDashboardScreen(
     onSelectDarkOption: (DarkThemeOption) -> Unit
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("📋 Routines", "🎁 Récompenses", "⚙️ Paramètres")
+    val tabs = listOf("💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
 
     var editingRoutine by remember { mutableStateOf<RoutineItem?>(null) }
     var isAddingRoutine by remember { mutableStateOf(false) }
@@ -131,7 +131,17 @@ fun ParentDashboardScreen(
             }
 
             when (selectedTab) {
-                0 -> ParentRoutinesTab(
+                0 -> ParentTasksLibraryTab(
+                    onAddLibraryTask = { task ->
+                        onAddOrUpdateRoutine(task)
+                        isAddingRoutine = true
+                        editingRoutine = task
+                    },
+                    onCustomTaskClick = {
+                        isAddingRoutine = true
+                    }
+                )
+                1 -> ParentRoutinesTab(
                     routines = routines,
                     onAddClick = {
                         selectedTimeOfDayForAdd = TimeOfDay.MORNING
@@ -176,13 +186,13 @@ fun ParentDashboardScreen(
                         onAddOrUpdateRoutine(item.copy(timeOfDay = nextTod))
                     }
                 )
-                1 -> ParentRewardsTab(
+                2 -> ParentRewardsTab(
                     rewards = rewards,
                     onAddClick = { isAddingReward = true },
                     onEditClick = { editingReward = it },
                     onDeleteClick = onDeleteReward
                 )
-                2 -> ParentSettingsTab(
+                3 -> ParentSettingsTab(
                     childName = childName,
                     totalStars = totalStars,
                     familyCode = familyCode,
@@ -394,6 +404,86 @@ private fun EmptySectionCard(message: String) {
             color = Color.Gray,
             modifier = Modifier.padding(12.dp)
         )
+    }
+}
+
+@Composable
+private fun ParentTasksLibraryTab(
+    onAddLibraryTask: (RoutineItem) -> Unit,
+    onCustomTaskClick: () -> Unit
+) {
+    val categories = mapOf(
+        "🌅 Matin" to listOf(
+            "🛏️ Faire son lit" to ("🛏️" to 1),
+            "🪥 Brosser les dents" to ("🪥" to 1),
+            "🥣 Petit-déjeuner" to ("🥣" to 1),
+            "👗 S'habiller" to ("👗" to 1),
+            "🎒 Cartable" to ("🎒" to 1)
+        ),
+        "☀️ Après-midi" to listOf(
+            "📚 Devoirs" to ("📚" to 2),
+            "🍎 Goûter" to ("🍎" to 1),
+            "🧺 Ranger le linge" to ("🧺" to 1),
+            "🎨 Dessin" to ("🎨" to 1),
+            "🚴 Jouer dehors" to ("🚴" to 2)
+        ),
+        "🌙 Soir" to listOf(
+            "🚿 Douche / Bain" to ("🚿" to 1),
+            "🥱 Pyjama" to ("🥱" to 1),
+            "🪥 Dents du soir" to ("🪥" to 1),
+            "🧸 Ranger chambre" to ("🧸" to 2),
+            "📖 Histoire" to ("📖" to 1)
+        )
+    )
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            categories.forEach { (catName, tasks) ->
+                item {
+                    Text(text = catName, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.primary)
+                }
+                items(tasks) { (label, dataPair) ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = dataPair.first, fontSize = 28.sp)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = label.substringAfter(" "), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                Text(text = "+${dataPair.second} ⭐", fontSize = 13.sp, color = Color.Gray)
+                            }
+                            IconButton(onClick = {
+                                val tod = when {
+                                    catName.contains("Matin") -> TimeOfDay.MORNING
+                                    catName.contains("Après") -> TimeOfDay.AFTERNOON
+                                    else -> TimeOfDay.EVENING
+                                }
+                                onAddLibraryTask(RoutineItem(title = label.substringAfter(" "), icon = dataPair.first, starsReward = dataPair.second, timeOfDay = tod))
+                            }) {
+                                Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter", tint = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        FloatingActionButton(
+            onClick = onCustomTaskClick,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(24.dp),
+            containerColor = MaterialTheme.colorScheme.primary
+        ) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = "Tâche personnalisée")
+        }
     }
 }
 
@@ -1036,11 +1126,23 @@ private fun RoutineEditDialog(
     var starsReward by remember { mutableStateOf(item.starsReward.toString()) }
     var showIconLibrary by remember { mutableStateOf(false) }
 
+    var frequency by remember { mutableStateOf(item.frequency) }
+    var showDaysDialog by remember { mutableStateOf(false) }
+    var selectedDays by remember { mutableStateOf(item.daysOfWeek) }
+    val dayNames = listOf("L", "M", "M", "J", "V", "S", "D")
+
+    var showSpecificDatesDialog by remember { mutableStateOf(false) }
+    var specificDates by remember { mutableStateOf(item.specificDates) }
+    var newDateInput by remember { mutableStateOf("") }
+
+    var showSeasonalDialog by remember { mutableStateOf(false) }
+    var season by remember { mutableStateOf(item.season) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (item.title.isEmpty()) "Ajouter une routine" else "Modifier la routine") },
+        title = { Text(if (item.title.isEmpty()) "Ajouter une tâche" else "Modifier la tâche") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -1114,6 +1216,42 @@ private fun RoutineEditDialog(
                             onClick = { timeOfDay = tod },
                             label = { Text(tod.displayName) }
                         )
+                    }
+                }
+
+                Text(text = "Fréquence :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        com.example.routinercompense.model.RoutineFrequency.values().take(2).forEach { f ->
+                            FilterChip(
+                                selected = frequency == f,
+                                onClick = { frequency = f },
+                                label = { Text(f.displayName) }
+                            )
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        com.example.routinercompense.model.RoutineFrequency.values().drop(2).forEach { f ->
+                            FilterChip(
+                                selected = frequency == f,
+                                onClick = { frequency = f },
+                                label = { Text(f.displayName) }
+                            )
+                        }
+                    }
+                }
+
+                if (frequency == com.example.routinercompense.model.RoutineFrequency.WEEKLY) {
+                    OutlinedButton(onClick = { showDaysDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text("📅 Choisir les jours (${selectedDays.size}/7)")
+                    }
+                } else if (frequency == com.example.routinercompense.model.RoutineFrequency.SPECIFIC_DATE) {
+                    OutlinedButton(onClick = { showSpecificDatesDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text("📍 Gérer les dates (${specificDates.size})")
+                    }
+                } else if (frequency == com.example.routinercompense.model.RoutineFrequency.SEASONAL) {
+                    OutlinedButton(onClick = { showSeasonalDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text("🍂 Choisir la saison ${if (season != null) "(${season?.displayName})" else ""}")
                     }
                 }
 
