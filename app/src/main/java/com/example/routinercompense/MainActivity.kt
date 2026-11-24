@@ -40,6 +40,7 @@ import com.example.routinercompense.ui.screens.ChildRewardsScreen
 import com.example.routinercompense.ui.screens.ChildRoutinesScreen
 import com.example.routinercompense.ui.screens.RoleSelectionScreen
 import com.example.routinercompense.data.BootReceiver
+import com.example.routinercompense.data.RoutineSyncService
 import com.example.routinercompense.ui.theme.RoutineTheme
 
 class MainActivity : ComponentActivity() {
@@ -50,6 +51,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         BootReceiver.scheduleUpdateCheck(this)
+
+        try {
+            val serviceIntent = Intent(this, RoutineSyncService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
