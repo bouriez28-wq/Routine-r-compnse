@@ -242,7 +242,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             message = messageText
         )
         _stickers.value = _stickers.value + approvalSticker
-        notificationHelper.sendSystemNotification(titleText, messageText)
+        _updateMessage.value = "✅ Tâche \"${task.title}\" validée avec succès (+${task.starsReward} ⭐) !"
 
         pushToCloud()
     }
@@ -262,7 +262,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             message = rejectionMessage
         )
         _stickers.value = _stickers.value + rejectionSticker
-        notificationHelper.sendSystemNotification(titleText, rejectionMessage)
+        _updateMessage.value = "❌ Tâche \"${task.title}\" refusée."
 
         pushToCloud()
     }

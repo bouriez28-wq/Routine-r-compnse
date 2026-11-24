@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 20200,
-  "latestVersionName": "20.2",
-  "releaseNotes": "Mise à jour v20.2 : Correction de l'ouverture du fichier téléchargé par DownloadManager (requête COLUMN_LOCAL_URI) pour ouvrir la version v20.2 exacte sans jamais charger d'ancien fichier.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=20200"
+  "latestVersionCode": 21000,
+  "latestVersionName": "21.0",
+  "releaseNotes": "Mise à jour v21.0 majeure : Suppression des notifications système en double sur le téléphone du parent lors de la validation, au profit d'un pop-up in-app clair.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=21000"
 }
