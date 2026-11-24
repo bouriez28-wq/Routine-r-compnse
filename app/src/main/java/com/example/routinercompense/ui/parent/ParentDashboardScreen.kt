@@ -315,6 +315,92 @@ private fun ParentHomeTab(
             }
         }
 
+        // 📊 Statistiques Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "📊 Statistiques", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val completedCount = routines.count { it.isCompleted }
+                    val totalCount = routines.size
+                    val monthlyPercent = if (totalCount > 0) (completedCount * 100 / totalCount) else 0
+                    val progressFloat = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Progression du mois :", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        Surface(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "$monthlyPercent%",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                        progress = { progressFloat },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(10.dp)
+                            .clip(RoundedCornerShape(5.dp)),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(text = "Étoiles gagnées cette semaine :", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    val daysOfWeekLabels = listOf("Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim")
+                    val weeklyStars = calculateWeeklyStars(routines)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        daysOfWeekLabels.forEachIndexed { idx, dayName ->
+                            val dayStars = weeklyStars[idx]
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Bottom
+                            ) {
+                                Text(
+                                    text = if (dayStars > 0) "$dayStars" else "0",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (dayStars > 0) Color(0xFFF57F17) else Color.Gray
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Surface(
+                                    color = if (dayStars > 0) Color(0xFFFFB300) else MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = RoundedCornerShape(6.dp),
+                                    modifier = Modifier
+                                        .width(28.dp)
+                                        .height(((dayStars * 10).coerceIn(12, 80)).dp)
+                                ) {}
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(text = dayName, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // 2. Pending Tasks Validation
         item {
             Card(
@@ -492,6 +578,19 @@ private fun ParentHomeTab(
             }
         )
     }
+}
+
+private fun calculateWeeklyStars(routines: List<RoutineItem>): List<Int> {
+    val result = MutableList(7) { 0 }
+    val calendar = java.util.Calendar.getInstance(java.util.Locale.getDefault())
+    val currentDayOfWeek = calendar.get(java.util.Calendar.DAY_OF_WEEK)
+    val todayIdx = if (currentDayOfWeek == java.util.Calendar.SUNDAY) 6 else currentDayOfWeek - 2
+
+    val completedStarsToday = routines.filter { it.isCompleted }.sumOf { it.starsReward }
+    if (todayIdx in 0..6) {
+        result[todayIdx] = completedStarsToday
+    }
+    return result
 }
 
 @Composable

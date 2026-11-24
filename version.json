@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 10500,
-  "latestVersionName": "10.5",
-  "releaseNotes": "Mise à jour v10.5 : Le clic sur + dans la bibliothèque de tâches ouvre immédiatement l'éditeur complet avec toutes les variables (Moment, Fréquence, Étoiles).",
+  "latestVersionCode": 11000,
+  "latestVersionName": "11.0",
+  "releaseNotes": "Mise à jour v11.0 majeure : Nouvelle section Statistiques dans l'Espace Parent avec barre de progression mensuelle (%) et graphique des étoiles quotidiennes (Lundi..Dimanche).",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
