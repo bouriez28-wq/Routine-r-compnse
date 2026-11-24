@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 35000,
-  "latestVersionName": "35.0",
-  "releaseNotes": "Mise à jour v35.0 : Sécurisation du cadenas de l'Espace Enfant donnant désormais un accès direct et exclusif à la recherche de mises à jour.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=35000"
+  "latestVersionCode": 36000,
+  "latestVersionName": "36.0",
+  "releaseNotes": "Mise à jour v36.0 majeure : Sécurisation complète du cadenas de l'Espace Enfant et vérification automatique d'arrière-plan WorkManager.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=36000"
 }
