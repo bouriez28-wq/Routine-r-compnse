@@ -85,7 +85,8 @@ fun ParentDashboardScreen(
     onApproveRewardClaim: (RewardClaimHistory) -> Unit = {},
     onRejectRewardClaim: (RewardClaimHistory) -> Unit = {},
     onSendStickerToChild: (icon: String, title: String, message: String) -> Unit = { _, _, _ -> },
-    onAdjustStarsWithComment: (amount: Int, comment: String) -> Unit = { _, _ -> }
+    onAdjustStarsWithComment: (amount: Int, comment: String) -> Unit = { _, _ -> },
+    onResetStatistics: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("🏠 Accueil", "💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
@@ -155,7 +156,8 @@ fun ParentDashboardScreen(
                     onRejectTaskValidation = onRejectTaskValidation,
                     onApproveRewardClaim = onApproveRewardClaim,
                     onRejectRewardClaim = onRejectRewardClaim,
-                    onSendStickerToChild = onSendStickerToChild
+                    onSendStickerToChild = onSendStickerToChild,
+                    onResetStatistics = onResetStatistics
                 )
                 1 -> ParentTasksLibraryTab(
                     onAddLibraryTask = { task ->
@@ -273,13 +275,15 @@ private fun ParentHomeTab(
     onRejectTaskValidation: (RoutineItem, String) -> Unit,
     onApproveRewardClaim: (RewardClaimHistory) -> Unit,
     onRejectRewardClaim: (RewardClaimHistory) -> Unit,
-    onSendStickerToChild: (String, String, String) -> Unit
+    onSendStickerToChild: (String, String, String) -> Unit,
+    onResetStatistics: () -> Unit
 ) {
     val pendingTasks = routines.filter { it.isPendingValidation }
     val pendingRewards = history.filter { it.isPendingApproval }
     var sentStickerMessage by remember { mutableStateOf<String?>(null) }
     var pendingStarAdjustmentAmount by remember { mutableStateOf<Int?>(null) }
     var taskPendingRejection by remember { mutableStateOf<RoutineItem?>(null) }
+    var showResetStatsConfirmation by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -447,6 +451,15 @@ private fun ParentHomeTab(
                                 Text(text = dayName, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                             }
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedButton(
+                        onClick = { showResetStatsConfirmation = true },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFC62828)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("🔄 Réinitialiser les statistiques", fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -705,6 +718,31 @@ private fun ParentHomeTab(
             },
             dismissButton = {
                 TextButton(onClick = { taskPendingRejection = null }) {
+                    Text("Annuler")
+                }
+            }
+        )
+    }
+
+    if (showResetStatsConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showResetStatsConfirmation = false },
+            icon = { Text(text = "🔄", fontSize = 40.sp) },
+            title = { Text("Réinitialiser les statistiques ?") },
+            text = { Text("Voulez-vous vraiment réinitialiser toutes les statistiques de progression à zéro ?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onResetStatistics()
+                        showResetStatsConfirmation = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+                ) {
+                    Text("Oui, réinitialiser")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetStatsConfirmation = false }) {
                     Text("Annuler")
                 }
             }

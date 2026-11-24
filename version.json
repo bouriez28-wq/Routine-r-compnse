@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 14000,
-  "latestVersionName": "14.0",
-  "releaseNotes": "Mise à jour v14.0 majeure : Statistiques ciblées (Quotidiennes & Mensuelles), fenêtre de motif lors des refus de tâches avec envoi de notification à l'enfant.",
+  "latestVersionCode": 15000,
+  "latestVersionName": "15.0",
+  "releaseNotes": "Mise à jour v15.0 majeure : Ajout du bouton de réinitialisation manuelle des statistiques et confirmation du reset automatique hebdomadaire (dimanche soir) et mensuel (1er du mois).",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

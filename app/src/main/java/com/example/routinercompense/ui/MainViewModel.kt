@@ -254,6 +254,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         pushToCloud()
     }
 
+    fun resetStatistics() {
+        val resetList = _routines.value.map { r ->
+            r.copy(isCompleted = false, isPendingValidation = false, completedDate = "")
+        }
+        _routines.value = resetList
+        repository.saveRoutines(resetList)
+        _history.value = emptyList()
+        repository.saveHistory(emptyList())
+        pushToCloud()
+    }
+
     fun sendStickerToChild(icon: String, title: String, message: String) {
         val newSticker = StickerMessage(icon = icon, title = title, message = message)
         val updatedStickers = _stickers.value + newSticker
