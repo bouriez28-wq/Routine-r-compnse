@@ -314,20 +314,39 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val newStatus = !oldItem.isCompleted
             val updatedItem = oldItem.copy(
                 isCompleted = newStatus,
+                isPendingValidation = newStatus,
                 completedDate = if (newStatus) repository.getTodayDateString() else ""
             )
             currentList[index] = updatedItem
             _routines.value = currentList
             repository.saveRoutines(currentList)
 
-            // Adjust stars
-            val starDiff = if (newStatus) oldItem.starsReward else -oldItem.starsReward
-            val newStarTotal = (_totalStars.value + starDiff).coerceAtLeast(0)
-            _totalStars.value = newStarTotal
-            repository.setTotalStars(newStarTotal)
+            if (!newStatus && !oldItem.isPendingValidation) {
+                val newStarTotal = (_totalStars.value - oldItem.starsReward).coerceAtLeast(0)
+                _totalStars.value = newStarTotal
+                repository.setTotalStars(newStarTotal)
+            }
 
             pushToCloud()
         }
+    }
+
+    fun adjustStarsWithComment(amount: Int, comment: String) {
+        val newStars = (_totalStars.value + amount).coerceAtLeast(0)
+        _totalStars.value = newStars
+        repository.setTotalStars(newStars)
+
+        val historyRecord = RewardClaimHistory(
+            rewardTitle = if (comment.isNotBlank()) comment else (if (amount >= 0) "+$amount ⭐ Étoiles" else "$amount ⭐ Étoiles"),
+            rewardIcon = if (amount >= 0) "⭐" else "🔻",
+            starCost = amount,
+            isPendingApproval = false
+        )
+        val updatedHistory = _history.value + historyRecord
+        _history.value = updatedHistory
+        repository.saveHistory(updatedHistory)
+
+        pushToCloud()
     }
 
     fun claimReward(reward: RewardItem): Boolean {

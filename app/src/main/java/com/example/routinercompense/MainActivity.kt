@@ -116,7 +116,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
             onRejectTaskValidation = { viewModel.rejectTaskValidation(it) },
             onApproveRewardClaim = { viewModel.approveRewardClaim(it) },
             onRejectRewardClaim = { viewModel.rejectRewardClaim(it) },
-            onSendStickerToChild = { icon, title, msg -> viewModel.sendStickerToChild(icon, title, msg) }
+            onSendStickerToChild = { icon, title, msg -> viewModel.sendStickerToChild(icon, title, msg) },
+            onAdjustStarsWithComment = { amount, comment -> viewModel.adjustStarsWithComment(amount, comment) }
         )
     } else {
         Scaffold(

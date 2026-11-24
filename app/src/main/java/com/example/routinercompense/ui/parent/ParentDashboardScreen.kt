@@ -84,7 +84,8 @@ fun ParentDashboardScreen(
     onRejectTaskValidation: (RoutineItem) -> Unit = {},
     onApproveRewardClaim: (RewardClaimHistory) -> Unit = {},
     onRejectRewardClaim: (RewardClaimHistory) -> Unit = {},
-    onSendStickerToChild: (icon: String, title: String, message: String) -> Unit = { _, _, _ -> }
+    onSendStickerToChild: (icon: String, title: String, message: String) -> Unit = { _, _, _ -> },
+    onAdjustStarsWithComment: (amount: Int, comment: String) -> Unit = { _, _ -> }
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("🏠 Accueil", "💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
@@ -149,6 +150,7 @@ fun ParentDashboardScreen(
                     routines = routines,
                     history = history,
                     onSetTotalStars = onSetTotalStars,
+                    onAdjustStarsWithComment = onAdjustStarsWithComment,
                     onApproveTaskValidation = onApproveTaskValidation,
                     onRejectTaskValidation = onRejectTaskValidation,
                     onApproveRewardClaim = onApproveRewardClaim,
@@ -266,6 +268,7 @@ private fun ParentHomeTab(
     routines: List<RoutineItem>,
     history: List<RewardClaimHistory>,
     onSetTotalStars: (Int) -> Unit,
+    onAdjustStarsWithComment: (Int, String) -> Unit,
     onApproveTaskValidation: (RoutineItem) -> Unit,
     onRejectTaskValidation: (RoutineItem) -> Unit,
     onApproveRewardClaim: (RewardClaimHistory) -> Unit,
@@ -275,6 +278,7 @@ private fun ParentHomeTab(
     val pendingTasks = routines.filter { it.isCompleted && it.isPendingValidation }
     val pendingRewards = history.filter { it.isPendingApproval }
     var sentStickerMessage by remember { mutableStateOf<String?>(null) }
+    var pendingStarAdjustmentAmount by remember { mutableStateOf<Int?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -302,15 +306,20 @@ private fun ParentHomeTab(
                     )
                     Text(text = "étoiles accumulées", fontSize = 13.sp, color = Color.Gray)
                     Spacer(modifier = Modifier.height(12.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { onSetTotalStars((totalStars + 1).coerceAtLeast(0)) }) {
-                            Text("+1 ⭐")
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Button(onClick = { pendingStarAdjustmentAmount = 1 }) { Text("+1 ⭐") }
+                            Button(onClick = { pendingStarAdjustmentAmount = 5 }) { Text("+5 ⭐") }
+                            Button(onClick = { pendingStarAdjustmentAmount = 10 }) { Text("+10 ⭐") }
                         }
-                        Button(onClick = { onSetTotalStars((totalStars + 5).coerceAtLeast(0)) }) {
-                            Text("+5 ⭐")
-                        }
-                        OutlinedButton(onClick = { onSetTotalStars((totalStars - 1).coerceAtLeast(0)) }) {
-                            Text("-1 ⭐")
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            OutlinedButton(onClick = { pendingStarAdjustmentAmount = -1 }) { Text("-1 ⭐") }
+                            OutlinedButton(onClick = { pendingStarAdjustmentAmount = -5 }) { Text("-5 ⭐") }
+                            OutlinedButton(onClick = { pendingStarAdjustmentAmount = -10 }) { Text("-10 ⭐") }
                         }
                     }
                 }
@@ -580,6 +589,49 @@ private fun ParentHomeTab(
             }
         )
     }
+
+    pendingStarAdjustmentAmount?.let { amount ->
+        var comment by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { pendingStarAdjustmentAmount = null },
+            icon = { Text(text = if (amount >= 0) "⭐" else "🔻", fontSize = 40.sp) },
+            title = {
+                Text(
+                    text = if (amount >= 0) "Ajouter $amount étoile(s)" else "Retirer ${kotlin.math.abs(amount)} étoile(s)",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
+            },
+            text = {
+                Column {
+                    Text(text = "Saisissez un commentaire / motif (optionnel) :", fontSize = 13.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = comment,
+                        onValueChange = { comment = it },
+                        label = { Text("Motif (ex: Rangement parfait)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onAdjustStarsWithComment(amount, comment)
+                        pendingStarAdjustmentAmount = null
+                    }
+                ) {
+                    Text("Valider")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingStarAdjustmentAmount = null }) {
+                    Text("Annuler")
+                }
+            }
+        )
+    }
 }
 
 private fun calculateWeeklyStars(routines: List<RoutineItem>): List<Int> {
@@ -591,6 +643,18 @@ private fun calculateWeeklyStars(routines: List<RoutineItem>): List<Int> {
     val completedStarsToday = routines.filter { it.isCompleted }.sumOf { it.starsReward }
     if (todayIdx in 0..6) {
         result[todayIdx] = completedStarsToday
+    }
+    return result
+}
+
+private fun calculateMonthlyStars(routines: List<RoutineItem>): List<Int> {
+    val result = MutableList(12) { 0 }
+    val calendar = java.util.Calendar.getInstance(java.util.Locale.getDefault())
+    val currentMonthIdx = calendar.get(java.util.Calendar.MONTH)
+
+    val completedStarsToday = routines.filter { it.isCompleted }.sumOf { it.starsReward }
+    if (currentMonthIdx in 0..11) {
+        result[currentMonthIdx] = completedStarsToday
     }
     return result
 }
