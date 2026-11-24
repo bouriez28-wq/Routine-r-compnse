@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 15000,
-  "latestVersionName": "15.0",
-  "releaseNotes": "Mise à jour v15.0 majeure : Ajout du bouton de réinitialisation manuelle des statistiques et confirmation du reset automatique hebdomadaire (dimanche soir) et mensuel (1er du mois).",
+  "latestVersionCode": 14000,
+  "latestVersionName": "14.0",
+  "releaseNotes": "Mise à jour v14.0 majeure : Notifications en direct à l'enfant lors des validations et des refus avec motif du parent.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

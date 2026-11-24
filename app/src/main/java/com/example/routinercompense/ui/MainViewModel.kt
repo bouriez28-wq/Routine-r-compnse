@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
+import com.example.routinercompense.data.NotificationHelper
 import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -31,6 +32,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val cloudSync = CloudSyncRepository()
     private val updateChecker = UpdateChecker()
     private val apkInstaller = ApkInstaller(application)
+    private val notificationHelper = NotificationHelper(application)
 
     private val _deviceRole = MutableStateFlow(DeviceRole.UNSELECTED)
     val deviceRole: StateFlow<DeviceRole> = _deviceRole.asStateFlow()
@@ -209,12 +211,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         repository.saveRoutines(updatedRoutines)
         addStars(task.starsReward)
 
+        val titleText = "✅ Tâche validée ! (+${task.starsReward} ⭐)"
+        val messageText = "Bravo pour la tâche : \"${task.title}\" !"
+
         val approvalSticker = StickerMessage(
             icon = "✅",
-            title = "Tâche validée ! (+${task.starsReward} ⭐)",
-            message = "Bravo pour la tâche : \"${task.title}\" !"
+            title = titleText,
+            message = messageText
         )
         _stickers.value = _stickers.value + approvalSticker
+        notificationHelper.sendSystemNotification(titleText, messageText)
 
         pushToCloud()
     }
@@ -226,13 +232,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _routines.value = updatedRoutines
         repository.saveRoutines(updatedRoutines)
 
+        val titleText = "❌ Tâche à refaire"
         val rejectionMessage = if (reason.isNotBlank()) "Motif : $reason" else "Tâche \"${task.title}\" à refaire."
         val rejectionSticker = StickerMessage(
             icon = "❌",
-            title = "Tâche à refaire",
+            title = titleText,
             message = rejectionMessage
         )
         _stickers.value = _stickers.value + rejectionSticker
+        notificationHelper.sendSystemNotification(titleText, rejectionMessage)
 
         pushToCloud()
     }
@@ -269,6 +277,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val newSticker = StickerMessage(icon = icon, title = title, message = message)
         val updatedStickers = _stickers.value + newSticker
         _stickers.value = updatedStickers
+        notificationHelper.sendSystemNotification("$icon $title", message)
         pushToCloud()
     }
 
