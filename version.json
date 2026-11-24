@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 10100,
-  "latestVersionName": "10.1",
-  "releaseNotes": "Mise à jour v10.1 : Le clic sur + dans la bibliothèque de tâches ouvre immédiatement la fenêtre d'édition complète avec toutes les variables (Moment, Fréquence, Étoiles).",
+  "latestVersionCode": 10500,
+  "latestVersionName": "10.5",
+  "releaseNotes": "Mise à jour v10.5 : Le clic sur + dans la bibliothèque de tâches ouvre immédiatement l'éditeur complet avec toutes les variables (Moment, Fréquence, Étoiles).",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
