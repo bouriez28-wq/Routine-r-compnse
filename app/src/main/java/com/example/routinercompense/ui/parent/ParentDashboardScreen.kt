@@ -425,66 +425,58 @@ private fun ParentTasksLibraryTab(
     onAddLibraryTask: (RoutineItem) -> Unit,
     onCustomTaskClick: () -> Unit
 ) {
-    val categories = mapOf(
-        "🌅 Matin" to listOf(
-            "🛏️ Faire son lit" to ("🛏️" to 1),
-            "🪥 Brosser les dents" to ("🪥" to 1),
-            "🥣 Petit-déjeuner" to ("🥣" to 1),
-            "👗 S'habiller" to ("👗" to 1),
-            "🎒 Cartable" to ("🎒" to 1)
-        ),
-        "☀️ Après-midi" to listOf(
-            "📚 Devoirs" to ("📚" to 2),
-            "🍎 Goûter" to ("🍎" to 1),
-            "🧺 Ranger le linge" to ("🧺" to 1),
-            "🎨 Dessin" to ("🎨" to 1),
-            "🚴 Jouer dehors" to ("🚴" to 2)
-        ),
-        "🌙 Soir" to listOf(
-            "🚿 Douche / Bain" to ("🚿" to 1),
-            "🥱 Pyjama" to ("🥱" to 1),
-            "🪥 Dents du soir" to ("🪥" to 1),
-            "🧸 Ranger chambre" to ("🧸" to 2),
-            "📖 Histoire" to ("📖" to 1)
-        )
+    val libraryTasks = listOf(
+        "🛏️ Faire son lit" to ("🛏️" to 1),
+        "🪥 Brosser les dents (Matin)" to ("🪥" to 1),
+        "🥣 Petit-déjeuner" to ("🥣" to 1),
+        "👗 S'habiller" to ("👗" to 1),
+        "🎒 Préparer le cartable" to ("🎒" to 1),
+        "📚 Faire les devoirs" to ("📚" to 2),
+        "🍎 Prendre le goûter" to ("🍎" to 1),
+        "🧺 Ranger le linge" to ("🧺" to 1),
+        "🎨 Faire un dessin" to ("🎨" to 1),
+        "🚴 Jouer dehors" to ("🚴" to 2),
+        "🚿 Prendre sa douche/bain" to ("🚿" to 1),
+        "🥱 Mettre son pyjama" to ("🥱" to 1),
+        "🪥 Brosser les dents (Soir)" to ("🪥" to 1),
+        "🧸 Ranger sa chambre" to ("🧸" to 2),
+        "📖 Lire une histoire" to ("📖" to 1),
+        "🥛 Boire son lait" to ("🥛" to 1),
+        "🍽️ Débarrasser la table" to ("🍽️" to 1),
+        "🐶 S'occuper des animaux" to ("🐶" to 2)
     )
-    
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            categories.forEach { (catName, tasks) ->
-                item {
-                    Text(text = catName, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.primary)
-                }
-                items(tasks) { (label, dataPair) ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            items(libraryTasks) { (label, dataPair) ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(text = dataPair.first, fontSize = 28.sp)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = label.substringAfter(" "), fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                Text(text = "+${dataPair.second} ⭐", fontSize = 13.sp, color = Color.Gray)
+                        Text(text = dataPair.first, fontSize = 28.sp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = label.substringAfter(" "), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(text = "+${dataPair.second} ⭐", fontSize = 13.sp, color = Color.Gray)
+                        }
+                        IconButton(onClick = {
+                            val tod = when {
+                                label.contains("Matin", ignoreCase = true) || label.contains("déjeuner") || label.contains("s'habiller", ignoreCase = true) -> TimeOfDay.MORNING
+                                label.contains("Devoirs") || label.contains("Goûter") || label.contains("dehors") -> TimeOfDay.AFTERNOON
+                                else -> TimeOfDay.EVENING
                             }
-                            IconButton(onClick = {
-                                val tod = when {
-                                    catName.contains("Matin") -> TimeOfDay.MORNING
-                                    catName.contains("Après") -> TimeOfDay.AFTERNOON
-                                    else -> TimeOfDay.EVENING
-                                }
-                                onAddLibraryTask(RoutineItem(title = label.substringAfter(" "), icon = dataPair.first, starsReward = dataPair.second, timeOfDay = tod))
-                            }) {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter", tint = MaterialTheme.colorScheme.primary)
-                            }
+                            onAddLibraryTask(RoutineItem(title = label.substringAfter(" "), icon = dataPair.first, starsReward = dataPair.second, timeOfDay = tod))
+                        }) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter", tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -1145,9 +1137,13 @@ private fun RoutineEditDialog(
 
     var showSpecificDatesDialog by remember { mutableStateOf(false) }
     var specificDates by remember { mutableStateOf(item.specificDates) }
+    var newDateInput by remember { mutableStateOf("") }
 
     var showSeasonalDialog by remember { mutableStateOf(false) }
     var season by remember { mutableStateOf(item.season) }
+
+    var selectedMonths by remember { mutableStateOf(item.specificDates) } // Reusing specificDates for month logic for simplicity
+    val monthNames = listOf("Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1275,6 +1271,37 @@ private fun RoutineEditDialog(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(dName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                }
+                            }
+                        }
+                    }
+                } else if (frequency == com.example.routinercompense.model.RoutineFrequency.MONTHLY) {
+                    Text(text = "Mois de l'année :", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(4),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.height(140.dp)
+                    ) {
+                        items(monthNames.size) { index ->
+                            val monthStr = (index + 1).toString()
+                            val isSelected = selectedMonths.contains(monthStr)
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(36.dp)
+                                    .clickable {
+                                        val newMonths = selectedMonths.toMutableList()
+                                        if (isSelected) newMonths.remove(monthStr) else newMonths.add(monthStr)
+                                        selectedMonths = newMonths
+                                        specificDates = newMonths // Store in specificDates for persistence compatibility
+                                    },
+                                contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(monthNames[index], fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                 }
                             }
                         }
