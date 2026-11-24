@@ -1134,69 +1134,128 @@ private fun ParentTasksLibraryTab(
     onAddLibraryTask: (RoutineItem) -> Unit,
     onCustomTaskClick: () -> Unit
 ) {
-    val libraryTasks = listOf(
-        "🛏️ Faire son lit" to ("🛏️" to 1),
-        "🪥 Brosser les dents (Matin)" to ("🪥" to 1),
-        "🥣 Petit-déjeuner" to ("🥣" to 1),
-        "👗 S'habiller" to ("👗" to 1),
-        "🎒 Préparer le cartable" to ("🎒" to 1),
-        "📚 Faire les devoirs" to ("📚" to 2),
-        "🍎 Prendre le goûter" to ("🍎" to 1),
-        "🧺 Ranger le linge" to ("🧺" to 1),
-        "🎨 Faire un dessin" to ("🎨" to 1),
-        "🚴 Jouer dehors" to ("🚴" to 2),
-        "🚿 Prendre sa douche/bain" to ("🚿" to 1),
-        "🥱 Mettre son pyjama" to ("🥱" to 1),
-        "🪥 Brosser les dents (Soir)" to ("🪥" to 1),
-        "🧸 Ranger sa chambre" to ("🧸" to 2),
-        "📖 Lire une histoire" to ("📖" to 1),
-        "🥛 Boire son lait" to ("🥛" to 1),
-        "🍽️ Débarrasser la table" to ("🍽️" to 1),
-        "🐶 S'occuper des animaux" to ("🐶" to 2)
+    var selectedCategoryIndex by remember { mutableIntStateOf(0) }
+    val categories = listOf("Toutes", "🍂 Saisonnières", "🏠 Autonomie", "🧺 Maison", "📚 École & Écrans")
+
+    val fullCatalog = listOf(
+        // Saisonnières Hiver ❄️
+        RoutineItem(title = "Déneiger l'allée / le devant", icon = "❄️", starsReward = 3, frequency = RoutineFrequency.SEASONAL, season = Season.WINTER),
+        RoutineItem(title = "Nourrir les oiseaux du jardin", icon = "🐦", starsReward = 1, frequency = RoutineFrequency.SEASONAL, season = Season.WINTER),
+        RoutineItem(title = "Mettre bonnet, écharpe et gants", icon = "🧣", starsReward = 1, frequency = RoutineFrequency.SEASONAL, season = Season.WINTER),
+        RoutineItem(title = "Préparer un bon chocolat chaud", icon = "☕", starsReward = 1, frequency = RoutineFrequency.SEASONAL, season = Season.WINTER),
+
+        // Saisonnières Automne 🍂
+        RoutineItem(title = "Ramasser les feuilles mortes", icon = "🍂", starsReward = 3, frequency = RoutineFrequency.SEASONAL, season = Season.AUTUMN),
+        RoutineItem(title = "Décorer la maison pour l'automne", icon = "🎃", starsReward = 2, frequency = RoutineFrequency.SEASONAL, season = Season.AUTUMN),
+        RoutineItem(title = "Ranger ses bottes de pluie", icon = "🌧️", starsReward = 1, frequency = RoutineFrequency.SEASONAL, season = Season.AUTUMN),
+        RoutineItem(title = "Ramasser des châtaignes / marrons", icon = "🌰", starsReward = 2, frequency = RoutineFrequency.SEASONAL, season = Season.AUTUMN),
+
+        // Saisonnières Printemps 🌸
+        RoutineItem(title = "Planter des fleurs ou des graines", icon = "🌸", starsReward = 2, frequency = RoutineFrequency.SEASONAL, season = Season.SPRING),
+        RoutineItem(title = "Désherber le potager / jardin", icon = "🌱", starsReward = 2, frequency = RoutineFrequency.SEASONAL, season = Season.SPRING),
+        RoutineItem(title = "Nettoyer son vélo pour les beaux jours", icon = "🚲", starsReward = 2, frequency = RoutineFrequency.SEASONAL, season = Season.SPRING),
+        RoutineItem(title = "Grand ménage de printemps de la chambre", icon = "🧺", starsReward = 3, frequency = RoutineFrequency.SEASONAL, season = Season.SPRING),
+
+        // Saisonnières Été ☀️
+        RoutineItem(title = "Arroser le jardin et les plantes", icon = "☀️", starsReward = 2, frequency = RoutineFrequency.SEASONAL, season = Season.SUMMER),
+        RoutineItem(title = "Mettre de la crème solaire", icon = "🧴", starsReward = 1, frequency = RoutineFrequency.SEASONAL, season = Season.SUMMER),
+        RoutineItem(title = "Mettre sa casquette / chapeau", icon = "🧢", starsReward = 1, frequency = RoutineFrequency.SEASONAL, season = Season.SUMMER),
+        RoutineItem(title = "Rincer et ranger la baignade", icon = "🏖️", starsReward = 1, frequency = RoutineFrequency.SEASONAL, season = Season.SUMMER),
+
+        // Autonomie & Hygiène 🏠
+        RoutineItem(title = "Faire son lit", icon = "🛏️", starsReward = 1, timeOfDay = TimeOfDay.MORNING),
+        RoutineItem(title = "Brosser ses dents (Matin)", icon = "🪥", starsReward = 1, timeOfDay = TimeOfDay.MORNING),
+        RoutineItem(title = "Prendre son petit-déjeuner", icon = "🥣", starsReward = 1, timeOfDay = TimeOfDay.MORNING),
+        RoutineItem(title = "S'habiller tout seul", icon = "👗", starsReward = 1, timeOfDay = TimeOfDay.MORNING),
+        RoutineItem(title = "Mettre son pyjama", icon = "🥱", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Prendre sa douche / son bain", icon = "🚿", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Brosser ses dents (Soir)", icon = "🪥", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Se laver les mains avant le repas", icon = "🧼", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Se coiffer", icon = "💇", starsReward = 1, timeOfDay = TimeOfDay.MORNING),
+
+        // Maison & Entraide 🧺
+        RoutineItem(title = "Ranger sa chambre", icon = "🧸", starsReward = 2, timeOfDay = TimeOfDay.AFTERNOON),
+        RoutineItem(title = "Débarrasser la table", icon = "🍽️", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Passer le balai / l'aspirateur", icon = "🧹", starsReward = 2, timeOfDay = TimeOfDay.AFTERNOON),
+        RoutineItem(title = "Mettre le linge sale dans le panier", icon = "🧺", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Vider les poubelles / recyclage", icon = "🗑️", starsReward = 2, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Nourrir l'animal de compagnie", icon = "🐶", starsReward = 2, timeOfDay = TimeOfDay.MORNING),
+        RoutineItem(title = "Aider à ranger les courses", icon = "🛒", starsReward = 2, timeOfDay = TimeOfDay.AFTERNOON),
+
+        // École & Écrans 📚
+        RoutineItem(title = "Préparer son cartable", icon = "🎒", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Faire ses devoirs", icon = "📚", starsReward = 2, timeOfDay = TimeOfDay.AFTERNOON),
+        RoutineItem(title = "Lire une histoire 15 min", icon = "📖", starsReward = 1, timeOfDay = TimeOfDay.EVENING),
+        RoutineItem(title = "Faire un dessin ou bricolage", icon = "🎨", starsReward = 1, timeOfDay = TimeOfDay.AFTERNOON),
+        RoutineItem(title = "30 min de sport / vélo", icon = "🚴", starsReward = 2, timeOfDay = TimeOfDay.AFTERNOON),
+        RoutineItem(title = "Éteindre les écrans 1h avant le coucher", icon = "📵", starsReward = 2, timeOfDay = TimeOfDay.EVENING)
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+    val displayedTasks = when (selectedCategoryIndex) {
+        1 -> fullCatalog.filter { it.frequency == RoutineFrequency.SEASONAL }
+        2 -> fullCatalog.filter { it.icon in listOf("🛏️", "🪥", "🥣", "👗", "🥱", "🚿", "🧼", "💇") }
+        3 -> fullCatalog.filter { it.icon in listOf("🧸", "🍽️", "🧹", "🧺", "🗑️", "🐶", "🛒") }
+        4 -> fullCatalog.filter { it.icon in listOf("🎒", "📚", "📖", "🎨", "🚴", "📵") }
+        else -> fullCatalog
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        ScrollableTabRow(
+            selectedTabIndex = selectedCategoryIndex,
+            edgePadding = 8.dp,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ) {
-            items(libraryTasks) { (label, dataPair) ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+            categories.forEachIndexed { index, catTitle ->
+                Tab(
+                    selected = selectedCategoryIndex == index,
+                    onClick = { selectedCategoryIndex = index },
+                    text = { Text(text = catTitle, fontSize = 13.sp, fontWeight = FontWeight.SemiBold) }
+                )
+            }
+        }
+
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(displayedTasks) { item ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
-                        Text(text = dataPair.first, fontSize = 28.sp)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = label.substringAfter(" "), fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                            Text(text = "+${dataPair.second} ⭐", fontSize = 13.sp, color = Color.Gray)
-                        }
-                        IconButton(onClick = {
-                            val tod = when {
-                                label.contains("Matin", ignoreCase = true) || label.contains("déjeuner") || label.contains("s'habiller", ignoreCase = true) -> TimeOfDay.MORNING
-                                label.contains("Devoirs") || label.contains("Goûter") || label.contains("dehors") -> TimeOfDay.AFTERNOON
-                                else -> TimeOfDay.EVENING
+                        Row(
+                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = item.icon, fontSize = 28.sp)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                val subText = if (item.frequency == RoutineFrequency.SEASONAL && item.season != null) {
+                                    "${item.season.displayName} ${item.season.icon} • +${item.starsReward} ⭐"
+                                } else {
+                                    "${item.frequency.displayName} • +${item.starsReward} ⭐"
+                                }
+                                Text(text = subText, fontSize = 12.sp, color = Color.Gray)
                             }
-                            onAddLibraryTask(RoutineItem(title = label.substringAfter(" "), icon = dataPair.first, starsReward = dataPair.second, timeOfDay = tod))
-                        }) {
-                            Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter", tint = MaterialTheme.colorScheme.primary)
+                            IconButton(onClick = { onAddLibraryTask(item) }) {
+                                Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter", tint = MaterialTheme.colorScheme.primary)
+                            }
                         }
                     }
                 }
             }
-        }
-        FloatingActionButton(
-            onClick = onCustomTaskClick,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(24.dp),
-            containerColor = MaterialTheme.colorScheme.primary
-        ) {
-            Icon(imageVector = Icons.Filled.Add, contentDescription = "Tâche personnalisée")
+
+            FloatingActionButton(
+                onClick = onCustomTaskClick,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(24.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(imageVector = Icons.Filled.Add, contentDescription = "Tâche personnalisée")
+            }
         }
     }
 }
