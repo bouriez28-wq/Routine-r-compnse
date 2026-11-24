@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 13100,
-  "latestVersionName": "13.1",
-  "releaseNotes": "Mise à jour v13.1 : Envoi automatique de notification interactive à l'enfant avec motif lors de l'ajout ou du retrait d'étoiles.",
+  "latestVersionCode": 13200,
+  "latestVersionName": "13.2",
+  "releaseNotes": "Mise à jour v13.2 : Validation parentale obligatoire activée. Le clic enfant met la tâche en attente (badge ⏳ En attente) et demande la validation explicite du parent dans l'onglet Accueil.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

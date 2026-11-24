@@ -203,7 +203,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun approveTaskValidation(task: RoutineItem) {
         val updatedRoutines = _routines.value.map { r ->
-            if (r.id == task.id) r.copy(isCompleted = true, isPendingValidation = false) else r
+            if (r.id == task.id) r.copy(isCompleted = true, isPendingValidation = false, completedDate = repository.getTodayDateString()) else r
         }
         _routines.value = updatedRoutines
         repository.saveRoutines(updatedRoutines)
@@ -213,7 +213,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun rejectTaskValidation(task: RoutineItem) {
         val updatedRoutines = _routines.value.map { r ->
-            if (r.id == task.id) r.copy(isCompleted = false, isPendingValidation = false) else r
+            if (r.id == task.id) r.copy(isCompleted = false, isPendingValidation = false, completedDate = "") else r
         }
         _routines.value = updatedRoutines
         repository.saveRoutines(updatedRoutines)
@@ -311,20 +311,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val index = currentList.indexOfFirst { it.id == routine.id }
         if (index != -1) {
             val oldItem = currentList[index]
-            val newStatus = !oldItem.isCompleted
-            val updatedItem = oldItem.copy(
-                isCompleted = newStatus,
-                isPendingValidation = newStatus,
-                completedDate = if (newStatus) repository.getTodayDateString() else ""
-            )
-            currentList[index] = updatedItem
-            _routines.value = currentList
-            repository.saveRoutines(currentList)
+            if (oldItem.isCompleted) {
+                // Uncheck completed task (deduct stars if previously approved)
+                val updatedItem = oldItem.copy(
+                    isCompleted = false,
+                    isPendingValidation = false,
+                    completedDate = ""
+                )
+                currentList[index] = updatedItem
+                _routines.value = currentList
+                repository.saveRoutines(currentList)
 
-            if (!newStatus && !oldItem.isPendingValidation) {
                 val newStarTotal = (_totalStars.value - oldItem.starsReward).coerceAtLeast(0)
                 _totalStars.value = newStarTotal
                 repository.setTotalStars(newStarTotal)
+            } else {
+                // Child clicks task -> mark as pending parent validation (DO NOT mark completed or add stars yet)
+                val newPendingState = !oldItem.isPendingValidation
+                val updatedItem = oldItem.copy(
+                    isPendingValidation = newPendingState,
+                    isCompleted = false
+                )
+                currentList[index] = updatedItem
+                _routines.value = currentList
+                repository.saveRoutines(currentList)
             }
 
             pushToCloud()

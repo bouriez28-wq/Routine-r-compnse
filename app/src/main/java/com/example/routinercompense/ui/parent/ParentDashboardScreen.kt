@@ -275,7 +275,7 @@ private fun ParentHomeTab(
     onRejectRewardClaim: (RewardClaimHistory) -> Unit,
     onSendStickerToChild: (String, String, String) -> Unit
 ) {
-    val pendingTasks = routines.filter { it.isCompleted && it.isPendingValidation }
+    val pendingTasks = routines.filter { it.isPendingValidation }
     val pendingRewards = history.filter { it.isPendingApproval }
     var sentStickerMessage by remember { mutableStateOf<String?>(null) }
     var pendingStarAdjustmentAmount by remember { mutableStateOf<Int?>(null) }

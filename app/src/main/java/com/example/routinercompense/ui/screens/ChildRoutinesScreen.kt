@@ -237,7 +237,7 @@ private fun RoutineCard(
                 }
             }
 
-            // Checkbox Icon
+            // Checkbox / Badge Icon
             IconButton(onClick = onToggle) {
                 if (item.isCompleted) {
                     Icon(
@@ -246,10 +246,23 @@ private fun RoutineCard(
                         tint = Color(0xFF2E7D32),
                         modifier = Modifier.size(32.dp)
                     )
+                } else if (item.isPendingValidation) {
+                    Surface(
+                        color = Color(0xFFFFF3E0),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "⏳ En attente",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFE65100),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
+                        )
+                    }
                 } else {
                     Icon(
                         imageVector = Icons.Outlined.CheckCircle,
-                        contentDescription = "Non complété",
+                        contentDescription = "À effectuer",
                         tint = Color.Gray,
                         modifier = Modifier.size(32.dp)
                     )
