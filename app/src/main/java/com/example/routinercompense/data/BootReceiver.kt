@@ -34,6 +34,16 @@ class BootReceiver : BroadcastReceiver() {
                     ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                     updateWorkRequest
                 )
+
+                val syncWorkRequest = PeriodicWorkRequestBuilder<CloudSyncWorker>(15, TimeUnit.MINUTES)
+                    .setConstraints(constraints)
+                    .build()
+
+                WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+                    "BackgroundCloudSync",
+                    ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+                    syncWorkRequest
+                )
             } catch (e: Exception) {
                 e.printStackTrace()
             }

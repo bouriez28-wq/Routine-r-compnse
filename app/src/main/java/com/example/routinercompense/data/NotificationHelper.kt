@@ -41,6 +41,7 @@ class NotificationHelper(private val context: Context) {
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 400, 200, 400)
                 setSound(soundUri, audioAttributes)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
             }
             notificationManager.createNotificationChannel(channel)
         }

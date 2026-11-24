@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 36000,
-  "latestVersionName": "36.0",
-  "releaseNotes": "Mise à jour v36.0 majeure : Sécurisation complète du cadenas de l'Espace Enfant et vérification automatique d'arrière-plan WorkManager.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=36000"
+  "latestVersionCode": 37000,
+  "latestVersionName": "37.0",
+  "releaseNotes": "Mise à jour majeure v37.0 : Activation des notifications système (son + vibration + barre de statut + écran de verrouillage) même lorsque l'application est totalement fermée ou l'écran verrouillé.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=37000"
 }
