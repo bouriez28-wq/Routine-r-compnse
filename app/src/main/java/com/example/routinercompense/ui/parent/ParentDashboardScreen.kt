@@ -2,9 +2,12 @@ package com.example.routinercompense.ui.parent
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.Image
@@ -263,6 +266,9 @@ private fun ParentRoutinesTab(
     val afternoonRoutines = filteredRoutines.filter { it.timeOfDay == TimeOfDay.AFTERNOON }
     val eveningRoutines = filteredRoutines.filter { it.timeOfDay == TimeOfDay.EVENING }
 
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+
     Column(modifier = Modifier.fillMaxSize()) {
         ScrollableTabRow(
             selectedTabIndex = selectedFreqIndex,
@@ -280,6 +286,7 @@ private fun ParentRoutinesTab(
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -302,60 +309,74 @@ private fun ParentRoutinesTab(
                             onDeleteClick = onDeleteClick,
                             onMoveUpClick = onMoveUpClick,
                             onMoveDownClick = onMoveDownClick,
-                            onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                            onChangeTimeOfDayClick = onChangeTimeOfDayClick,
+                            onAutoScroll = { delta ->
+                                coroutineScope.launch {
+                                    listState.scrollBy(delta)
+                                }
+                            }
                         )
                     }
                 }
 
-            // Afternoon Section
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                RoutineSectionHeader(
-                    timeOfDay = TimeOfDay.AFTERNOON,
-                    count = afternoonRoutines.size,
-                    onAddClick = { onAddSectionClick(TimeOfDay.AFTERNOON) }
-                )
-            }
-            if (afternoonRoutines.isEmpty()) {
-                item { EmptySectionCard("Aucune routine l'après-midi") }
-            } else {
-                items(afternoonRoutines, key = { it.id }) { item ->
-                    ParentRoutineCard(
-                        item = item,
-                        onEditClick = onEditClick,
-                        onDeleteClick = onDeleteClick,
-                        onMoveUpClick = onMoveUpClick,
-                        onMoveDownClick = onMoveDownClick,
-                        onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                // Afternoon Section
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    RoutineSectionHeader(
+                        timeOfDay = TimeOfDay.AFTERNOON,
+                        count = afternoonRoutines.size,
+                        onAddClick = { onAddSectionClick(TimeOfDay.AFTERNOON) }
                     )
                 }
-            }
+                if (afternoonRoutines.isEmpty()) {
+                    item { EmptySectionCard("Aucune routine l'après-midi") }
+                } else {
+                    items(afternoonRoutines, key = { it.id }) { item ->
+                        ParentRoutineCard(
+                            item = item,
+                            onEditClick = onEditClick,
+                            onDeleteClick = onDeleteClick,
+                            onMoveUpClick = onMoveUpClick,
+                            onMoveDownClick = onMoveDownClick,
+                            onChangeTimeOfDayClick = onChangeTimeOfDayClick,
+                            onAutoScroll = { delta ->
+                                coroutineScope.launch {
+                                    listState.scrollBy(delta)
+                                }
+                            }
+                        )
+                    }
+                }
 
-            // Evening Section
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                RoutineSectionHeader(
-                    timeOfDay = TimeOfDay.EVENING,
-                    count = eveningRoutines.size,
-                    onAddClick = { onAddSectionClick(TimeOfDay.EVENING) }
-                )
-            }
-            if (eveningRoutines.isEmpty()) {
-                item { EmptySectionCard("Aucune routine le soir") }
-            } else {
-                items(eveningRoutines, key = { it.id }) { item ->
-                    ParentRoutineCard(
-                        item = item,
-                        onEditClick = onEditClick,
-                        onDeleteClick = onDeleteClick,
-                        onMoveUpClick = onMoveUpClick,
-                        onMoveDownClick = onMoveDownClick,
-                        onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                // Evening Section
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    RoutineSectionHeader(
+                        timeOfDay = TimeOfDay.EVENING,
+                        count = eveningRoutines.size,
+                        onAddClick = { onAddSectionClick(TimeOfDay.EVENING) }
                     )
                 }
+                if (eveningRoutines.isEmpty()) {
+                    item { EmptySectionCard("Aucune routine le soir") }
+                } else {
+                    items(eveningRoutines, key = { it.id }) { item ->
+                        ParentRoutineCard(
+                            item = item,
+                            onEditClick = onEditClick,
+                            onDeleteClick = onDeleteClick,
+                            onMoveUpClick = onMoveUpClick,
+                            onMoveDownClick = onMoveDownClick,
+                            onChangeTimeOfDayClick = onChangeTimeOfDayClick,
+                            onAutoScroll = { delta ->
+                                coroutineScope.launch {
+                                    listState.scrollBy(delta)
+                                }
+                            }
+                        )
+                    }
+                }
             }
-        }
-
         }
     }
 }
@@ -497,7 +518,8 @@ private fun ParentRoutineCard(
     onDeleteClick: (RoutineItem) -> Unit,
     onMoveUpClick: (RoutineItem) -> Unit,
     onMoveDownClick: (RoutineItem) -> Unit,
-    onChangeTimeOfDayClick: (RoutineItem) -> Unit
+    onChangeTimeOfDayClick: (RoutineItem) -> Unit,
+    onAutoScroll: (Float) -> Unit
 ) {
     var offsetY by remember { mutableFloatStateOf(0f) }
     var isDragging by remember { mutableStateOf(false) }
@@ -521,10 +543,11 @@ private fun ParentRoutineCard(
                     onDrag = { change, dragAmount ->
                         change.consume()
                         offsetY += dragAmount.y
+                        onAutoScroll(dragAmount.y * 0.7f)
                     },
                     onDragEnd = {
                         isDragging = false
-                        if (offsetY < -90f) {
+                        if (offsetY < -60f) {
                             val prevTod = when (item.timeOfDay) {
                                 TimeOfDay.AFTERNOON -> TimeOfDay.MORNING
                                 TimeOfDay.EVENING -> TimeOfDay.AFTERNOON
@@ -535,7 +558,7 @@ private fun ParentRoutineCard(
                             } else {
                                 onMoveUpClick(item)
                             }
-                        } else if (offsetY > 90f) {
+                        } else if (offsetY > 60f) {
                             val nextTod = when (item.timeOfDay) {
                                 TimeOfDay.MORNING -> TimeOfDay.AFTERNOON
                                 TimeOfDay.AFTERNOON -> TimeOfDay.EVENING
@@ -546,9 +569,9 @@ private fun ParentRoutineCard(
                             } else {
                                 onMoveDownClick(item)
                             }
-                        } else if (offsetY < -30f) {
+                        } else if (offsetY < -20f) {
                             onMoveUpClick(item)
-                        } else if (offsetY > 30f) {
+                        } else if (offsetY > 20f) {
                             onMoveDownClick(item)
                         }
                         offsetY = 0f

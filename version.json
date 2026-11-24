@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 9500,
-  "latestVersionName": "9.5",
-  "releaseNotes": "Mise à jour v9.5 : Correctif complet du Glisser-déplacer tactile entre les sections Matin, Après-midi et Soir.",
+  "latestVersionCode": 9600,
+  "latestVersionName": "9.6",
+  "releaseNotes": "Mise à jour v9.6 : Défilement automatique fluide de la page pendant le glisser-déplacer tactile vers n'importe quelle section.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
