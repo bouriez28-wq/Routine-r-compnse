@@ -211,8 +211,11 @@ private fun RoutineCard(
     item: RoutineItem,
     onToggle: () -> Unit
 ) {
+    val isLocked = item.isCompleted || item.isPendingValidation
     val backgroundColor = if (item.isCompleted) {
-        Color(0xFFE8F5E9) // Soft Green
+        Color(0xFFE8F5E9)
+    } else if (item.isPendingValidation) {
+        Color(0xFFFFF8E1)
     } else {
         MaterialTheme.colorScheme.surface
     }
@@ -225,7 +228,9 @@ private fun RoutineCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onToggle() }
+            .then(
+                if (!isLocked) Modifier.clickable { onToggle() } else Modifier
+            )
     ) {
         Row(
             modifier = Modifier
@@ -248,7 +253,7 @@ private fun RoutineCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Text Info
+            // Text Info & Status Badge
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title,
@@ -256,14 +261,27 @@ private fun RoutineCard(
                     fontSize = 17.sp,
                     color = if (item.isCompleted) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurface
                 )
-                if (item.isPendingValidation) {
-                    Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.height(3.dp))
+                if (item.isCompleted) {
+                    Surface(
+                        color = Color(0xFFC8E6C9),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "✅ Validé par les parents",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF2E7D32),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                } else if (item.isPendingValidation) {
                     Surface(
                         color = Color(0xFFFFF3E0),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
-                            text = "⏳ En attente de validation par les parents",
+                            text = "⏳ En attente de validation",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFFE65100),
@@ -295,12 +313,15 @@ private fun RoutineCard(
                 }
             }
 
-            // Checkbox / Hourglass Icon
-            IconButton(onClick = onToggle) {
+            // Checkbox / Status Icon
+            IconButton(
+                onClick = { if (!isLocked) onToggle() },
+                enabled = !isLocked
+            ) {
                 if (item.isCompleted) {
                     Icon(
                         imageVector = Icons.Filled.CheckCircle,
-                        contentDescription = "Complété",
+                        contentDescription = "Validé",
                         tint = Color(0xFF2E7D32),
                         modifier = Modifier.size(32.dp)
                     )
