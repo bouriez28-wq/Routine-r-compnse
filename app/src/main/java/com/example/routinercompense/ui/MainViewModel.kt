@@ -367,7 +367,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleRoutineCompletion(routine: RoutineItem) {
         val currentList = _routines.value.toMutableList()
-        val index = currentList.indexOfFirst { it.id == routine.id }
+        var index = currentList.indexOfFirst { it.id == routine.id }
+        if (index == -1) {
+            index = currentList.indexOfFirst { it.title.equals(routine.title, ignoreCase = true) && it.timeOfDay == routine.timeOfDay }
+        }
+
         if (index != -1) {
             val oldItem = currentList[index]
             if (oldItem.isCompleted) {

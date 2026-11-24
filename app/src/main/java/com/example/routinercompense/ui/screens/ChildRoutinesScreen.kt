@@ -256,7 +256,21 @@ private fun RoutineCard(
                     fontSize = 17.sp,
                     color = if (item.isCompleted) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurface
                 )
-                if (item.description.isNotEmpty()) {
+                if (item.isPendingValidation) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Surface(
+                        color = Color(0xFFFFF3E0),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = "⏳ En attente de validation par les parents",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFE65100),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+                } else if (item.description.isNotEmpty()) {
                     Text(
                         text = item.description,
                         fontSize = 13.sp,
@@ -281,7 +295,7 @@ private fun RoutineCard(
                 }
             }
 
-            // Checkbox / Badge Icon
+            // Checkbox / Hourglass Icon
             IconButton(onClick = onToggle) {
                 if (item.isCompleted) {
                     Icon(
@@ -291,18 +305,7 @@ private fun RoutineCard(
                         modifier = Modifier.size(32.dp)
                     )
                 } else if (item.isPendingValidation) {
-                    Surface(
-                        color = Color(0xFFFFF3E0),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            text = "⏳ En attente",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFE65100),
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp)
-                        )
-                    }
+                    Text(text = "⏳", fontSize = 28.sp)
                 } else {
                     Icon(
                         imageVector = Icons.Outlined.CheckCircle,

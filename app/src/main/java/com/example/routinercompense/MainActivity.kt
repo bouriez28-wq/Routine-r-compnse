@@ -92,7 +92,6 @@ fun MainAppScreen(viewModel: MainViewModel) {
             syncStatus = syncStatus,
             routines = routines,
             rewards = rewards,
-            history = history,
             themePalette = themePalette,
             darkThemeOption = darkThemeOption,
             onExitParentMode = {

@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 17000,
-  "latestVersionName": "17.0",
-  "releaseNotes": "Mise à jour v17.0 majeure : Alignement des identifiants uniques (IDs) entre téléphones, correction de la corrélation Tâches/Récompenses et notifications système multi-appareils garanties.",
+  "latestVersionCode": 17100,
+  "latestVersionName": "17.1",
+  "releaseNotes": "Mise à jour v17.1 : Badge orange '⏳ En attente de validation par les parents' affiché sous le titre de la tâche chez l'enfant, et synchronisation par titre/moment.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
