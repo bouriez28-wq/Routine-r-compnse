@@ -8,6 +8,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -90,7 +93,8 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val themePalette by viewModel.themePalette.collectAsState()
     val darkThemeOption by viewModel.darkThemeOption.collectAsState()
 
-    var selectedBottomTab by remember { mutableIntStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+    val childPagerState = rememberPagerState(pageCount = { 3 })
 
     if (deviceRole == DeviceRole.UNSELECTED) {
         RoleSelectionScreen(
@@ -191,32 +195,45 @@ fun MainAppScreen(viewModel: MainViewModel) {
             bottomBar = {
                 NavigationBar {
                     NavigationBarItem(
-                        selected = selectedBottomTab == 0,
-                        onClick = { selectedBottomTab = 0 },
+                        selected = childPagerState.currentPage == 0,
+                        onClick = {
+                            coroutineScope.launch {
+                                childPagerState.animateScrollToPage(0)
+                            }
+                        },
                         icon = { Icon(imageVector = Icons.Filled.List, contentDescription = "Routines") },
                         label = { Text("Routines", fontWeight = FontWeight.SemiBold) }
                     )
                     NavigationBarItem(
-                        selected = selectedBottomTab == 1,
-                        onClick = { selectedBottomTab = 1 },
+                        selected = childPagerState.currentPage == 1,
+                        onClick = {
+                            coroutineScope.launch {
+                                childPagerState.animateScrollToPage(1)
+                            }
+                        },
                         icon = { Icon(imageVector = Icons.Filled.Star, contentDescription = "Récompenses") },
                         label = { Text("Récompenses", fontWeight = FontWeight.SemiBold) }
                     )
                     NavigationBarItem(
-                        selected = selectedBottomTab == 2,
-                        onClick = { selectedBottomTab = 2 },
+                        selected = childPagerState.currentPage == 2,
+                        onClick = {
+                            coroutineScope.launch {
+                                childPagerState.animateScrollToPage(2)
+                            }
+                        },
                         icon = { Icon(imageVector = Icons.Filled.DateRange, contentDescription = "Historique") },
                         label = { Text("Historique", fontWeight = FontWeight.SemiBold) }
                     )
                 }
             }
         ) { paddingValues ->
-            Box(
+            HorizontalPager(
+                state = childPagerState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-            ) {
-                when (selectedBottomTab) {
+            ) { page ->
+                when (page) {
                     0 -> ChildRoutinesScreen(
                         routines = routines,
                         onToggleRoutine = { viewModel.toggleRoutineCompletion(it) },

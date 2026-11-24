@@ -3,6 +3,8 @@ package com.example.routinercompense.ui.parent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -88,8 +90,9 @@ fun ParentDashboardScreen(
     onAdjustStarsWithComment: (amount: Int, comment: String) -> Unit = { _, _ -> },
     onResetStatistics: () -> Unit = {}
 ) {
-    var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("🏠 Accueil", "💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
+    val coroutineScope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(pageCount = { tabs.size })
 
     var editingRoutine by remember { mutableStateOf<RoutineItem?>(null) }
     var isAddingRoutine by remember { mutableStateOf(false) }
@@ -134,98 +137,107 @@ fun ParentDashboardScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            ScrollableTabRow(selectedTabIndex = selectedTab) {
+            ScrollableTabRow(selectedTabIndex = pagerState.currentPage) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
+                        selected = pagerState.currentPage == index,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        },
                         text = { Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp) }
                     )
                 }
             }
 
-            when (selectedTab) {
-                0 -> ParentHomeTab(
-                    childName = childName,
-                    totalStars = totalStars,
-                    routines = routines,
-                    history = history,
-                    onSetTotalStars = onSetTotalStars,
-                    onAdjustStarsWithComment = onAdjustStarsWithComment,
-                    onApproveTaskValidation = onApproveTaskValidation,
-                    onRejectTaskValidation = onRejectTaskValidation,
-                    onApproveRewardClaim = onApproveRewardClaim,
-                    onRejectRewardClaim = onRejectRewardClaim,
-                    onSendStickerToChild = onSendStickerToChild,
-                    onResetStatistics = onResetStatistics
-                )
-                1 -> ParentTasksLibraryTab(
-                    onAddLibraryTask = { task ->
-                        editingRoutine = task
-                        isAddingRoutine = true
-                    },
-                    onCustomTaskClick = {
-                        editingRoutine = null
-                        isAddingRoutine = true
-                    }
-                )
-                2 -> ParentRoutinesTab(
-                    routines = routines,
-                    onAddSectionClick = { tod ->
-                        selectedTimeOfDayForAdd = tod
-                        isAddingRoutine = true
-                    },
-                    onEditClick = { editingRoutine = it },
-                    onDeleteClick = onDeleteRoutine,
-                    onMoveUpClick = { item ->
-                        val list = routines.sortedBy { it.orderIndex }.toMutableList()
-                        val index = list.indexOfFirst { it.id == item.id }
-                        if (index > 0) {
-                            val prev = list[index - 1]
-                            val curr = list[index]
-                            val newPrev = prev.copy(orderIndex = index)
-                            val newCurr = curr.copy(orderIndex = index - 1)
-                            onAddOrUpdateRoutine(newPrev)
-                            onAddOrUpdateRoutine(newCurr)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                when (page) {
+                    0 -> ParentHomeTab(
+                        childName = childName,
+                        totalStars = totalStars,
+                        routines = routines,
+                        history = history,
+                        onSetTotalStars = onSetTotalStars,
+                        onAdjustStarsWithComment = onAdjustStarsWithComment,
+                        onApproveTaskValidation = onApproveTaskValidation,
+                        onRejectTaskValidation = onRejectTaskValidation,
+                        onApproveRewardClaim = onApproveRewardClaim,
+                        onRejectRewardClaim = onRejectRewardClaim,
+                        onSendStickerToChild = onSendStickerToChild,
+                        onResetStatistics = onResetStatistics
+                    )
+                    1 -> ParentTasksLibraryTab(
+                        onAddLibraryTask = { task ->
+                            editingRoutine = task
+                            isAddingRoutine = true
+                        },
+                        onCustomTaskClick = {
+                            editingRoutine = null
+                            isAddingRoutine = true
                         }
-                    },
-                    onMoveDownClick = { item ->
-                        val list = routines.sortedBy { it.orderIndex }.toMutableList()
-                        val index = list.indexOfFirst { it.id == item.id }
-                        if (index != -1 && index < list.size - 1) {
-                            val next = list[index + 1]
-                            val curr = list[index]
-                            val newNext = next.copy(orderIndex = index)
-                            val newCurr = curr.copy(orderIndex = index + 1)
-                            onAddOrUpdateRoutine(newNext)
-                            onAddOrUpdateRoutine(newCurr)
+                    )
+                    2 -> ParentRoutinesTab(
+                        routines = routines,
+                        onAddSectionClick = { tod ->
+                            selectedTimeOfDayForAdd = tod
+                            isAddingRoutine = true
+                        },
+                        onEditClick = { editingRoutine = it },
+                        onDeleteClick = onDeleteRoutine,
+                        onMoveUpClick = { item ->
+                            val list = routines.sortedBy { it.orderIndex }.toMutableList()
+                            val index = list.indexOfFirst { it.id == item.id }
+                            if (index > 0) {
+                                val prev = list[index - 1]
+                                val curr = list[index]
+                                val newPrev = prev.copy(orderIndex = index)
+                                val newCurr = curr.copy(orderIndex = index - 1)
+                                onAddOrUpdateRoutine(newPrev)
+                                onAddOrUpdateRoutine(newCurr)
+                            }
+                        },
+                        onMoveDownClick = { item ->
+                            val list = routines.sortedBy { it.orderIndex }.toMutableList()
+                            val index = list.indexOfFirst { it.id == item.id }
+                            if (index != -1 && index < list.size - 1) {
+                                val next = list[index + 1]
+                                val curr = list[index]
+                                val newNext = next.copy(orderIndex = index)
+                                val newCurr = curr.copy(orderIndex = index + 1)
+                                onAddOrUpdateRoutine(newNext)
+                                onAddOrUpdateRoutine(newCurr)
+                            }
+                        },
+                        onChangeTimeOfDayClick = { updatedItem ->
+                            onAddOrUpdateRoutine(updatedItem)
                         }
-                    },
-                    onChangeTimeOfDayClick = { updatedItem ->
-                        onAddOrUpdateRoutine(updatedItem)
-                    }
-                )
-                3 -> ParentRewardsTab(
-                    rewards = rewards,
-                    onAddClick = { isAddingReward = true },
-                    onEditClick = { editingReward = it },
-                    onDeleteClick = onDeleteReward
-                )
-                4 -> ParentSettingsTab(
-                    childName = childName,
-                    totalStars = totalStars,
-                    familyCode = familyCode,
-                    themePalette = themePalette,
-                    darkThemeOption = darkThemeOption,
-                    onChangeRoleClick = onChangeRoleClick,
-                    onSetChildName = onSetChildName,
-                    onSetParentPin = onSetParentPin,
-                    onSetTotalStars = onSetTotalStars,
-                    onResetTodayRoutines = onResetTodayRoutines,
-                    onCheckForUpdatesClick = onCheckForUpdatesClick,
-                    onSelectPalette = onSelectPalette,
-                    onSelectDarkOption = onSelectDarkOption
-                )
+                    )
+                    3 -> ParentRewardsTab(
+                        rewards = rewards,
+                        onAddClick = { isAddingReward = true },
+                        onEditClick = { editingReward = it },
+                        onDeleteClick = onDeleteReward
+                    )
+                    4 -> ParentSettingsTab(
+                        childName = childName,
+                        totalStars = totalStars,
+                        familyCode = familyCode,
+                        themePalette = themePalette,
+                        darkThemeOption = darkThemeOption,
+                        onChangeRoleClick = onChangeRoleClick,
+                        onSetChildName = onSetChildName,
+                        onSetParentPin = onSetParentPin,
+                        onSetTotalStars = onSetTotalStars,
+                        onResetTodayRoutines = onResetTodayRoutines,
+                        onCheckForUpdatesClick = onCheckForUpdatesClick,
+                        onSelectPalette = onSelectPalette,
+                        onSelectDarkOption = onSelectDarkOption
+                    )
+                }
             }
         }
     }
