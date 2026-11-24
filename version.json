@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 8001,
-  "latestVersionName": "8.1",
-  "releaseNotes": "Mise à jour v8.1 : Nettoyage automatique de la mémoire du téléphone (écrasement automatique des anciennes mises à jour).",
+  "latestVersionCode": 9000,
+  "latestVersionName": "9.0",
+  "releaseNotes": "Mise à jour v9.0 : Tâches et routines 100% fonctionnelles. Onglets Matin, Après-midi, Soir, Jours et Saisons actifs.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
