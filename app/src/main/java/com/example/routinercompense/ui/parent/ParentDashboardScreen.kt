@@ -525,7 +525,7 @@ private fun ParentRoutineCard(
     var isDragging by remember { mutableStateOf(false) }
 
     val elevation = if (isDragging) 8.dp else 1.dp
-    val scale = if (isDragging) 1.03f else 1.0f
+    val scale = if (isDragging) 1.02f else 1.0f
 
     Card(
         modifier = Modifier
@@ -535,46 +535,49 @@ private fun ParentRoutineCard(
                 scaleY = scale
                 translationY = offsetY
             }
-            .pointerInput(item.id) {
+            .pointerInput(item.id, item.timeOfDay) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = {
                         isDragging = true
+                        offsetY = 0f
                     },
                     onDrag = { change, dragAmount ->
                         change.consume()
                         offsetY += dragAmount.y
-                        onAutoScroll(dragAmount.y * 0.7f)
+                        onAutoScroll(dragAmount.y * 0.5f)
                     },
                     onDragEnd = {
                         isDragging = false
-                        if (offsetY < -60f) {
+                        val delta = offsetY
+                        offsetY = 0f
+
+                        if (delta < -80f) {
                             val prevTod = when (item.timeOfDay) {
                                 TimeOfDay.AFTERNOON -> TimeOfDay.MORNING
                                 TimeOfDay.EVENING -> TimeOfDay.AFTERNOON
-                                TimeOfDay.MORNING -> TimeOfDay.MORNING
+                                TimeOfDay.MORNING -> null
                             }
-                            if (prevTod != item.timeOfDay) {
+                            if (prevTod != null) {
                                 onChangeTimeOfDayClick(item.copy(timeOfDay = prevTod))
                             } else {
                                 onMoveUpClick(item)
                             }
-                        } else if (offsetY > 60f) {
+                        } else if (delta > 80f) {
                             val nextTod = when (item.timeOfDay) {
                                 TimeOfDay.MORNING -> TimeOfDay.AFTERNOON
                                 TimeOfDay.AFTERNOON -> TimeOfDay.EVENING
-                                TimeOfDay.EVENING -> TimeOfDay.EVENING
+                                TimeOfDay.EVENING -> null
                             }
-                            if (nextTod != item.timeOfDay) {
+                            if (nextTod != null) {
                                 onChangeTimeOfDayClick(item.copy(timeOfDay = nextTod))
                             } else {
                                 onMoveDownClick(item)
                             }
-                        } else if (offsetY < -20f) {
+                        } else if (delta < -25f) {
                             onMoveUpClick(item)
-                        } else if (offsetY > 20f) {
+                        } else if (delta > 25f) {
                             onMoveDownClick(item)
                         }
-                        offsetY = 0f
                     },
                     onDragCancel = {
                         isDragging = false
@@ -585,36 +588,53 @@ private fun ParentRoutineCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = elevation)
     ) {
-        Row(
-            modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = item.icon, fontSize = 28.sp)
-            Spacer(modifier = Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text(
-                    text = "${item.frequency.displayName} • +${item.starsReward} ⭐",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = item.icon, fontSize = 28.sp)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = item.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(
+                        text = "${item.frequency.displayName} • +${item.starsReward} ⭐",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+                IconButton(onClick = { onMoveUpClick(item) }) {
+                    Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = "Monter", tint = Color.Gray)
+                }
+                IconButton(onClick = { onMoveDownClick(item) }) {
+                    Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "Descendre", tint = Color.Gray)
+                }
+                IconButton(onClick = { onEditClick(item) }) {
+                    Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier", tint = MaterialTheme.colorScheme.primary)
+                }
+                IconButton(onClick = { onDeleteClick(item) }) {
+                    Icon(imageVector = Icons.Filled.Delete, contentDescription = "Supprimer", tint = MaterialTheme.colorScheme.error)
+                }
             }
-            IconButton(onClick = { onMoveUpClick(item) }) {
-                Icon(imageVector = Icons.Filled.KeyboardArrowUp, contentDescription = "Monter", tint = Color.Gray)
-            }
-            IconButton(onClick = { onMoveDownClick(item) }) {
-                Icon(imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = "Descendre", tint = Color.Gray)
-            }
-            IconButton(onClick = { onChangeTimeOfDayClick(item) }) {
-                Text(text = "🔄", fontSize = 14.sp)
-            }
-            IconButton(onClick = { onEditClick(item) }) {
-                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Modifier", tint = MaterialTheme.colorScheme.primary)
-            }
-            IconButton(onClick = { onDeleteClick(item) }) {
-                Icon(imageVector = Icons.Filled.Delete, contentDescription = "Supprimer", tint = MaterialTheme.colorScheme.error)
+
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Placer dans :", fontSize = 11.sp, color = Color.Gray)
+                TimeOfDay.values().forEach { tod ->
+                    val isSelected = item.timeOfDay == tod
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            if (!isSelected) {
+                                onChangeTimeOfDayClick(item.copy(timeOfDay = tod))
+                            }
+                        },
+                        label = { Text("${tod.icon} ${tod.displayName}", fontSize = 10.sp) }
+                    )
+                }
             }
         }
     }

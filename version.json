@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 9600,
-  "latestVersionName": "9.6",
-  "releaseNotes": "Mise à jour v9.6 : Défilement automatique fluide de la page pendant le glisser-déplacer tactile vers n'importe quelle section.",
+  "latestVersionCode": 9700,
+  "latestVersionName": "9.7",
+  "releaseNotes": "Mise à jour v9.7 : Correctif du Drag & Drop inter-sections avec réinitialisation de geste et boutons de placement direct (Matin, Après-midi, Soir).",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
