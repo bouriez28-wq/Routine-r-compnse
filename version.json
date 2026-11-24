@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 11000,
-  "latestVersionName": "11.0",
-  "releaseNotes": "Mise à jour v11.0 majeure : Nouvelle section Statistiques dans l'Espace Parent avec barre de progression mensuelle (%) et graphique des étoiles quotidiennes (Lundi..Dimanche).",
+  "latestVersionCode": 12000,
+  "latestVersionName": "12.0",
+  "releaseNotes": "Mise à jour v12.0 majeure : Refonte complète de l'onglet Routines avec sous-onglets accordéons dépliables par Jours (Hebdo), Mois (Mensuel) et Saisons (Saisonnier).",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

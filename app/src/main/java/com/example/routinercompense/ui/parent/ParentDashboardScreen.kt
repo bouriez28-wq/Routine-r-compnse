@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import com.example.routinercompense.model.RoutineFrequency
+import com.example.routinercompense.model.Season
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.graphics.asImageBitmap
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
@@ -643,89 +645,233 @@ private fun ParentRoutinesTab(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 80.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Morning Section
-                item {
-                    RoutineSectionHeader(
-                        timeOfDay = TimeOfDay.MORNING,
-                        count = morningRoutines.size,
-                        onAddClick = { onAddSectionClick(TimeOfDay.MORNING) }
-                    )
-                }
-                if (morningRoutines.isEmpty()) {
-                    item { EmptySectionCard("Aucune routine le matin") }
-                } else {
-                    items(morningRoutines, key = { it.id }) { item ->
-                        ParentRoutineCard(
-                            item = item,
-                            onEditClick = onEditClick,
-                            onDeleteClick = onDeleteClick,
-                            onMoveUpClick = onMoveUpClick,
-                            onMoveDownClick = onMoveDownClick,
-                            onChangeTimeOfDayClick = onChangeTimeOfDayClick,
-                            onAutoScroll = { delta ->
-                                coroutineScope.launch {
-                                    listState.scrollBy(delta)
-                                }
+                when (currentFreq) {
+                    RoutineFrequency.DAILY -> {
+                        // Morning Section
+                        item {
+                            RoutineSectionHeader(
+                                timeOfDay = TimeOfDay.MORNING,
+                                count = morningRoutines.size,
+                                onAddClick = { onAddSectionClick(TimeOfDay.MORNING) }
+                            )
+                        }
+                        if (morningRoutines.isEmpty()) {
+                            item { EmptySectionCard("Aucune routine le matin") }
+                        } else {
+                            items(morningRoutines, key = { it.id }) { item ->
+                                ParentRoutineCard(
+                                    item = item,
+                                    onEditClick = onEditClick,
+                                    onDeleteClick = onDeleteClick,
+                                    onMoveUpClick = onMoveUpClick,
+                                    onMoveDownClick = onMoveDownClick,
+                                    onChangeTimeOfDayClick = onChangeTimeOfDayClick,
+                                    onAutoScroll = { delta ->
+                                        coroutineScope.launch {
+                                            listState.scrollBy(delta)
+                                        }
+                                    }
+                                )
                             }
-                        )
-                    }
-                }
+                        }
 
-                // Afternoon Section
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    RoutineSectionHeader(
-                        timeOfDay = TimeOfDay.AFTERNOON,
-                        count = afternoonRoutines.size,
-                        onAddClick = { onAddSectionClick(TimeOfDay.AFTERNOON) }
-                    )
-                }
-                if (afternoonRoutines.isEmpty()) {
-                    item { EmptySectionCard("Aucune routine l'après-midi") }
-                } else {
-                    items(afternoonRoutines, key = { it.id }) { item ->
-                        ParentRoutineCard(
-                            item = item,
-                            onEditClick = onEditClick,
-                            onDeleteClick = onDeleteClick,
-                            onMoveUpClick = onMoveUpClick,
-                            onMoveDownClick = onMoveDownClick,
-                            onChangeTimeOfDayClick = onChangeTimeOfDayClick,
-                            onAutoScroll = { delta ->
-                                coroutineScope.launch {
-                                    listState.scrollBy(delta)
-                                }
+                        // Afternoon Section
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            RoutineSectionHeader(
+                                timeOfDay = TimeOfDay.AFTERNOON,
+                                count = afternoonRoutines.size,
+                                onAddClick = { onAddSectionClick(TimeOfDay.AFTERNOON) }
+                            )
+                        }
+                        if (afternoonRoutines.isEmpty()) {
+                            item { EmptySectionCard("Aucune routine l'après-midi") }
+                        } else {
+                            items(afternoonRoutines, key = { it.id }) { item ->
+                                ParentRoutineCard(
+                                    item = item,
+                                    onEditClick = onEditClick,
+                                    onDeleteClick = onDeleteClick,
+                                    onMoveUpClick = onMoveUpClick,
+                                    onMoveDownClick = onMoveDownClick,
+                                    onChangeTimeOfDayClick = onChangeTimeOfDayClick,
+                                    onAutoScroll = { delta ->
+                                        coroutineScope.launch {
+                                            listState.scrollBy(delta)
+                                        }
+                                    }
+                                )
                             }
-                        )
-                    }
-                }
+                        }
 
-                // Evening Section
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    RoutineSectionHeader(
-                        timeOfDay = TimeOfDay.EVENING,
-                        count = eveningRoutines.size,
-                        onAddClick = { onAddSectionClick(TimeOfDay.EVENING) }
+                        // Evening Section
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            RoutineSectionHeader(
+                                timeOfDay = TimeOfDay.EVENING,
+                                count = eveningRoutines.size,
+                                onAddClick = { onAddSectionClick(TimeOfDay.EVENING) }
+                            )
+                        }
+                        if (eveningRoutines.isEmpty()) {
+                            item { EmptySectionCard("Aucune routine le soir") }
+                        } else {
+                            items(eveningRoutines, key = { it.id }) { item ->
+                                ParentRoutineCard(
+                                    item = item,
+                                    onEditClick = onEditClick,
+                                    onDeleteClick = onDeleteClick,
+                                    onMoveUpClick = onMoveUpClick,
+                                    onMoveDownClick = onMoveDownClick,
+                                    onChangeTimeOfDayClick = onChangeTimeOfDayClick,
+                                    onAutoScroll = { delta ->
+                                        coroutineScope.launch {
+                                            listState.scrollBy(delta)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    RoutineFrequency.WEEKLY -> {
+                        val dayNames = listOf("Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche")
+                        itemsIndexed(dayNames) { idx, dayTitle ->
+                            val dayNum = idx + 1
+                            val dayRoutines = filteredRoutines.filter { it.daysOfWeek.contains(dayNum) }
+                            ExpandableFrequencySectionCard(
+                                title = dayTitle,
+                                icon = "📅",
+                                routines = dayRoutines,
+                                onAddClick = { onAddSectionClick(TimeOfDay.MORNING) },
+                                onEditClick = onEditClick,
+                                onDeleteClick = onDeleteClick,
+                                onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                            )
+                        }
+                    }
+
+                    RoutineFrequency.MONTHLY -> {
+                        val monthNames = listOf("Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre")
+                        itemsIndexed(monthNames) { idx, monthTitle ->
+                            val monthNumStr = (idx + 1).toString()
+                            val monthRoutines = filteredRoutines.filter { it.specificDates.contains(monthNumStr) }
+                            ExpandableFrequencySectionCard(
+                                title = monthTitle,
+                                icon = "📆",
+                                routines = monthRoutines,
+                                onAddClick = { onAddSectionClick(TimeOfDay.MORNING) },
+                                onEditClick = onEditClick,
+                                onDeleteClick = onDeleteClick,
+                                onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                            )
+                        }
+                    }
+
+                    RoutineFrequency.SEASONAL -> {
+                        val seasonsList = listOf(
+                            Season.SPRING to "Printemps 🌸",
+                            Season.SUMMER to "Été ☀️",
+                            Season.AUTUMN to "Automne 🍂",
+                            Season.WINTER to "Hiver ❄️"
+                        )
+                        items(seasonsList) { (sEnum, sTitle) ->
+                            val seasonRoutines = filteredRoutines.filter { it.season == sEnum }
+                            ExpandableFrequencySectionCard(
+                                title = sTitle,
+                                icon = sEnum.icon,
+                                routines = seasonRoutines,
+                                onAddClick = { onAddSectionClick(TimeOfDay.MORNING) },
+                                onEditClick = onEditClick,
+                                onDeleteClick = onDeleteClick,
+                                onChangeTimeOfDayClick = onChangeTimeOfDayClick
+                            )
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandableFrequencySectionCard(
+    title: String,
+    icon: String,
+    routines: List<RoutineItem>,
+    onAddClick: () -> Unit,
+    onEditClick: (RoutineItem) -> Unit,
+    onDeleteClick: (RoutineItem) -> Unit,
+    onChangeTimeOfDayClick: (RoutineItem) -> Unit
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = icon, fontSize = 20.sp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
+                )
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(
+                        text = "${routines.size}",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
-                if (eveningRoutines.isEmpty()) {
-                    item { EmptySectionCard("Aucune routine le soir") }
+                IconButton(onClick = onAddClick) {
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Ajouter", tint = MaterialTheme.colorScheme.primary)
+                }
+                IconButton(onClick = { isExpanded = !isExpanded }) {
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = if (isExpanded) "Réduire" else "Développer"
+                    )
+                }
+            }
+
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                if (routines.isEmpty()) {
+                    Text(
+                        text = "Aucune tâche assignée",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+                    )
                 } else {
-                    items(eveningRoutines, key = { it.id }) { item ->
-                        ParentRoutineCard(
-                            item = item,
-                            onEditClick = onEditClick,
-                            onDeleteClick = onDeleteClick,
-                            onMoveUpClick = onMoveUpClick,
-                            onMoveDownClick = onMoveDownClick,
-                            onChangeTimeOfDayClick = onChangeTimeOfDayClick,
-                            onAutoScroll = { delta ->
-                                coroutineScope.launch {
-                                    listState.scrollBy(delta)
-                                }
-                            }
-                        )
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        routines.forEach { item ->
+                            ParentRoutineCard(
+                                item = item,
+                                onEditClick = onEditClick,
+                                onDeleteClick = onDeleteClick,
+                                onMoveUpClick = {},
+                                onMoveDownClick = {},
+                                onChangeTimeOfDayClick = onChangeTimeOfDayClick,
+                                onAutoScroll = {}
+                            )
+                        }
                     }
                 }
             }
