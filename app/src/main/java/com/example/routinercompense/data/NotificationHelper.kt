@@ -5,15 +5,18 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.core.app.NotificationCompat
 import com.example.routinercompense.MainActivity
 import com.example.routinercompense.R
 
 class NotificationHelper(private val context: Context) {
 
-    private val channelId = "routine_app_alerts"
+    private val channelId = "routine_app_alerts_v2"
     private val channelName = "Alertes Routine & Récompenses"
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -24,6 +27,11 @@ class NotificationHelper(private val context: Context) {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val audioAttributes = AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .build()
+
             val channel = NotificationChannel(
                 channelId,
                 channelName,
@@ -31,8 +39,8 @@ class NotificationHelper(private val context: Context) {
             ).apply {
                 description = "Notifications avec son et vibration pour les routines, étoiles et récompenses"
                 enableVibration(true)
-                vibrationPattern = longArrayOf(0, 300, 200, 300)
-                setSound(soundUri, null)
+                vibrationPattern = longArrayOf(0, 400, 200, 400)
+                setSound(soundUri, audioAttributes)
             }
             notificationManager.createNotificationChannel(channel)
         }
@@ -40,6 +48,18 @@ class NotificationHelper(private val context: Context) {
 
     fun sendSystemNotification(title: String, message: String, notificationId: Int = System.currentTimeMillis().toInt()) {
         try {
+            val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val ringtone = RingtoneManager.getRingtone(context, soundUri)
+            ringtone?.play()
+
+            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator?.vibrate(VibrationEffect.createOneShot(400, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator?.vibrate(400)
+            }
+
             val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
@@ -49,8 +69,6 @@ class NotificationHelper(private val context: Context) {
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-
-            val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
 
             val builder = NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -63,7 +81,7 @@ class NotificationHelper(private val context: Context) {
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                 .setAutoCancel(true)
                 .setSound(soundUri)
-                .setVibrate(longArrayOf(0, 300, 200, 300))
+                .setVibrate(longArrayOf(0, 400, 200, 400))
                 .setContentIntent(pendingIntent)
 
             notificationManager.notify(notificationId, builder.build())

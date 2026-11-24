@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 19000,
-  "latestVersionName": "19.0",
-  "releaseNotes": "Mise à jour v19.0 majeure : Verrouillage vert '✅ Validé par les parents' chez l'enfant jusqu'au lendemain, et verrouillage permanent des clics tant que la tâche n'a pas été statuée par un parent.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
+  "latestVersionCode": 20000,
+  "latestVersionName": "20.0",
+  "releaseNotes": "Mise à jour majeure v20.0 : Demande officielle de permission système POST_NOTIFICATIONS (Android 13+) pour déclencher les vraies sonneries et vibrations d'alertes en direct entre téléphones.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=20000"
 }
