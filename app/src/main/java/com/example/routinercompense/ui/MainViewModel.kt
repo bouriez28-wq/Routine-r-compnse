@@ -346,6 +346,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _history.value = updatedHistory
         repository.saveHistory(updatedHistory)
 
+        val titleText = if (amount >= 0) "+$amount ⭐ Étoile(s) attribuée(s) !" else "$amount ⭐ Étoile(s) retirée(s)"
+        val messageText = if (comment.isNotBlank()) "Motif : $comment" else "Ajustement par les parents"
+        val stickerIcon = if (amount >= 0) "⭐" else "🔻"
+
+        val autoSticker = StickerMessage(
+            icon = stickerIcon,
+            title = titleText,
+            message = messageText
+        )
+        _stickers.value = _stickers.value + autoSticker
+
         pushToCloud()
     }
 
