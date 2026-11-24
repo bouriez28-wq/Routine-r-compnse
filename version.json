@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 17200,
-  "latestVersionName": "17.2",
-  "releaseNotes": "Mise à jour v17.2 : Le badge '⏳ En attente de validation par les parents' reste désormais affiché en permanence chez l'enfant tant qu'un parent n'a pas validé ou refusé la tâche.",
+  "latestVersionCode": 18000,
+  "latestVersionName": "18.0",
+  "releaseNotes": "Mise à jour v18.0 majeure : Correctif de la sérialisation Firebase de isPendingValidation pour l'envoi instantané de l'alerte tâche en attente et l'affichage dans l'Accueil Parent.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

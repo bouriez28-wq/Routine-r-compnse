@@ -190,7 +190,7 @@ class CloudSyncRepository {
                         rewardIcon = hObj.optString("rewardIcon", "🎁"),
                         starCost = hObj.optInt("starCost", 0),
                         timestamp = hObj.optLong("timestamp", System.currentTimeMillis()),
-                        isPendingApproval = hObj.optBoolean("isPendingApproval", true)
+                        isPendingApproval = hObj.optBoolean("isPendingApproval", false)
                     )
                 )
             }
@@ -243,6 +243,7 @@ class CloudSyncRepository {
             rObj.put("starsReward", item.starsReward)
             rObj.put("isCompleted", item.isCompleted)
             rObj.put("completedDate", item.completedDate)
+            rObj.put("isPendingValidation", item.isPendingValidation)
             rObj.put("frequency", item.frequency.name)
 
             val daysArray = JSONArray()
