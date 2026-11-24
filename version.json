@@ -2,5 +2,5 @@
   "latestVersionCode": 18000,
   "latestVersionName": "18.0",
   "releaseNotes": "Mise à jour v18.0 majeure : Correctif de la sérialisation Firebase de isPendingValidation pour l'envoi instantané de l'alerte tâche en attente et l'affichage dans l'Accueil Parent.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=18000"
 }
