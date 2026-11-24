@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 33000,
-  "latestVersionName": "33.0",
-  "releaseNotes": "Mise à jour v33.0 majeure : Service d'arrière-plan permanent WorkManager pour l'envoi de la notification de mise à jour système à tout moment, même quand l'application est fermée.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=33000"
+  "latestVersionCode": 34000,
+  "latestVersionName": "34.0",
+  "releaseNotes": "Mise à jour v34.0 majeure : Verrouillage strict de l'écran enfant en mode lecture/action, et ajout du nouvel onglet '👁️ Vue Enfant' en direct dans l'Espace Parent.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=34000"
 }

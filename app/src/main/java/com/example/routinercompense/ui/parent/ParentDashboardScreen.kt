@@ -53,6 +53,7 @@ import com.example.routinercompense.BuildConfig
 import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
 import com.example.routinercompense.model.RoutineItem
+import com.example.routinercompense.ui.screens.ChildRoutinesScreen
 import com.example.routinercompense.model.TimeOfDay
 import com.example.routinercompense.ui.theme.AppThemePalette
 import com.example.routinercompense.ui.theme.DarkThemeOption
@@ -90,7 +91,7 @@ fun ParentDashboardScreen(
     onAdjustStarsWithComment: (amount: Int, comment: String) -> Unit = { _, _ -> },
     onResetStatistics: () -> Unit = {}
 ) {
-    val tabs = listOf("🏠 Accueil", "💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
+    val tabs = listOf("🏠 Accueil", "👁️ Vue Enfant", "💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { tabs.size })
 
@@ -170,7 +171,13 @@ fun ParentDashboardScreen(
                         onSendStickerToChild = onSendStickerToChild,
                         onResetStatistics = onResetStatistics
                     )
-                    1 -> ParentTasksLibraryTab(
+                    1 -> ParentChildPreviewTab(
+                        childName = childName,
+                        totalStars = totalStars,
+                        routines = routines,
+                        history = history
+                    )
+                    2 -> ParentTasksLibraryTab(
                         onAddLibraryTask = { task ->
                             editingRoutine = task
                             isAddingRoutine = true
@@ -180,7 +187,7 @@ fun ParentDashboardScreen(
                             isAddingRoutine = true
                         }
                     )
-                    2 -> ParentRoutinesTab(
+                    3 -> ParentRoutinesTab(
                         routines = routines,
                         onAddSectionClick = { tod ->
                             selectedTimeOfDayForAdd = tod
@@ -216,13 +223,13 @@ fun ParentDashboardScreen(
                             onAddOrUpdateRoutine(updatedItem)
                         }
                     )
-                    3 -> ParentRewardsTab(
+                    4 -> ParentRewardsTab(
                         rewards = rewards,
                         onAddClick = { isAddingReward = true },
                         onEditClick = { editingReward = it },
                         onDeleteClick = onDeleteReward
                     )
-                    4 -> ParentSettingsTab(
+                    5 -> ParentSettingsTab(
                         childName = childName,
                         totalStars = totalStars,
                         familyCode = familyCode,
@@ -272,6 +279,62 @@ fun ParentDashboardScreen(
                 editingReward = null
             }
         )
+    }
+}
+
+@Composable
+private fun ParentChildPreviewTab(
+    childName: String,
+    totalStars: Int,
+    routines: List<RoutineItem>,
+    history: List<RewardClaimHistory>
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "👁️ Aperçu Vue Enfant en direct ($childName)",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Surface(
+                        color = Color(0xFFFFF8E1),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "✨ $totalStars ⭐",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 12.sp,
+                            color = Color(0xFFE65100),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+
+            ChildRoutinesScreen(
+                routines = routines,
+                onToggleRoutine = {},
+                stickers = emptyList(),
+                onMarkStickerRead = {}
+            )
+        }
     }
 }
 
