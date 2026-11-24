@@ -218,7 +218,7 @@ class ApkInstaller(private val context: Context) {
 
             val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
             val oldFile = File(downloadsDir, "Routine_Recompenses_update.apk")
-            if (oldFile != null && oldFile.exists()) {
+            if (oldFile.exists()) {
                 oldFile.delete()
             }
 
@@ -226,7 +226,7 @@ class ApkInstaller(private val context: Context) {
                 .setTitle("Routine & Récompenses")
                 .setDescription("Mise à jour en cours...")
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "Routine_Recompenses_update.apk")
+                .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "Routine_Recompenses_update.apk")
                 .setMimeType("application/vnd.android.package-archive")
 
             val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager

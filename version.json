@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 8000,
-  "latestVersionName": "8.0",
-  "releaseNotes": "Mise à jour v8.0 : Nouvelle architecture de l'Espace Parent avec bibliothèque de Tâches globale et onglet de Routines divisé par fréquence.",
+  "latestVersionCode": 8001,
+  "latestVersionName": "8.1",
+  "releaseNotes": "Mise à jour v8.1 : Nettoyage automatique de la mémoire du téléphone (écrasement automatique des anciennes mises à jour).",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
