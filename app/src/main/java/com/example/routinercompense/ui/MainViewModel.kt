@@ -375,24 +375,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (index != -1) {
             val oldItem = currentList[index]
             if (oldItem.isCompleted) {
-                // Uncheck completed task (deduct stars if previously approved)
-                val updatedItem = oldItem.copy(
-                    isCompleted = false,
-                    isPendingValidation = false,
-                    completedDate = ""
-                )
-                currentList[index] = updatedItem
-                _routines.value = currentList
-                repository.saveRoutines(currentList)
-
-                val newStarTotal = (_totalStars.value - oldItem.starsReward).coerceAtLeast(0)
-                _totalStars.value = newStarTotal
-                repository.setTotalStars(newStarTotal)
+                return
+            } else if (oldItem.isPendingValidation) {
+                return
             } else {
-                // Child clicks task -> mark as pending parent validation (DO NOT mark completed or add stars yet)
-                val newPendingState = !oldItem.isPendingValidation
                 val updatedItem = oldItem.copy(
-                    isPendingValidation = newPendingState,
+                    isPendingValidation = true,
                     isCompleted = false
                 )
                 currentList[index] = updatedItem

@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 17100,
-  "latestVersionName": "17.1",
-  "releaseNotes": "Mise à jour v17.1 : Badge orange '⏳ En attente de validation par les parents' affiché sous le titre de la tâche chez l'enfant, et synchronisation par titre/moment.",
+  "latestVersionCode": 17200,
+  "latestVersionName": "17.2",
+  "releaseNotes": "Mise à jour v17.2 : Le badge '⏳ En attente de validation par les parents' reste désormais affiché en permanence chez l'enfant tant qu'un parent n'a pas validé ou refusé la tâche.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
