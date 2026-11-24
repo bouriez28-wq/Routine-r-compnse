@@ -155,9 +155,11 @@ fun ParentDashboardScreen(
                 )
                 1 -> ParentTasksLibraryTab(
                     onAddLibraryTask = { task ->
-                        onAddOrUpdateRoutine(task)
+                        editingRoutine = task
+                        isAddingRoutine = true
                     },
                     onCustomTaskClick = {
+                        editingRoutine = null
                         isAddingRoutine = true
                     }
                 )

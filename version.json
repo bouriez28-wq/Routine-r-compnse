@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 10000,
-  "latestVersionName": "10.0",
-  "releaseNotes": "Mise à jour majeure v10.0 : Nouvel Espace Parent Accueil avec validations de tâches, demandes de récompenses, solde d'étoiles et envoi de stickers Bon Point !",
+  "latestVersionCode": 10100,
+  "latestVersionName": "10.1",
+  "releaseNotes": "Mise à jour v10.1 : Le clic sur + dans la bibliothèque de tâches ouvre immédiatement la fenêtre d'édition complète avec toutes les variables (Moment, Fréquence, Étoiles).",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
