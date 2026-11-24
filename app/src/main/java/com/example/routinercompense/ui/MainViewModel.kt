@@ -208,15 +208,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _routines.value = updatedRoutines
         repository.saveRoutines(updatedRoutines)
         addStars(task.starsReward)
+
+        val approvalSticker = StickerMessage(
+            icon = "✅",
+            title = "Tâche validée ! (+${task.starsReward} ⭐)",
+            message = "Bravo pour la tâche : \"${task.title}\" !"
+        )
+        _stickers.value = _stickers.value + approvalSticker
+
         pushToCloud()
     }
 
-    fun rejectTaskValidation(task: RoutineItem) {
+    fun rejectTaskValidation(task: RoutineItem, reason: String = "") {
         val updatedRoutines = _routines.value.map { r ->
             if (r.id == task.id) r.copy(isCompleted = false, isPendingValidation = false, completedDate = "") else r
         }
         _routines.value = updatedRoutines
         repository.saveRoutines(updatedRoutines)
+
+        val rejectionMessage = if (reason.isNotBlank()) "Motif : $reason" else "Tâche \"${task.title}\" à refaire."
+        val rejectionSticker = StickerMessage(
+            icon = "❌",
+            title = "Tâche à refaire",
+            message = rejectionMessage
+        )
+        _stickers.value = _stickers.value + rejectionSticker
+
         pushToCloud()
     }
 

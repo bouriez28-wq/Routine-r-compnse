@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 13200,
-  "latestVersionName": "13.2",
-  "releaseNotes": "Mise à jour v13.2 : Validation parentale obligatoire activée. Le clic enfant met la tâche en attente (badge ⏳ En attente) et demande la validation explicite du parent dans l'onglet Accueil.",
+  "latestVersionCode": 14000,
+  "latestVersionName": "14.0",
+  "releaseNotes": "Mise à jour v14.0 majeure : Statistiques ciblées (Quotidiennes & Mensuelles), fenêtre de motif lors des refus de tâches avec envoi de notification à l'enfant.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

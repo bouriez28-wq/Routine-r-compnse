@@ -81,7 +81,7 @@ fun ParentDashboardScreen(
     onSelectPalette: (AppThemePalette) -> Unit,
     onSelectDarkOption: (DarkThemeOption) -> Unit,
     onApproveTaskValidation: (RoutineItem) -> Unit = {},
-    onRejectTaskValidation: (RoutineItem) -> Unit = {},
+    onRejectTaskValidation: (RoutineItem, String) -> Unit = { _, _ -> },
     onApproveRewardClaim: (RewardClaimHistory) -> Unit = {},
     onRejectRewardClaim: (RewardClaimHistory) -> Unit = {},
     onSendStickerToChild: (icon: String, title: String, message: String) -> Unit = { _, _, _ -> },
@@ -270,7 +270,7 @@ private fun ParentHomeTab(
     onSetTotalStars: (Int) -> Unit,
     onAdjustStarsWithComment: (Int, String) -> Unit,
     onApproveTaskValidation: (RoutineItem) -> Unit,
-    onRejectTaskValidation: (RoutineItem) -> Unit,
+    onRejectTaskValidation: (RoutineItem, String) -> Unit,
     onApproveRewardClaim: (RewardClaimHistory) -> Unit,
     onRejectRewardClaim: (RewardClaimHistory) -> Unit,
     onSendStickerToChild: (String, String, String) -> Unit
@@ -279,6 +279,7 @@ private fun ParentHomeTab(
     val pendingRewards = history.filter { it.isPendingApproval }
     var sentStickerMessage by remember { mutableStateOf<String?>(null) }
     var pendingStarAdjustmentAmount by remember { mutableStateOf<Int?>(null) }
+    var taskPendingRejection by remember { mutableStateOf<RoutineItem?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -334,25 +335,27 @@ private fun ParentHomeTab(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "📊 Statistiques", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(text = "📊 Statistiques de progression", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    val completedCount = routines.count { it.isCompleted }
-                    val totalCount = routines.size
-                    val monthlyPercent = if (totalCount > 0) (completedCount * 100 / totalCount) else 0
-                    val progressFloat = if (totalCount > 0) completedCount.toFloat() / totalCount else 0f
+                    // 1. Daily Routines Progress (%)
+                    val dailyRoutines = routines.filter { it.frequency == RoutineFrequency.DAILY }
+                    val dailyCompleted = dailyRoutines.count { it.isCompleted }
+                    val dailyTotal = dailyRoutines.size
+                    val dailyPercent = if (dailyTotal > 0) (dailyCompleted * 100 / dailyTotal) else 0
+                    val dailyFloat = if (dailyTotal > 0) dailyCompleted.toFloat() / dailyTotal else 0f
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "Progression du mois :", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        Text(text = "Progression journalière :", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(
-                                text = "$monthlyPercent%",
+                                text = "$dailyPercent%",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.primary,
@@ -362,17 +365,54 @@ private fun ParentHomeTab(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     LinearProgressIndicator(
-                        progress = { progressFloat },
+                        progress = { dailyFloat },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(10.dp)
-                            .clip(RoundedCornerShape(5.dp)),
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp)),
                         color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // 2. Monthly Routines Progress (%)
+                    val monthlyRoutines = routines.filter { it.frequency == RoutineFrequency.MONTHLY }
+                    val monthlyCompleted = monthlyRoutines.count { it.isCompleted }
+                    val monthlyTotal = monthlyRoutines.size
+                    val monthlyPercent = if (monthlyTotal > 0) (monthlyCompleted * 100 / monthlyTotal) else 0
+                    val monthlyFloat = if (monthlyTotal > 0) monthlyCompleted.toFloat() / monthlyTotal else 0f
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Progression mensuelle :", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        Surface(
+                            color = Color(0xFFE8F5E9),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "$monthlyPercent%",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                color = Color(0xFF2E7D32),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                        progress = { monthlyFloat },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp)),
+                        color = Color(0xFF2E7D32),
                         trackColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(text = "Étoiles gagnées cette semaine :", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    Text(text = "Étoiles gagnées cette semaine (Réinitialisé dimanche soir) :", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     val daysOfWeekLabels = listOf("Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim")
@@ -401,7 +441,7 @@ private fun ParentHomeTab(
                                     shape = RoundedCornerShape(6.dp),
                                     modifier = Modifier
                                         .width(28.dp)
-                                        .height(((dayStars * 10).coerceIn(12, 80)).dp)
+                                        .height(((dayStars * 10).coerceIn(12, 70)).dp)
                                 ) {}
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(text = dayName, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
@@ -463,7 +503,7 @@ private fun ParentHomeTab(
                                         Text("✅ Valider", fontSize = 12.sp)
                                     }
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    IconButton(onClick = { onRejectTaskValidation(task) }) {
+                                    IconButton(onClick = { taskPendingRejection = task }) {
                                         Icon(imageVector = Icons.Filled.Delete, contentDescription = "Refuser", tint = MaterialTheme.colorScheme.error)
                                     }
                                 }
@@ -627,6 +667,44 @@ private fun ParentHomeTab(
             },
             dismissButton = {
                 TextButton(onClick = { pendingStarAdjustmentAmount = null }) {
+                    Text("Annuler")
+                }
+            }
+        )
+    }
+
+    taskPendingRejection?.let { task ->
+        var rejectionReason by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { taskPendingRejection = null },
+            icon = { Text(text = "❌", fontSize = 40.sp) },
+            title = { Text(text = "Refuser la tâche \"${task.title}\"", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+            text = {
+                Column {
+                    Text(text = "Indiquez la raison du refus pour l'enfant (optionnel) :", fontSize = 13.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = rejectionReason,
+                        onValueChange = { rejectionReason = it },
+                        label = { Text("Motif (ex: Le lit n'est pas bien fait)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onRejectTaskValidation(task, rejectionReason)
+                        taskPendingRejection = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Envoyer le refus")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { taskPendingRejection = null }) {
                     Text("Annuler")
                 }
             }

@@ -113,7 +113,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
             onSelectPalette = { viewModel.setThemePalette(it) },
             onSelectDarkOption = { viewModel.setDarkThemeOption(it) },
             onApproveTaskValidation = { viewModel.approveTaskValidation(it) },
-            onRejectTaskValidation = { viewModel.rejectTaskValidation(it) },
+            onRejectTaskValidation = { task, reason -> viewModel.rejectTaskValidation(task, reason) },
             onApproveRewardClaim = { viewModel.approveRewardClaim(it) },
             onRejectRewardClaim = { viewModel.rejectRewardClaim(it) },
             onSendStickerToChild = { icon, title, msg -> viewModel.sendStickerToChild(icon, title, msg) },
