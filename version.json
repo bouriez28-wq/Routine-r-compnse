@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 21000,
-  "latestVersionName": "21.0",
-  "releaseNotes": "Mise à jour v21.0 majeure : Suppression des notifications système en double sur le téléphone du parent lors de la validation, au profit d'un pop-up in-app clair.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=21000"
+  "latestVersionCode": 30000,
+  "latestVersionName": "30.0",
+  "releaseNotes": "Mise à jour v30.0 majeure : Notification d'alerte système v30.0 en direct dans la barre de statut au démarrage.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=30000"
 }
