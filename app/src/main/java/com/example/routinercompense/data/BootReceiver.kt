@@ -3,7 +3,9 @@ package com.example.routinercompense.data
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
@@ -19,12 +21,17 @@ class BootReceiver : BroadcastReceiver() {
     companion object {
         fun scheduleUpdateCheck(context: Context) {
             try {
-                val updateWorkRequest = PeriodicWorkRequestBuilder<UpdateWorker>(1, TimeUnit.HOURS)
+                val constraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+
+                val updateWorkRequest = PeriodicWorkRequestBuilder<UpdateWorker>(15, TimeUnit.MINUTES)
+                    .setConstraints(constraints)
                     .build()
 
                 WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                     "BackgroundUpdateCheck",
-                    ExistingPeriodicWorkPolicy.KEEP,
+                    ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
                     updateWorkRequest
                 )
             } catch (e: Exception) {
