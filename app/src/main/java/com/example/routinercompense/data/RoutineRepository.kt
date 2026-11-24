@@ -352,7 +352,8 @@ class RoutineRepository(context: Context) {
                         rewardTitle = obj.getString("rewardTitle"),
                         rewardIcon = obj.optString("rewardIcon", "🎁"),
                         starCost = obj.optInt("starCost", 0),
-                        timestamp = obj.optLong("timestamp", System.currentTimeMillis())
+                        timestamp = obj.optLong("timestamp", System.currentTimeMillis()),
+                        isPendingApproval = obj.optBoolean("isPendingApproval", false)
                     )
                 )
             }
@@ -380,24 +381,24 @@ class RoutineRepository(context: Context) {
 
     private fun getDefaultRoutines(): List<RoutineItem> {
         return listOf(
-            RoutineItem(title = "Faire son lit", icon = "🛏️", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
-            RoutineItem(title = "Brosser ses dents", icon = "🪥", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
-            RoutineItem(title = "Prendre son petit-déjeuner", icon = "🥣", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
-            RoutineItem(title = "Faire ses devoirs", icon = "📚", timeOfDay = TimeOfDay.AFTERNOON, starsReward = 2),
-            RoutineItem(title = "Ranger ses jouets", icon = "🧸", timeOfDay = TimeOfDay.AFTERNOON, starsReward = 2),
-            RoutineItem(title = "Prendre sa douche", icon = "🚿", timeOfDay = TimeOfDay.EVENING, starsReward = 1),
-            RoutineItem(title = "Brosser ses dents", icon = "🪥", timeOfDay = TimeOfDay.EVENING, starsReward = 1),
-            RoutineItem(title = "Lire une histoire", icon = "📖", timeOfDay = TimeOfDay.EVENING, starsReward = 1)
+            RoutineItem(id = "def_routine_1", title = "Faire son lit", icon = "🛏️", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
+            RoutineItem(id = "def_routine_2", title = "Brosser ses dents", icon = "🪥", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
+            RoutineItem(id = "def_routine_3", title = "Prendre son petit-déjeuner", icon = "🥣", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
+            RoutineItem(id = "def_routine_4", title = "Faire ses devoirs", icon = "📚", timeOfDay = TimeOfDay.AFTERNOON, starsReward = 2),
+            RoutineItem(id = "def_routine_5", title = "Ranger ses jouets", icon = "🧸", timeOfDay = TimeOfDay.AFTERNOON, starsReward = 2),
+            RoutineItem(id = "def_routine_6", title = "Prendre sa douche", icon = "🚿", timeOfDay = TimeOfDay.EVENING, starsReward = 1),
+            RoutineItem(id = "def_routine_7", title = "Brosser ses dents", icon = "🪥", timeOfDay = TimeOfDay.EVENING, starsReward = 1),
+            RoutineItem(id = "def_routine_8", title = "Lire une histoire", icon = "📖", timeOfDay = TimeOfDay.EVENING, starsReward = 1)
         )
     }
 
     private fun getDefaultRewards(): List<RewardItem> {
         return listOf(
-            RewardItem(title = "30 min d'écran / jeux", icon = "🎮", starCost = 5, description = "Moment détente console ou tablette"),
-            RewardItem(title = "Choisir le repas du soir", icon = "🍕", starCost = 8, description = "Proposer son plat préféré pour le dîner"),
-            RewardItem(title = "Sortie au parc", icon = "🛝", starCost = 10, description = "Aller jouer au parc de jeux"),
-            RewardItem(title = "Coucher +15 minutes", icon = "🌙", starCost = 6, description = "Rester éveillé 15 min de plus"),
-            RewardItem(title = "Petit jouet ou surprise", icon = "🎁", starCost = 20, description = "Une chouette petite surprise de maman/papa")
+            RewardItem(id = "def_reward_1", title = "30 min d'écran / jeux", icon = "🎮", starCost = 5, description = "Moment détente console ou tablette"),
+            RewardItem(id = "def_reward_2", title = "Choisir le repas du soir", icon = "🍕", starCost = 8, description = "Proposer son plat préféré pour le dîner"),
+            RewardItem(id = "def_reward_3", title = "Sortie au parc", icon = "🛝", starCost = 10, description = "Aller jouer au parc de jeux"),
+            RewardItem(id = "def_reward_4", title = "Coucher +15 minutes", icon = "🌙", starCost = 6, description = "Rester éveillé 15 min de plus"),
+            RewardItem(id = "def_reward_5", title = "Petit jouet ou surprise", icon = "🎁", starCost = 20, description = "Une chouette petite surprise de maman/papa")
         )
     }
 }

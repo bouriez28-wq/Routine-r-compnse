@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 16000,
-  "latestVersionName": "16.0",
-  "releaseNotes": "Mise à jour majeure v16.0 : Notifications système Android en direct (son + vibration) pour chaque tâche à valider, chaque validation/refus, chaque sticker et chaque nouvelle mise à jour disponible !",
+  "latestVersionCode": 17000,
+  "latestVersionName": "17.0",
+  "releaseNotes": "Mise à jour v17.0 majeure : Alignement des identifiants uniques (IDs) entre téléphones, correction de la corrélation Tâches/Récompenses et notifications système multi-appareils garanties.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
