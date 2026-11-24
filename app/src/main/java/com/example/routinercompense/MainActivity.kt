@@ -39,6 +39,7 @@ import com.example.routinercompense.ui.screens.ChildHistoryScreen
 import com.example.routinercompense.ui.screens.ChildRewardsScreen
 import com.example.routinercompense.ui.screens.ChildRoutinesScreen
 import com.example.routinercompense.ui.screens.RoleSelectionScreen
+import com.example.routinercompense.data.BootReceiver
 import com.example.routinercompense.ui.theme.RoutineTheme
 
 class MainActivity : ComponentActivity() {
@@ -47,6 +48,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        BootReceiver.scheduleUpdateCheck(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {

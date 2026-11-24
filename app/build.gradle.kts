@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.routinercompense"
         minSdk = 26
         targetSdk = 36
-        versionCode = 32000
-        versionName = "32.0"
+        versionCode = 33000
+        versionName = "33.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.google.zxing:core:3.5.3")
 
     testImplementation(libs.junit)

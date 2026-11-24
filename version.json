@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 32000,
-  "latestVersionName": "32.0",
-  "releaseNotes": "Mise à jour v32.0 majeure : Enrichissement massif du catalogue de tâches avec tâches saisonnières (Déneiger ❄️, Ramasser les feuilles 🍂, Planter des fleurs 🌸, Arroser ☀️) et filtres par catégories.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=32000"
+  "latestVersionCode": 33000,
+  "latestVersionName": "33.0",
+  "releaseNotes": "Mise à jour v33.0 majeure : Service d'arrière-plan permanent WorkManager pour l'envoi de la notification de mise à jour système à tout moment, même quand l'application est fermée.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=33000"
 }
