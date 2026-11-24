@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 9001,
-  "latestVersionName": "9.1",
-  "releaseNotes": "Mise à jour v9.1 : La notification de téléchargement de mise à jour se supprime désormais automatiquement de la barre une fois l'installation lancée.",
+  "latestVersionCode": 9500,
+  "latestVersionName": "9.5",
+  "releaseNotes": "Mise à jour v9.5 : Correctif complet du Glisser-déplacer tactile entre les sections Matin, Après-midi et Soir.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

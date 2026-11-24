@@ -134,8 +134,6 @@ fun ParentDashboardScreen(
                 0 -> ParentTasksLibraryTab(
                     onAddLibraryTask = { task ->
                         onAddOrUpdateRoutine(task)
-                        isAddingRoutine = true
-                        editingRoutine = task
                     },
                     onCustomTaskClick = {
                         isAddingRoutine = true
@@ -526,9 +524,31 @@ private fun ParentRoutineCard(
                     },
                     onDragEnd = {
                         isDragging = false
-                        if (offsetY < -50f) {
+                        if (offsetY < -90f) {
+                            val prevTod = when (item.timeOfDay) {
+                                TimeOfDay.AFTERNOON -> TimeOfDay.MORNING
+                                TimeOfDay.EVENING -> TimeOfDay.AFTERNOON
+                                TimeOfDay.MORNING -> TimeOfDay.MORNING
+                            }
+                            if (prevTod != item.timeOfDay) {
+                                onChangeTimeOfDayClick(item.copy(timeOfDay = prevTod))
+                            } else {
+                                onMoveUpClick(item)
+                            }
+                        } else if (offsetY > 90f) {
+                            val nextTod = when (item.timeOfDay) {
+                                TimeOfDay.MORNING -> TimeOfDay.AFTERNOON
+                                TimeOfDay.AFTERNOON -> TimeOfDay.EVENING
+                                TimeOfDay.EVENING -> TimeOfDay.EVENING
+                            }
+                            if (nextTod != item.timeOfDay) {
+                                onChangeTimeOfDayClick(item.copy(timeOfDay = nextTod))
+                            } else {
+                                onMoveDownClick(item)
+                            }
+                        } else if (offsetY < -30f) {
                             onMoveUpClick(item)
-                        } else if (offsetY > 50f) {
+                        } else if (offsetY > 30f) {
                             onMoveDownClick(item)
                         }
                         offsetY = 0f
