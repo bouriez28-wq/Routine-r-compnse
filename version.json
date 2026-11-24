@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 14000,
-  "latestVersionName": "14.0",
-  "releaseNotes": "Mise à jour v14.0 majeure : Notifications en direct à l'enfant lors des validations et des refus avec motif du parent.",
+  "latestVersionCode": 14100,
+  "latestVersionName": "14.1",
+  "releaseNotes": "Mise à jour v14.1 : Confirmation du flux de validation parentale obligatoire. Le clic enfant met la tâche en attente (badge ⏳ En attente) et demande la validation explicite du parent dans l'onglet Accueil.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
