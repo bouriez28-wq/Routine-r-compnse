@@ -103,6 +103,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     releaseNotes = result.releaseNotes,
                     downloadUrl = result.downloadUrl
                 )
+                notificationHelper.sendSystemNotification(
+                    "🔔 Mise à jour v${result.latestVersionName} disponible !",
+                    "Une nouvelle mise à jour de l'application est disponible. Toucher pour l'installer."
+                )
             }
         }
     }
@@ -143,18 +147,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             repository.setTotalStars(cloudData.totalStars)
 
             if (cloudData.routines.isNotEmpty()) {
+                val newPendingRoutines = cloudData.routines.filter { it.isPendingValidation && !localPendingRoutines.contains(it.id) }
                 _routines.value = cloudData.routines
                 repository.saveRoutines(cloudData.routines)
 
-                // Trigger Parent notification if new pending task validation arrived from child
-                if (_deviceRole.value == DeviceRole.PARENT || _isParentMode.value) {
-                    val newPendingRoutines = cloudData.routines.filter { it.isPendingValidation && !localPendingRoutines.contains(it.id) }
-                    for (newPending in newPendingRoutines) {
-                        notificationHelper.sendSystemNotification(
-                            "⏳ Tâche à valider par ${cloudData.childName}",
-                            "Tâche : \"${newPending.title}\" (+${newPending.starsReward} ⭐)"
-                        )
-                    }
+                for (newPending in newPendingRoutines) {
+                    notificationHelper.sendSystemNotification(
+                        "⏳ Tâche à valider par ${cloudData.childName}",
+                        "Tâche : \"${newPending.title}\" (+${newPending.starsReward} ⭐)"
+                    )
                 }
             }
 
@@ -169,15 +170,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             if (cloudData.stickers.isNotEmpty()) {
-                // Trigger Child notification if new sticker/validation notification arrived from parent
-                if (_deviceRole.value == DeviceRole.CHILD && !_isParentMode.value) {
-                    val newStickers = cloudData.stickers.filter { !localStickerIds.contains(it.id) && !it.isReadByChild }
-                    for (st in newStickers) {
-                        notificationHelper.sendSystemNotification(
-                            "${st.icon} ${st.title}",
-                            st.message
-                        )
-                    }
+                val newStickers = cloudData.stickers.filter { !localStickerIds.contains(it.id) && !it.isReadByChild }
+                for (st in newStickers) {
+                    notificationHelper.sendSystemNotification(
+                        "${st.icon} ${st.title}",
+                        st.message
+                    )
                 }
                 _stickers.value = cloudData.stickers
             }

@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 15000,
-  "latestVersionName": "15.0",
-  "releaseNotes": "Mise à jour v15.0 majeure : Pop-up de confirmation Tâche effectuée ? (Oui/Non), badge ⏳ En attente de validation et notifications système réelles (son + vibration) entre téléphones via le Cloud.",
+  "latestVersionCode": 16000,
+  "latestVersionName": "16.0",
+  "releaseNotes": "Mise à jour majeure v16.0 : Notifications système Android en direct (son + vibration) pour chaque tâche à valider, chaque validation/refus, chaque sticker et chaque nouvelle mise à jour disponible !",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
