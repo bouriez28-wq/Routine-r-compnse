@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 14100,
-  "latestVersionName": "14.1",
-  "releaseNotes": "Mise à jour v14.1 : Confirmation du flux de validation parentale obligatoire. Le clic enfant met la tâche en attente (badge ⏳ En attente) et demande la validation explicite du parent dans l'onglet Accueil.",
+  "latestVersionCode": 15000,
+  "latestVersionName": "15.0",
+  "releaseNotes": "Mise à jour v15.0 majeure : Pop-up de confirmation Tâche effectuée ? (Oui/Non), badge ⏳ En attente de validation et notifications système réelles (son + vibration) entre téléphones via le Cloud.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

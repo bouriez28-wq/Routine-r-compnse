@@ -133,6 +133,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun pullFromCloud() {
         val cloudData = cloudSync.fetchFamilyData(_familyCode.value)
         if (cloudData != null) {
+            val localPendingRoutines = _routines.value.filter { it.isPendingValidation }.map { it.id }.toSet()
+            val localStickerIds = _stickers.value.map { it.id }.toSet()
+
             _childName.value = cloudData.childName
             repository.setChildName(cloudData.childName)
 
@@ -142,6 +145,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (cloudData.routines.isNotEmpty()) {
                 _routines.value = cloudData.routines
                 repository.saveRoutines(cloudData.routines)
+
+                // Trigger Parent notification if new pending task validation arrived from child
+                if (_deviceRole.value == DeviceRole.PARENT || _isParentMode.value) {
+                    val newPendingRoutines = cloudData.routines.filter { it.isPendingValidation && !localPendingRoutines.contains(it.id) }
+                    for (newPending in newPendingRoutines) {
+                        notificationHelper.sendSystemNotification(
+                            "⏳ Tâche à valider par ${cloudData.childName}",
+                            "Tâche : \"${newPending.title}\" (+${newPending.starsReward} ⭐)"
+                        )
+                    }
+                }
             }
 
             if (cloudData.rewards.isNotEmpty()) {
@@ -155,6 +169,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             if (cloudData.stickers.isNotEmpty()) {
+                // Trigger Child notification if new sticker/validation notification arrived from parent
+                if (_deviceRole.value == DeviceRole.CHILD && !_isParentMode.value) {
+                    val newStickers = cloudData.stickers.filter { !localStickerIds.contains(it.id) && !it.isReadByChild }
+                    for (st in newStickers) {
+                        notificationHelper.sendSystemNotification(
+                            "${st.icon} ${st.title}",
+                            st.message
+                        )
+                    }
+                }
                 _stickers.value = cloudData.stickers
             }
 

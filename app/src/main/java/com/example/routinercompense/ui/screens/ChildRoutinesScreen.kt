@@ -13,6 +13,9 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +37,7 @@ fun ChildRoutinesScreen(
     onMarkStickerRead: (String) -> Unit = {}
 ) {
     val unreadSticker = stickers.firstOrNull { !it.isReadByChild }
+    var pendingConfirmationTask by remember { mutableStateOf<RoutineItem?>(null) }
 
     if (unreadSticker != null) {
         AlertDialog(
@@ -59,6 +63,46 @@ fun ChildRoutinesScreen(
             confirmButton = {
                 Button(onClick = { onMarkStickerRead(unreadSticker.id) }) {
                     Text("Merci ! 🎉", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
+    pendingConfirmationTask?.let { task ->
+        AlertDialog(
+            onDismissRequest = { pendingConfirmationTask = null },
+            icon = { Text(text = task.icon, fontSize = 48.sp) },
+            title = {
+                Text(
+                    text = "Tâche effectuée ?",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Text(
+                    text = "As-tu bien terminé la tâche \"${task.title}\" ?",
+                    fontSize = 15.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onToggleRoutine(task)
+                        pendingConfirmationTask = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                ) {
+                    Text("Oui", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { pendingConfirmationTask = null }) {
+                    Text("Non")
                 }
             }
         )
@@ -119,7 +163,7 @@ fun ChildRoutinesScreen(
                 SectionHeader(timeOfDay = TimeOfDay.MORNING)
             }
             items(morningRoutines, key = { it.id }) { item ->
-                RoutineCard(item = item, onToggle = { onToggleRoutine(item) })
+                RoutineCard(item = item, onToggle = { if (!item.isCompleted) pendingConfirmationTask = item else onToggleRoutine(item) })
             }
         }
 
@@ -129,7 +173,7 @@ fun ChildRoutinesScreen(
                 SectionHeader(timeOfDay = TimeOfDay.AFTERNOON)
             }
             items(afternoonRoutines, key = { it.id }) { item ->
-                RoutineCard(item = item, onToggle = { onToggleRoutine(item) })
+                RoutineCard(item = item, onToggle = { if (!item.isCompleted) pendingConfirmationTask = item else onToggleRoutine(item) })
             }
         }
 
@@ -139,7 +183,7 @@ fun ChildRoutinesScreen(
                 SectionHeader(timeOfDay = TimeOfDay.EVENING)
             }
             items(eveningRoutines, key = { it.id }) { item ->
-                RoutineCard(item = item, onToggle = { onToggleRoutine(item) })
+                RoutineCard(item = item, onToggle = { if (!item.isCompleted) pendingConfirmationTask = item else onToggleRoutine(item) })
             }
         }
     }
