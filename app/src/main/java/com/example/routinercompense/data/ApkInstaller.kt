@@ -217,9 +217,10 @@ class ApkInstaller(private val context: Context) {
             }
 
             val downloadsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-            val oldFile = File(downloadsDir, "Routine_Recompenses_update.apk")
-            if (oldFile.exists()) {
-                oldFile.delete()
+            downloadsDir?.listFiles()?.forEach { file ->
+                if (file.name.startsWith("Routine_Recompenses_update")) {
+                    file.delete()
+                }
             }
 
             val request = DownloadManager.Request(Uri.parse(urlStr))
@@ -242,9 +243,33 @@ class ApkInstaller(private val context: Context) {
                             e.printStackTrace()
                         }
 
-                        val downloadedFile = File(downloadsDir, "Routine_Recompenses_update.apk")
-                        if (downloadedFile.exists() && downloadedFile.length() > 500000 && isApkValidZip(downloadedFile)) {
-                            launchInstaller(downloadedFile)
+                        var targetFile: File? = null
+                        try {
+                            val query = DownloadManager.Query().setFilterById(downloadId)
+                            val cursor = downloadManager.query(query)
+                            if (cursor != null && cursor.moveToFirst()) {
+                                val localUriIdx = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                                if (localUriIdx != -1) {
+                                    val localUriStr = cursor.getString(localUriIdx)
+                                    if (!localUriStr.isNullOrBlank()) {
+                                        val path = Uri.parse(localUriStr).path
+                                        if (!path.isNullOrBlank()) {
+                                            targetFile = File(path)
+                                        }
+                                    }
+                                }
+                                cursor.close()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
+                        if (targetFile == null || !targetFile.exists()) {
+                            targetFile = File(downloadsDir, "Routine_Recompenses_update.apk")
+                        }
+
+                        if (targetFile.exists() && targetFile.length() > 500000 && isApkValidZip(targetFile)) {
+                            launchInstaller(targetFile)
                         } else {
                             val uri = downloadManager.getUriForDownloadedFile(downloadId)
                             if (uri != null) {

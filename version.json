@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 20100,
-  "latestVersionName": "20.1",
-  "releaseNotes": "Mise à jour v20.1 : Correctif de la double sonnerie de notification pour émettre un seul son système unique et limpide.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=20100"
+  "latestVersionCode": 20200,
+  "latestVersionName": "20.2",
+  "releaseNotes": "Mise à jour v20.2 : Correction de l'ouverture du fichier téléchargé par DownloadManager (requête COLUMN_LOCAL_URI) pour ouvrir la version v20.2 exacte sans jamais charger d'ancien fichier.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=20200"
 }
