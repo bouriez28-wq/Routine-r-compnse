@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 9000,
-  "latestVersionName": "9.0",
-  "releaseNotes": "Mise à jour v9.0 : Tâches et routines 100% fonctionnelles. Onglets Matin, Après-midi, Soir, Jours et Saisons actifs.",
+  "latestVersionCode": 9001,
+  "latestVersionName": "9.1",
+  "releaseNotes": "Mise à jour v9.1 : La notification de téléchargement de mise à jour se supprime désormais automatiquement de la barre une fois l'installation lancée.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }

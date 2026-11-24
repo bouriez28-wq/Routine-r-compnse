@@ -225,7 +225,7 @@ class ApkInstaller(private val context: Context) {
             val request = DownloadManager.Request(Uri.parse(urlStr))
                 .setTitle("Routine & Récompenses")
                 .setDescription("Mise à jour en cours...")
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE)
                 .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, "Routine_Recompenses_update.apk")
                 .setMimeType("application/vnd.android.package-archive")
 
