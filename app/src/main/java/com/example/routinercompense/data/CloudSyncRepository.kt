@@ -12,6 +12,7 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
+import com.example.routinercompense.model.StickerMessage
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -21,6 +22,7 @@ data class FamilyCloudData(
     val routines: List<RoutineItem>,
     val rewards: List<RewardItem>,
     val history: List<RewardClaimHistory>,
+    val stickers: List<StickerMessage> = emptyList(),
     val lastUpdated: Long = System.currentTimeMillis()
 )
 
@@ -143,6 +145,7 @@ class CloudSyncRepository {
                         starsReward = rObj.optInt("starsReward", 1),
                         isCompleted = rObj.optBoolean("isCompleted", false),
                         completedDate = rObj.optString("completedDate", ""),
+                        isPendingValidation = rObj.optBoolean("isPendingValidation", false),
                         frequency = freq,
                         daysOfWeek = daysList,
                         specificDates = datesList,
@@ -186,7 +189,27 @@ class CloudSyncRepository {
                         rewardTitle = hObj.getString("rewardTitle"),
                         rewardIcon = hObj.optString("rewardIcon", "🎁"),
                         starCost = hObj.optInt("starCost", 0),
-                        timestamp = hObj.optLong("timestamp", System.currentTimeMillis())
+                        timestamp = hObj.optLong("timestamp", System.currentTimeMillis()),
+                        isPendingApproval = hObj.optBoolean("isPendingApproval", true)
+                    )
+                )
+            }
+        }
+
+        // Stickers
+        val stickersList = mutableListOf<StickerMessage>()
+        val stickersJson = obj.optJSONArray("stickers")
+        if (stickersJson != null) {
+            for (i in 0 until stickersJson.length()) {
+                val sObj = stickersJson.getJSONObject(i)
+                stickersList.add(
+                    StickerMessage(
+                        id = sObj.getString("id"),
+                        icon = sObj.optString("icon", "🌟"),
+                        title = sObj.optString("title", "Bon Point !"),
+                        message = sObj.optString("message", "Bravo !"),
+                        timestamp = sObj.optLong("timestamp", System.currentTimeMillis()),
+                        isReadByChild = sObj.optBoolean("isReadByChild", false)
                     )
                 )
             }
@@ -198,6 +221,7 @@ class CloudSyncRepository {
             routines = routinesList,
             rewards = rewardsList,
             history = historyList,
+            stickers = stickersList,
             lastUpdated = lastUpdated
         )
     }
@@ -261,9 +285,23 @@ class CloudSyncRepository {
             hObj.put("rewardIcon", item.rewardIcon)
             hObj.put("starCost", item.starCost)
             hObj.put("timestamp", item.timestamp)
+            hObj.put("isPendingApproval", item.isPendingApproval)
             historyArray.put(hObj)
         }
         rootObj.put("history", historyArray)
+
+        val stickersArray = JSONArray()
+        for (st in data.stickers) {
+            val sObj = JSONObject()
+            sObj.put("id", st.id)
+            sObj.put("icon", st.icon)
+            sObj.put("title", st.title)
+            sObj.put("message", st.message)
+            sObj.put("timestamp", st.timestamp)
+            sObj.put("isReadByChild", st.isReadByChild)
+            stickersArray.put(sObj)
+        }
+        rootObj.put("stickers", stickersArray)
 
         return rootObj
     }

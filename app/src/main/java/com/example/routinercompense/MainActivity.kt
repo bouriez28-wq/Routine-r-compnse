@@ -66,6 +66,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
     val routines by viewModel.routines.collectAsState()
     val rewards by viewModel.rewards.collectAsState()
     val history by viewModel.history.collectAsState()
+    val stickers by viewModel.stickers.collectAsState()
     val isParentMode by viewModel.isParentMode.collectAsState()
     val showPinDialog by viewModel.showPinDialog.collectAsState()
     val updateInfo by viewModel.updateInfo.collectAsState()
@@ -91,6 +92,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
             syncStatus = syncStatus,
             routines = routines,
             rewards = rewards,
+            history = history,
             themePalette = themePalette,
             darkThemeOption = darkThemeOption,
             onExitParentMode = {
@@ -109,7 +111,12 @@ fun MainAppScreen(viewModel: MainViewModel) {
             onResetTodayRoutines = { viewModel.resetTodayRoutines() },
             onCheckForUpdatesClick = { viewModel.manualCheckForAppUpdates() },
             onSelectPalette = { viewModel.setThemePalette(it) },
-            onSelectDarkOption = { viewModel.setDarkThemeOption(it) }
+            onSelectDarkOption = { viewModel.setDarkThemeOption(it) },
+            onApproveTaskValidation = { viewModel.approveTaskValidation(it) },
+            onRejectTaskValidation = { viewModel.rejectTaskValidation(it) },
+            onApproveRewardClaim = { viewModel.approveRewardClaim(it) },
+            onRejectRewardClaim = { viewModel.rejectRewardClaim(it) },
+            onSendStickerToChild = { icon, title, msg -> viewModel.sendStickerToChild(icon, title, msg) }
         )
     } else {
         Scaffold(
@@ -196,7 +203,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
                 when (selectedBottomTab) {
                     0 -> ChildRoutinesScreen(
                         routines = routines,
-                        onToggleRoutine = { viewModel.toggleRoutineCompletion(it) }
+                        onToggleRoutine = { viewModel.toggleRoutineCompletion(it) },
+                        stickers = stickers,
+                        onMarkStickerRead = { viewModel.markStickerAsReadByChild(it) }
                     )
                     1 -> ChildRewardsScreen(
                         rewards = rewards,

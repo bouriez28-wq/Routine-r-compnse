@@ -38,6 +38,7 @@ data class RoutineItem(
     val starsReward: Int = 1,
     val isCompleted: Boolean = false,
     val completedDate: String = "", // Formatted YYYY-MM-DD
+    val isPendingValidation: Boolean = false,
     val frequency: RoutineFrequency = RoutineFrequency.DAILY,
     val daysOfWeek: List<Int> = listOf(1, 2, 3, 4, 5, 6, 7),
     val specificDates: List<String> = emptyList(),
@@ -61,5 +62,15 @@ data class RewardClaimHistory(
     val rewardTitle: String,
     val rewardIcon: String,
     val starCost: Int,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    val isPendingApproval: Boolean = true
+)
+
+data class StickerMessage(
+    val id: String = UUID.randomUUID().toString(),
+    val icon: String,
+    val title: String,
+    val message: String,
+    val timestamp: Long = System.currentTimeMillis(),
+    val isReadByChild: Boolean = false
 )

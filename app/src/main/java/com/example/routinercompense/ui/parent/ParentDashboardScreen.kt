@@ -46,6 +46,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import com.example.routinercompense.BuildConfig
+import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
 import com.example.routinercompense.model.RoutineItem
 import com.example.routinercompense.model.TimeOfDay
@@ -61,6 +62,7 @@ fun ParentDashboardScreen(
     syncStatus: String,
     routines: List<RoutineItem>,
     rewards: List<RewardItem>,
+    history: List<RewardClaimHistory> = emptyList(),
     themePalette: AppThemePalette,
     darkThemeOption: DarkThemeOption,
     onExitParentMode: () -> Unit,
@@ -75,10 +77,15 @@ fun ParentDashboardScreen(
     onResetTodayRoutines: () -> Unit,
     onCheckForUpdatesClick: () -> Unit,
     onSelectPalette: (AppThemePalette) -> Unit,
-    onSelectDarkOption: (DarkThemeOption) -> Unit
+    onSelectDarkOption: (DarkThemeOption) -> Unit,
+    onApproveTaskValidation: (RoutineItem) -> Unit = {},
+    onRejectTaskValidation: (RoutineItem) -> Unit = {},
+    onApproveRewardClaim: (RewardClaimHistory) -> Unit = {},
+    onRejectRewardClaim: (RewardClaimHistory) -> Unit = {},
+    onSendStickerToChild: (icon: String, title: String, message: String) -> Unit = { _, _, _ -> }
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
+    val tabs = listOf("🏠 Accueil", "💡 Tâches", "🔄 Routines", "🎁 Récompenses", "⚙️ Paramètres")
 
     var editingRoutine by remember { mutableStateOf<RoutineItem?>(null) }
     var isAddingRoutine by remember { mutableStateOf(false) }
@@ -123,18 +130,30 @@ fun ParentDashboardScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            TabRow(selectedTabIndex = selectedTab) {
+            ScrollableTabRow(selectedTabIndex = selectedTab) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        text = { Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
+                        text = { Text(text = title, fontWeight = FontWeight.SemiBold, fontSize = 13.sp) }
                     )
                 }
             }
 
             when (selectedTab) {
-                0 -> ParentTasksLibraryTab(
+                0 -> ParentHomeTab(
+                    childName = childName,
+                    totalStars = totalStars,
+                    routines = routines,
+                    history = history,
+                    onSetTotalStars = onSetTotalStars,
+                    onApproveTaskValidation = onApproveTaskValidation,
+                    onRejectTaskValidation = onRejectTaskValidation,
+                    onApproveRewardClaim = onApproveRewardClaim,
+                    onRejectRewardClaim = onRejectRewardClaim,
+                    onSendStickerToChild = onSendStickerToChild
+                )
+                1 -> ParentTasksLibraryTab(
                     onAddLibraryTask = { task ->
                         onAddOrUpdateRoutine(task)
                     },
@@ -142,7 +161,7 @@ fun ParentDashboardScreen(
                         isAddingRoutine = true
                     }
                 )
-                1 -> ParentRoutinesTab(
+                2 -> ParentRoutinesTab(
                     routines = routines,
                     onAddSectionClick = { tod ->
                         selectedTimeOfDayForAdd = tod
@@ -178,13 +197,13 @@ fun ParentDashboardScreen(
                         onAddOrUpdateRoutine(updatedItem)
                     }
                 )
-                2 -> ParentRewardsTab(
+                3 -> ParentRewardsTab(
                     rewards = rewards,
                     onAddClick = { isAddingReward = true },
                     onEditClick = { editingReward = it },
                     onDeleteClick = onDeleteReward
                 )
-                3 -> ParentSettingsTab(
+                4 -> ParentSettingsTab(
                     childName = childName,
                     totalStars = totalStars,
                     familyCode = familyCode,
@@ -231,6 +250,243 @@ fun ParentDashboardScreen(
                 onAddOrUpdateReward(updated)
                 isAddingReward = false
                 editingReward = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun ParentHomeTab(
+    childName: String,
+    totalStars: Int,
+    routines: List<RoutineItem>,
+    history: List<RewardClaimHistory>,
+    onSetTotalStars: (Int) -> Unit,
+    onApproveTaskValidation: (RoutineItem) -> Unit,
+    onRejectTaskValidation: (RoutineItem) -> Unit,
+    onApproveRewardClaim: (RewardClaimHistory) -> Unit,
+    onRejectRewardClaim: (RewardClaimHistory) -> Unit,
+    onSendStickerToChild: (String, String, String) -> Unit
+) {
+    val pendingTasks = routines.filter { it.isCompleted && it.isPendingValidation }
+    val pendingRewards = history.filter { it.isPendingApproval }
+    var sentStickerMessage by remember { mutableStateOf<String?>(null) }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // 1. Child Star Balance Card
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "⭐ Solde de $childName", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "$totalStars",
+                        fontSize = 42.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(text = "étoiles accumulées", fontSize = 13.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { onSetTotalStars((totalStars + 1).coerceAtLeast(0)) }) {
+                            Text("+1 ⭐")
+                        }
+                        Button(onClick = { onSetTotalStars((totalStars + 5).coerceAtLeast(0)) }) {
+                            Text("+5 ⭐")
+                        }
+                        OutlinedButton(onClick = { onSetTotalStars((totalStars - 1).coerceAtLeast(0)) }) {
+                            Text("-1 ⭐")
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Pending Tasks Validation
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "⏳ Tâches en attente de validation", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
+                        Surface(
+                            color = if (pendingTasks.isNotEmpty()) Color(0xFFFFF3E0) else MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "${pendingTasks.size}",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (pendingTasks.isEmpty()) {
+                        Text(text = "Aucune tâche en attente. Tout est à jour !", fontSize = 13.sp, color = Color.Gray)
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            pendingTasks.forEach { task ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                        .padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = task.icon, fontSize = 24.sp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(text = task.title, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text(text = "+${task.starsReward} ⭐", fontSize = 12.sp, color = Color(0xFFF57F17), fontWeight = FontWeight.SemiBold)
+                                    }
+                                    Button(
+                                        onClick = { onApproveTaskValidation(task) },
+                                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                                    ) {
+                                        Text("✅ Valider", fontSize = 12.sp)
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    IconButton(onClick = { onRejectTaskValidation(task) }) {
+                                        Icon(imageVector = Icons.Filled.Delete, contentDescription = "Refuser", tint = MaterialTheme.colorScheme.error)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Pending Reward Claims
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "🎁 Récompenses en attente de validation", fontWeight = FontWeight.Bold, fontSize = 16.sp, modifier = Modifier.weight(1f))
+                        Surface(
+                            color = if (pendingRewards.isNotEmpty()) Color(0xFFFFF3E0) else MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "${pendingRewards.size}",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (pendingRewards.isEmpty()) {
+                        Text(text = "Aucune demande de récompense en attente.", fontSize = 13.sp, color = Color.Gray)
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            pendingRewards.forEach { claim ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                        .padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(text = claim.rewardIcon, fontSize = 24.sp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(text = claim.rewardTitle, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                        Text(text = "Coût: ${claim.starCost} ⭐", fontSize = 12.sp, color = Color.Gray)
+                                    }
+                                    Button(
+                                        onClick = { onApproveRewardClaim(claim) },
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                                    ) {
+                                        Text("🎁 Accorder", fontSize = 12.sp)
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    IconButton(onClick = { onRejectRewardClaim(claim) }) {
+                                        Icon(imageVector = Icons.Filled.Delete, contentDescription = "Refuser", tint = MaterialTheme.colorScheme.error)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 4. Bon Point Stickers Gallery
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "🌟 Envoyer un sticker \"Bon Point\" à l'enfant", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(text = "Un clic envoie un sticker festif animé directement sur l'écran de l'enfant !", fontSize = 12.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val stickerList = listOf(
+                        Triple("🌟", "Bravo !", "Félicitations pour ton bel effort !"),
+                        Triple("🏆", "Champion !", "Tu es un vrai champion !"),
+                        Triple("💖", "Super effort !", "Je suis très fier(e) de toi !"),
+                        Triple("👏", "Félicitations !", "Continue comme ça !"),
+                        Triple("🎨", "Créatif !", "Quelle belle idée !"),
+                        Triple("⚡", "Super rapide !", "Tâche accomplie à la vitesse de l'éclair !"),
+                        Triple("🚀", "En route !", "Tu progresses tous les jours !")
+                    )
+
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(stickerList) { (icon, title, msg) ->
+                            OutlinedButton(
+                                onClick = {
+                                    onSendStickerToChild(icon, title, msg)
+                                    sentStickerMessage = "Sticker \"$title\" envoyé à $childName ! 🎉"
+                                },
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text(text = "$icon $title", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    sentStickerMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { sentStickerMessage = null },
+            icon = { Text(text = "🌟", fontSize = 40.sp) },
+            title = { Text(text = "Sticker envoyé", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+            text = { Text(text = msg, fontSize = 14.sp) },
+            confirmButton = {
+                TextButton(onClick = { sentStickerMessage = null }) {
+                    Text("OK")
+                }
             }
         )
     }

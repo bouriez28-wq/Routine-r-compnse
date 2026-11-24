@@ -18,17 +18,52 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.routinercompense.model.RoutineItem
+import com.example.routinercompense.model.StickerMessage
 import com.example.routinercompense.model.TimeOfDay
 
 @Composable
 fun ChildRoutinesScreen(
     routines: List<RoutineItem>,
     onToggleRoutine: (RoutineItem) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    stickers: List<StickerMessage> = emptyList(),
+    onMarkStickerRead: (String) -> Unit = {}
 ) {
+    val unreadSticker = stickers.firstOrNull { !it.isReadByChild }
+
+    if (unreadSticker != null) {
+        AlertDialog(
+            onDismissRequest = { onMarkStickerRead(unreadSticker.id) },
+            icon = { Text(text = unreadSticker.icon, fontSize = 56.sp) },
+            title = {
+                Text(
+                    text = unreadSticker.title,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 22.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
+                )
+            },
+            text = {
+                Text(
+                    text = unreadSticker.message,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                Button(onClick = { onMarkStickerRead(unreadSticker.id) }) {
+                    Text("Merci ! 🎉", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
     val todayRoutines = routines.filter { isRoutineDueToday(it) }.sortedBy { it.orderIndex }
     val morningRoutines = todayRoutines.filter { it.timeOfDay == TimeOfDay.MORNING }
     val afternoonRoutines = todayRoutines.filter { it.timeOfDay == TimeOfDay.AFTERNOON }

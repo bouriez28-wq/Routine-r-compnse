@@ -15,6 +15,7 @@ import com.example.routinercompense.model.DeviceRole
 import com.example.routinercompense.model.RewardClaimHistory
 import com.example.routinercompense.model.RewardItem
 import com.example.routinercompense.model.RoutineItem
+import com.example.routinercompense.model.StickerMessage
 import com.example.routinercompense.ui.theme.AppThemePalette
 import com.example.routinercompense.ui.theme.DarkThemeOption
 import kotlinx.coroutines.delay
@@ -51,6 +52,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _history = MutableStateFlow<List<RewardClaimHistory>>(emptyList())
     val history: StateFlow<List<RewardClaimHistory>> = _history.asStateFlow()
+
+    private val _stickers = MutableStateFlow<List<StickerMessage>>(emptyList())
+    val stickers: StateFlow<List<StickerMessage>> = _stickers.asStateFlow()
 
     private val _isParentMode = MutableStateFlow(false)
     val isParentMode: StateFlow<Boolean> = _isParentMode.asStateFlow()
@@ -144,12 +148,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             if (cloudData.history.isNotEmpty()) {
                 _history.value = cloudData.history
-                // Save history array
-                for (h in cloudData.history) {
-                    if (!_history.value.any { it.id == h.id }) {
-                        repository.addHistory(h)
-                    }
-                }
+                repository.saveHistory(cloudData.history)
+            }
+
+            if (cloudData.stickers.isNotEmpty()) {
+                _stickers.value = cloudData.stickers
             }
 
             _syncStatus.value = "🟢 En direct"
@@ -159,7 +162,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 totalStars = _totalStars.value,
                 routines = _routines.value,
                 rewards = _rewards.value,
-                history = _history.value
+                history = _history.value,
+                stickers = _stickers.value
             )
             val success = cloudSync.saveFamilyData(_familyCode.value, data)
             if (success) {
@@ -177,7 +181,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 totalStars = _totalStars.value,
                 routines = _routines.value,
                 rewards = _rewards.value,
-                history = _history.value
+                history = _history.value,
+                stickers = _stickers.value
             )
             val success = cloudSync.saveFamilyData(_familyCode.value, data)
             if (success) {
@@ -186,6 +191,64 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _syncStatus.value = "⚪ Hors-ligne"
             }
         }
+    }
+
+    fun addStars(amount: Int) {
+        val newStars = (_totalStars.value + amount).coerceAtLeast(0)
+        _totalStars.value = newStars
+        repository.setTotalStars(newStars)
+        pushToCloud()
+    }
+
+    fun approveTaskValidation(task: RoutineItem) {
+        val updatedRoutines = _routines.value.map { r ->
+            if (r.id == task.id) r.copy(isCompleted = true, isPendingValidation = false) else r
+        }
+        _routines.value = updatedRoutines
+        repository.saveRoutines(updatedRoutines)
+        addStars(task.starsReward)
+        pushToCloud()
+    }
+
+    fun rejectTaskValidation(task: RoutineItem) {
+        val updatedRoutines = _routines.value.map { r ->
+            if (r.id == task.id) r.copy(isCompleted = false, isPendingValidation = false) else r
+        }
+        _routines.value = updatedRoutines
+        repository.saveRoutines(updatedRoutines)
+        pushToCloud()
+    }
+
+    fun approveRewardClaim(claim: RewardClaimHistory) {
+        val updatedHistory = _history.value.map { h ->
+            if (h.id == claim.id) h.copy(isPendingApproval = false) else h
+        }
+        _history.value = updatedHistory
+        repository.saveHistory(updatedHistory)
+        pushToCloud()
+    }
+
+    fun rejectRewardClaim(claim: RewardClaimHistory) {
+        val updatedHistory = _history.value.filter { it.id != claim.id }
+        _history.value = updatedHistory
+        repository.saveHistory(updatedHistory)
+        addStars(claim.starCost)
+        pushToCloud()
+    }
+
+    fun sendStickerToChild(icon: String, title: String, message: String) {
+        val newSticker = StickerMessage(icon = icon, title = title, message = message)
+        val updatedStickers = _stickers.value + newSticker
+        _stickers.value = updatedStickers
+        pushToCloud()
+    }
+
+    fun markStickerAsReadByChild(stickerId: String) {
+        val updatedStickers = _stickers.value.map { st ->
+            if (st.id == stickerId) st.copy(isReadByChild = true) else st
+        }
+        _stickers.value = updatedStickers
+        pushToCloud()
     }
 
     fun dismissUpdateDialog() {

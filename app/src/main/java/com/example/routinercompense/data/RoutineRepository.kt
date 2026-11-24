@@ -274,6 +274,21 @@ class RoutineRepository(context: Context) {
         prefs.edit().putString(KEY_ROUTINES_JSON, jsonArray.toString()).apply()
     }
 
+    fun saveHistory(history: List<RewardClaimHistory>) {
+        val jsonArray = JSONArray()
+        for (item in history) {
+            val obj = JSONObject()
+            obj.put("id", item.id)
+            obj.put("rewardTitle", item.rewardTitle)
+            obj.put("rewardIcon", item.rewardIcon)
+            obj.put("starCost", item.starCost)
+            obj.put("timestamp", item.timestamp)
+            obj.put("isPendingApproval", item.isPendingApproval)
+            jsonArray.put(obj)
+        }
+        prefs.edit().putString(KEY_HISTORY_JSON, jsonArray.toString()).apply()
+    }
+
     fun loadRewards(): List<RewardItem> {
         val jsonString = prefs.getString(KEY_REWARDS_JSON, null)
         val list = mutableListOf<RewardItem>()

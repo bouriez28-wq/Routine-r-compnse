@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 9800,
-  "latestVersionName": "9.8",
-  "releaseNotes": "Mise à jour v9.8 : Correctif de l'affectation directe des puces Matin, Après-midi et Soir.",
+  "latestVersionCode": 10000,
+  "latestVersionName": "10.0",
+  "releaseNotes": "Mise à jour majeure v10.0 : Nouvel Espace Parent Accueil avec validations de tâches, demandes de récompenses, solde d'étoiles et envoi de stickers Bon Point !",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
