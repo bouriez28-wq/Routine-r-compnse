@@ -174,13 +174,8 @@ fun ParentDashboardScreen(
                             onAddOrUpdateRoutine(newCurr)
                         }
                     },
-                    onChangeTimeOfDayClick = { item ->
-                        val nextTod = when (item.timeOfDay) {
-                            TimeOfDay.MORNING -> TimeOfDay.AFTERNOON
-                            TimeOfDay.AFTERNOON -> TimeOfDay.EVENING
-                            TimeOfDay.EVENING -> TimeOfDay.MORNING
-                        }
-                        onAddOrUpdateRoutine(item.copy(timeOfDay = nextTod))
+                    onChangeTimeOfDayClick = { updatedItem ->
+                        onAddOrUpdateRoutine(updatedItem)
                     }
                 )
                 2 -> ParentRewardsTab(

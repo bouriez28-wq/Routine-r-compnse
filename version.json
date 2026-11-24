@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 9700,
-  "latestVersionName": "9.7",
-  "releaseNotes": "Mise à jour v9.7 : Correctif du Drag & Drop inter-sections avec réinitialisation de geste et boutons de placement direct (Matin, Après-midi, Soir).",
+  "latestVersionCode": 9800,
+  "latestVersionName": "9.8",
+  "releaseNotes": "Mise à jour v9.8 : Correctif de l'affectation directe des puces Matin, Après-midi et Soir.",
   "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk"
 }
