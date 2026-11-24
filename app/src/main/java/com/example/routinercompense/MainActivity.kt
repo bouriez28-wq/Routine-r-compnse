@@ -185,7 +185,7 @@ fun MainAppScreen(viewModel: MainViewModel) {
                         IconButton(onClick = { viewModel.requestParentMode() }) {
                             Icon(
                                 imageVector = Icons.Filled.Lock,
-                                contentDescription = "Espace Parent",
+                                contentDescription = "Rechercher une mise à jour",
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }

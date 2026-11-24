@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 34000,
-  "latestVersionName": "34.0",
-  "releaseNotes": "Mise à jour v34.0 majeure : Verrouillage strict de l'écran enfant en mode lecture/action, et ajout du nouvel onglet '👁️ Vue Enfant' en direct dans l'Espace Parent.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=34000"
+  "latestVersionCode": 35000,
+  "latestVersionName": "35.0",
+  "releaseNotes": "Mise à jour v35.0 : Sécurisation du cadenas de l'Espace Enfant donnant désormais un accès direct et exclusif à la recherche de mises à jour.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=35000"
 }

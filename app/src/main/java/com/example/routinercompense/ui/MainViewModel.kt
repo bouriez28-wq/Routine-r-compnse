@@ -83,8 +83,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val darkThemeOption: StateFlow<DarkThemeOption> = _darkThemeOption.asStateFlow()
 
     private val updateUrls = listOf(
-        "https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8",
-        "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/version.json"
+        "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/version.json",
+        "https://api.restful-api.dev/objects/ff808181a09d98f701a202fed08619f8"
     )
 
     init {
@@ -466,7 +466,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val correctPin = repository.getParentPin()
         return if (pin == correctPin) {
             _showPinDialog.value = false
-            _isParentMode.value = true
+            if (_deviceRole.value == DeviceRole.PARENT) {
+                _isParentMode.value = true
+            } else {
+                _isParentMode.value = false
+                manualCheckForAppUpdates()
+            }
             true
         } else {
             false

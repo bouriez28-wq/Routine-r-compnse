@@ -25,7 +25,7 @@ fun ParentPinDialog(
         onDismissRequest = onDismiss,
         icon = { Text(text = "🔒", fontSize = 40.sp) },
         title = {
-            Text(text = "Espace Parent", fontWeight = FontWeight.Bold)
+            Text(text = "Code PIN Parent", fontWeight = FontWeight.Bold)
         },
         text = {
             Column(
@@ -33,7 +33,7 @@ fun ParentPinDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Veuillez saisir votre code PIN parent pour accéder au panneau de configuration (PIN par défaut : 1234).",
+                    text = "Veuillez saisir votre code PIN parent pour rechercher une mise à jour (PIN par défaut : 1234).",
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
