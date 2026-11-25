@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 104000,
-  "latestVersionName": "104.0",
-  "releaseNotes": "Mise à jour v104.0 majeure : Intégration du moteur d'alarme système AlarmManager au niveau du noyau Android (setExactAndAllowWhileIdle) garantissant le déclenchement 24h/24 des notifications (son + vibration) sur Samsung et tous les téléphones même application fermée ou écran verrouillé.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=104000"
+  "latestVersionCode": 105000,
+  "latestVersionName": "105.0",
+  "releaseNotes": "Mise à jour v105.0 majeure : Suppression des notifications système redondantes à l'ouverture de l'application et nettoyage de la section des paramètres d'arrière-plan.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=105000"
 }
