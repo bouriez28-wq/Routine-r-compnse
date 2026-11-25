@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 200000,
-  "latestVersionName": "200.0",
-  "releaseNotes": "Mise à jour v200.0 majeure : Nettoyage et consolidation générale du code avec un unique service d'arrière-plan (RoutineSyncService) pour garantir zéro notification en doublon.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=200000"
+  "latestVersionCode": 201000,
+  "latestVersionName": "201.0",
+  "releaseNotes": "Mise à jour v201.0 majeure : Réintégration du moteur d'alarme noyau Android AlarmManager pour le réveil d'urgence sur Samsung, combiné au registre persistant d'événements pour zéro doublon à l'ouverture.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=201000"
 }

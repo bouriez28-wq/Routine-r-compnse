@@ -102,7 +102,7 @@ class AlarmSyncReceiver : BroadcastReceiver() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
-                val triggerAtMillis = System.currentTimeMillis() + 10000 // Repeat every 10 seconds
+                val triggerAtMillis = System.currentTimeMillis() + 8000 // Repeat every 8 seconds
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     alarmManager.setExactAndAllowWhileIdle(

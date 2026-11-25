@@ -42,6 +42,11 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".data.AlarmSyncReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
         <service
             android:name=".data.RoutineSyncService"
             android:enabled="true"
