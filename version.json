@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 101000,
-  "latestVersionName": "101.0",
-  "releaseNotes": "Mise à jour v101.0 majeure : Raccourcis directs dans les Paramètres Parent pour autoriser les données en arrière-plan Samsung et désactiver l'optimisation de batterie.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=101000"
+  "latestVersionCode": 102000,
+  "latestVersionName": "102.0",
+  "releaseNotes": "Mise à jour v102.0 majeure : Intégration du streaming temps réel SSE Stream Firebase (accept: text/event-stream) pour la réception instantanée à 0,01s des notifications système (son + vibration) application fermée ou écran verrouillé.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=102000"
 }

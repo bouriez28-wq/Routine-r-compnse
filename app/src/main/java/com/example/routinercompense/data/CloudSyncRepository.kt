@@ -6,7 +6,9 @@ import com.example.routinercompense.model.RoutineFrequency
 import com.example.routinercompense.model.RoutineItem
 import com.example.routinercompense.model.TimeOfDay
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.coroutineContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -69,6 +71,58 @@ class CloudSyncRepository {
         }
 
         return@withContext null
+    }
+
+    suspend fun listenToFamilyCloudStream(familyCode: String, onDataReceived: (FamilyCloudData) -> Unit) = withContext(Dispatchers.IO) {
+        val cleanCode = familyCode.trim().uppercase()
+        if (cleanCode.isBlank()) return@withContext
+
+        val urlString = "$firebaseBaseUrl/families/$cleanCode.json?accept=text/event-stream"
+
+        var connection: HttpURLConnection? = null
+        try {
+            val url = URL(urlString)
+            connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.setRequestProperty("Accept", "text/event-stream")
+            connection.setRequestProperty("Cache-Control", "no-cache")
+            connection.connectTimeout = 10000
+            connection.readTimeout = 0
+
+            if (connection.responseCode == 200) {
+                val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                while (coroutineContext.isActive) {
+                    val rawLine = reader.readLine() ?: break
+                    val currentLine = rawLine.trim()
+                    if (currentLine.startsWith("data:")) {
+                        val jsonStr = currentLine.substringAfter("data:").trim()
+                        if (jsonStr.isNotBlank() && jsonStr != "null") {
+                            try {
+                                val obj = JSONObject(jsonStr)
+                                val path = obj.optString("path", "/")
+                                val innerData = obj.optJSONObject("data")
+                                if (path == "/" && innerData != null) {
+                                    val parsed = parseFamilyJson(innerData)
+                                    onDataReceived(parsed)
+                                } else {
+                                    val fullData = fetchFamilyData(cleanCode)
+                                    if (fullData != null) {
+                                        onDataReceived(fullData)
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+                }
+                reader.close()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            connection?.disconnect()
+        }
     }
 
     suspend fun saveFamilyData(familyCode: String, data: FamilyCloudData, customBaseUrl: String = ""): Boolean = withContext(Dispatchers.IO) {
