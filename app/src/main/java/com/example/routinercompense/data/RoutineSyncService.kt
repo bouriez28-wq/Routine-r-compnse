@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import com.example.routinercompense.R
 import com.example.routinercompense.model.DeviceRole
@@ -19,6 +20,7 @@ class RoutineSyncService : Service() {
     private lateinit var repository: RoutineRepository
     private lateinit var cloudSync: CloudSyncRepository
     private lateinit var notificationHelper: NotificationHelper
+    private var serviceWakeLock: PowerManager.WakeLock? = null
 
     private val fgChannelId = "routine_fg_sync_channel"
     private val fgNotificationId = 9901
@@ -28,6 +30,19 @@ class RoutineSyncService : Service() {
         repository = RoutineRepository(applicationContext)
         cloudSync = CloudSyncRepository()
         notificationHelper = NotificationHelper(applicationContext)
+
+        try {
+            val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
+            serviceWakeLock = powerManager?.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "RoutineApp:SyncServiceWakeLock"
+            )?.apply {
+                acquire()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         startForegroundServiceNotification()
         startBackgroundSyncLoop()
     }
@@ -146,6 +161,13 @@ class RoutineSyncService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        try {
+            if (serviceWakeLock?.isHeld == true) {
+                serviceWakeLock?.release()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         serviceScope.cancel()
     }
 }

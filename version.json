@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 102000,
-  "latestVersionName": "102.0",
-  "releaseNotes": "Mise à jour v102.0 majeure : Intégration du streaming temps réel SSE Stream Firebase (accept: text/event-stream) pour la réception instantanée à 0,01s des notifications système (son + vibration) application fermée ou écran verrouillé.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=102000"
+  "latestVersionCode": 103000,
+  "latestVersionName": "103.0",
+  "releaseNotes": "Mise à jour v103.0 majeure : Verrouillage PARTIAL_WAKE_LOCK pour Samsung One UI maintenant la connexion socket réseau active 24h/24 écran verrouillé.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=103000"
 }
