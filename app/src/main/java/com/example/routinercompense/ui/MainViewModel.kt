@@ -105,7 +105,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 )
                 notificationHelper.sendSystemNotification(
                     "🔔 Mise à jour v${result.latestVersionName} disponible !",
-                    "Une nouvelle mise à jour de l'application est disponible. Toucher pour l'installer."
+                    "Une nouvelle mise à jour de l'application est disponible. Toucher pour l'installer.",
+                    isOpenUpdateDialog = true
                 )
             }
         }

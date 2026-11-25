@@ -23,7 +23,8 @@ class UpdateWorker(
                 val notificationHelper = NotificationHelper(context)
                 notificationHelper.sendSystemNotification(
                     "🔔 Mise à jour v${result.latestVersionName} disponible !",
-                    "Une nouvelle version de l'application est disponible. Toucher pour l'installer."
+                    "Une nouvelle version de l'application est disponible. Toucher pour l'installer.",
+                    isOpenUpdateDialog = true
                 )
             }
             Result.success()

@@ -47,7 +47,12 @@ class NotificationHelper(private val context: Context) {
         }
     }
 
-    fun sendSystemNotification(title: String, message: String, notificationId: Int = System.currentTimeMillis().toInt()) {
+    fun sendSystemNotification(
+        title: String,
+        message: String,
+        notificationId: Int = System.currentTimeMillis().toInt(),
+        isOpenUpdateDialog: Boolean = false
+    ) {
         try {
             @Suppress("DEPRECATION")
             val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
@@ -61,10 +66,13 @@ class NotificationHelper(private val context: Context) {
             val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                if (isOpenUpdateDialog) {
+                    putExtra("EXTRA_OPEN_UPDATE_DIALOG", true)
+                }
             }
             val pendingIntent = PendingIntent.getActivity(
                 context,
-                0,
+                if (isOpenUpdateDialog) 999 else 0,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

@@ -63,6 +63,10 @@ class MainActivity : ComponentActivity() {
             e.printStackTrace()
         }
 
+        if (intent?.getBooleanExtra("EXTRA_OPEN_UPDATE_DIALOG", false) == true) {
+            viewModel.manualCheckForAppUpdates()
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
@@ -83,6 +87,14 @@ class MainActivity : ComponentActivity() {
             ) {
                 MainAppScreen(viewModel = viewModel)
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra("EXTRA_OPEN_UPDATE_DIALOG", false)) {
+            viewModel.manualCheckForAppUpdates()
         }
     }
 }
