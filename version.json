@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 38000,
-  "latestVersionName": "38.0",
-  "releaseNotes": "Mise à jour v38.0 majeure : Service d'arrière-plan permanent Foreground Sync 24h/24 pour l'envoi et la réception en direct (1 à 2 secondes) des notifications système (son + vibration) même quand l'application est fermée ou le téléphone verrouillé.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=38000"
+  "latestVersionCode": 39000,
+  "latestVersionName": "39.0",
+  "releaseNotes": "Mise à jour v39.0 majeure : Déverrouillage automatique de l'écran en veille lors d'une notification et dédoublonnage strict des alertes pour émettre un son unique.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=39000"
 }
