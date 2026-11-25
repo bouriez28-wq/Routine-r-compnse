@@ -39,8 +39,6 @@ import com.example.routinercompense.ui.screens.ChildHistoryScreen
 import com.example.routinercompense.ui.screens.ChildRewardsScreen
 import com.example.routinercompense.ui.screens.ChildRoutinesScreen
 import com.example.routinercompense.ui.screens.RoleSelectionScreen
-import com.example.routinercompense.data.AlarmSyncReceiver
-import com.example.routinercompense.data.BootReceiver
 import com.example.routinercompense.data.NotificationHelper
 import com.example.routinercompense.data.RoutineSyncService
 import com.example.routinercompense.ui.theme.RoutineTheme
@@ -52,10 +50,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        BootReceiver.scheduleUpdateCheck(this)
-
         try {
-            AlarmSyncReceiver.scheduleNextAlarm(this)
             val serviceIntent = Intent(this, RoutineSyncService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 startForegroundService(serviceIntent)

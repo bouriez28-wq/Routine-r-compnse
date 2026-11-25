@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 105000,
-  "latestVersionName": "105.0",
-  "releaseNotes": "Mise à jour v105.0 majeure : Suppression des notifications système redondantes à l'ouverture de l'application et nettoyage de la section des paramètres d'arrière-plan.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=105000"
+  "latestVersionCode": 200000,
+  "latestVersionName": "200.0",
+  "releaseNotes": "Mise à jour v200.0 majeure : Nettoyage et consolidation générale du code avec un unique service d'arrière-plan (RoutineSyncService) pour garantir zéro notification en doublon.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=200000"
 }
