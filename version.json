@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 201000,
-  "latestVersionName": "201.0",
-  "releaseNotes": "Mise à jour v201.0 majeure : Réintégration du moteur d'alarme noyau Android AlarmManager pour le réveil d'urgence sur Samsung, combiné au registre persistant d'événements pour zéro doublon à l'ouverture.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=201000"
+  "latestVersionCode": 202000,
+  "latestVersionName": "202.0",
+  "releaseNotes": "Mise à jour v202.0 majeure : Demande d'autorisation système unique 1 seule fois au lancement pour les alarmes et rappels de précision Samsung.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=202000"
 }

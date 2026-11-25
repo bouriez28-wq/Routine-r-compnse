@@ -30,6 +30,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import android.app.AlarmManager
+import com.example.routinercompense.data.RoutineRepository
 import com.example.routinercompense.data.UpdateDialog
 import com.example.routinercompense.model.DeviceRole
 import com.example.routinercompense.ui.MainViewModel
@@ -65,6 +67,7 @@ class MainActivity : ComponentActivity() {
 
         handleNotificationIntent(intent)
         requestBatteryOptimizationExemption()
+        requestExactAlarmPermissionOnce()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -121,6 +124,24 @@ class MainActivity : ComponentActivity() {
                         val fallbackIntent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
                         startActivity(fallbackIntent)
                     }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun requestExactAlarmPermissionOnce() {
+        try {
+            val repository = RoutineRepository(this)
+            if (!repository.hasPromptedExactAlarmPermission() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val alarmManager = getSystemService(ALARM_SERVICE) as? AlarmManager
+                if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
+                    repository.setHasPromptedExactAlarmPermission(true)
+                    val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivity(intent)
                 }
             }
         } catch (e: Exception) {

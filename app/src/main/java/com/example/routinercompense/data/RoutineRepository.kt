@@ -35,6 +35,15 @@ class RoutineRepository(context: Context) {
         private const val KEY_NOTIFIED_TASKS = "notified_tasks_set"
         private const val KEY_NOTIFIED_CLAIMS = "notified_claims_set"
         private const val KEY_NOTIFIED_EVENTS = "notified_events_registry_set"
+        private const val KEY_PROMPTED_EXACT_ALARM = "prompted_exact_alarm"
+    }
+
+    fun hasPromptedExactAlarmPermission(): Boolean {
+        return prefs.getBoolean(KEY_PROMPTED_EXACT_ALARM, false)
+    }
+
+    fun setHasPromptedExactAlarmPermission(value: Boolean) {
+        prefs.edit().putBoolean(KEY_PROMPTED_EXACT_ALARM, value).apply()
     }
 
     fun getNotifiedEventIds(): MutableSet<String> {

@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.routinercompense"
         minSdk = 26
         targetSdk = 36
-        versionCode = 201000
-        versionName = "201.0"
+        versionCode = 202000
+        versionName = "202.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
