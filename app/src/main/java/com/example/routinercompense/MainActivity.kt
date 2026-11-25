@@ -40,6 +40,7 @@ import com.example.routinercompense.ui.screens.ChildRewardsScreen
 import com.example.routinercompense.ui.screens.ChildRoutinesScreen
 import com.example.routinercompense.ui.screens.RoleSelectionScreen
 import com.example.routinercompense.data.BootReceiver
+import com.example.routinercompense.data.NotificationHelper
 import com.example.routinercompense.data.RoutineSyncService
 import com.example.routinercompense.ui.theme.RoutineTheme
 
@@ -63,9 +64,7 @@ class MainActivity : ComponentActivity() {
             e.printStackTrace()
         }
 
-        if (intent?.getBooleanExtra("EXTRA_OPEN_UPDATE_DIALOG", false) == true) {
-            viewModel.manualCheckForAppUpdates()
-        }
+        handleNotificationIntent(intent)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -93,7 +92,17 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (intent.getBooleanExtra("EXTRA_OPEN_UPDATE_DIALOG", false)) {
+        handleNotificationIntent(intent)
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        if (intent == null) return
+        val notifType = intent.getStringExtra("EXTRA_NOTIFICATION_TYPE")
+        val openUpdate = intent.getBooleanExtra("EXTRA_OPEN_UPDATE_DIALOG", false)
+
+        if (notifType == NotificationHelper.TYPE_PENDING_TASK || notifType == NotificationHelper.TYPE_PENDING_REWARD) {
+            viewModel.requestParentMode()
+        } else if (openUpdate || notifType == NotificationHelper.TYPE_APP_UPDATE) {
             viewModel.manualCheckForAppUpdates()
         }
     }

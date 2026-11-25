@@ -8,13 +8,18 @@ import android.content.Intent
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
 import androidx.core.app.NotificationCompat
 import com.example.routinercompense.MainActivity
 import com.example.routinercompense.R
 
 class NotificationHelper(private val context: Context) {
+
+    companion object {
+        const val TYPE_PENDING_TASK = "TYPE_PENDING_TASK"
+        const val TYPE_PENDING_REWARD = "TYPE_PENDING_REWARD"
+        const val TYPE_STICKER = "TYPE_STICKER"
+        const val TYPE_APP_UPDATE = "TYPE_APP_UPDATE"
+    }
 
     private val channelId = "routine_app_alerts_v2"
     private val channelName = "Alertes Routine & Récompenses"
@@ -51,7 +56,8 @@ class NotificationHelper(private val context: Context) {
         title: String,
         message: String,
         notificationId: Int = System.currentTimeMillis().toInt(),
-        isOpenUpdateDialog: Boolean = false
+        isOpenUpdateDialog: Boolean = false,
+        notificationType: String = ""
     ) {
         try {
             @Suppress("DEPRECATION")
@@ -66,13 +72,16 @@ class NotificationHelper(private val context: Context) {
             val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val intent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                if (isOpenUpdateDialog) {
+                if (isOpenUpdateDialog || notificationType == TYPE_APP_UPDATE) {
                     putExtra("EXTRA_OPEN_UPDATE_DIALOG", true)
+                }
+                if (notificationType.isNotBlank()) {
+                    putExtra("EXTRA_NOTIFICATION_TYPE", notificationType)
                 }
             }
             val pendingIntent = PendingIntent.getActivity(
                 context,
-                if (isOpenUpdateDialog) 999 else 0,
+                if (isOpenUpdateDialog || notificationType == TYPE_APP_UPDATE) 999 else notificationId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

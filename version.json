@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 53000,
-  "latestVersionName": "53.0",
-  "releaseNotes": "Mise à jour v53.0 majeure : Le clic sur la notification de mise à jour ouvre directement l'application avec la fenêtre pop-up Télécharger et installer.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=53000"
+  "latestVersionCode": 54000,
+  "latestVersionName": "54.0",
+  "releaseNotes": "Mise à jour v54.0 majeure : Schéma unifié en 4 étapes de ciblage direct au clic sur n'importe quelle notification (Tâches en attente, Récompenses, Stickers, Mises à jour).",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=54000"
 }

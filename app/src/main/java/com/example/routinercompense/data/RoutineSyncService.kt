@@ -83,7 +83,8 @@ class RoutineSyncService : Service() {
                                     repository.addNotifiedTaskId(task.id)
                                     notificationHelper.sendSystemNotification(
                                         "⏳ Tâche à valider par ${cloudData.childName}",
-                                        "Tâche : \"${task.title}\" (+${task.starsReward} ⭐)"
+                                        "Tâche : \"${task.title}\" (+${task.starsReward} ⭐)",
+                                        notificationType = NotificationHelper.TYPE_PENDING_TASK
                                     )
                                 }
 
@@ -94,7 +95,8 @@ class RoutineSyncService : Service() {
                                     repository.addNotifiedClaimId(claim.id)
                                     notificationHelper.sendSystemNotification(
                                         "🎁 Demande de récompense par ${cloudData.childName}",
-                                        "Récompense réclamée : \"${claim.rewardTitle}\" (${claim.starCost} ⭐)"
+                                        "Récompense réclamée : \"${claim.rewardTitle}\" (${claim.starCost} ⭐)",
+                                        notificationType = NotificationHelper.TYPE_PENDING_REWARD
                                     )
                                 }
                             }

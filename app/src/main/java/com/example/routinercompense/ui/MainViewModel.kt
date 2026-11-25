@@ -286,7 +286,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val newSticker = StickerMessage(icon = icon, title = title, message = message)
         val updatedStickers = _stickers.value + newSticker
         _stickers.value = updatedStickers
-        notificationHelper.sendSystemNotification("$icon $title", message)
+        notificationHelper.sendSystemNotification("$icon $title", message, notificationType = NotificationHelper.TYPE_STICKER)
         pushToCloud()
     }
 

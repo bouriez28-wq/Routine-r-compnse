@@ -24,7 +24,8 @@ class UpdateWorker(
                 notificationHelper.sendSystemNotification(
                     "🔔 Mise à jour v${result.latestVersionName} disponible !",
                     "Une nouvelle version de l'application est disponible. Toucher pour l'installer.",
-                    isOpenUpdateDialog = true
+                    isOpenUpdateDialog = true,
+                    notificationType = NotificationHelper.TYPE_APP_UPDATE
                 )
             }
             Result.success()
