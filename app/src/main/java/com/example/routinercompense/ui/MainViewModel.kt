@@ -103,6 +103,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     releaseNotes = result.releaseNotes,
                     downloadUrl = result.downloadUrl
                 )
+
+                val eventId = "app_update_${result.latestVersionName}"
+                if (!repository.isEventNotified(eventId)) {
+                    repository.markEventNotified(eventId)
+                    notificationHelper.sendSystemNotification(
+                        "🔔 Mise à jour v${result.latestVersionName} disponible !",
+                        "Une nouvelle version de l'application est disponible. Toucher pour l'installer.",
+                        isOpenUpdateDialog = true,
+                        notificationType = NotificationHelper.TYPE_APP_UPDATE
+                    )
+                }
             }
         }
     }

@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 204000,
-  "latestVersionName": "204.0",
-  "releaseNotes": "Mise à jour v204.0 majeure : Routine hebdomadaire Après l'école, refonte des boutons d'étoiles (Ajouter / Retirer personnalisés avec motif), et bouton de réinitialisation du solde à 0 ⭐.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=204000"
+  "latestVersionCode": 205000,
+  "latestVersionName": "205.0",
+  "releaseNotes": "Mise à jour v205.0 majeure : Alignement complet des notifications de mise à jour système avec dédoublonnage persistant Event ID et son/vibration unique.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=205000"
 }
