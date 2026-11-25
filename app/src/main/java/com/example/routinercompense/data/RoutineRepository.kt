@@ -32,6 +32,40 @@ class RoutineRepository(context: Context) {
         private const val KEY_HISTORY_JSON = "history_json"
         private const val KEY_DEVICE_ROLE = "device_role"
         private const val KEY_FAMILY_CODE = "family_code"
+        private const val KEY_NOTIFIED_TASKS = "notified_tasks_set"
+        private const val KEY_NOTIFIED_CLAIMS = "notified_claims_set"
+    }
+
+    fun getNotifiedTaskIds(): MutableSet<String> {
+        return prefs.getStringSet(KEY_NOTIFIED_TASKS, emptySet())?.toMutableSet() ?: mutableSetOf()
+    }
+
+    fun addNotifiedTaskId(id: String) {
+        val current = getNotifiedTaskIds()
+        current.add(id)
+        prefs.edit().putStringSet(KEY_NOTIFIED_TASKS, current).apply()
+    }
+
+    fun removeNotifiedTaskId(id: String) {
+        val current = getNotifiedTaskIds()
+        current.remove(id)
+        prefs.edit().putStringSet(KEY_NOTIFIED_TASKS, current).apply()
+    }
+
+    fun getNotifiedClaimIds(): MutableSet<String> {
+        return prefs.getStringSet(KEY_NOTIFIED_CLAIMS, emptySet())?.toMutableSet() ?: mutableSetOf()
+    }
+
+    fun addNotifiedClaimId(id: String) {
+        val current = getNotifiedClaimIds()
+        current.add(id)
+        prefs.edit().putStringSet(KEY_NOTIFIED_CLAIMS, current).apply()
+    }
+
+    fun removeNotifiedClaimId(id: String) {
+        val current = getNotifiedClaimIds()
+        current.remove(id)
+        prefs.edit().putStringSet(KEY_NOTIFIED_CLAIMS, current).apply()
     }
 
     fun getDeviceRole(): DeviceRole {

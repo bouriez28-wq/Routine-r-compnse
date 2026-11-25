@@ -20,9 +20,6 @@ class RoutineSyncService : Service() {
     private lateinit var cloudSync: CloudSyncRepository
     private lateinit var notificationHelper: NotificationHelper
 
-    private val notifiedTaskIds = HashSet<String>()
-    private val notifiedClaimIds = HashSet<String>()
-
     private val fgChannelId = "routine_fg_sync_channel"
     private val fgNotificationId = 9901
 
@@ -74,22 +71,16 @@ class RoutineSyncService : Service() {
                     if (familyCode.isNotBlank() && deviceRole != DeviceRole.UNSELECTED) {
                         val cloudData = cloudSync.fetchFamilyData(familyCode)
                         if (cloudData != null) {
-                            val localRoutines = repository.loadRoutines()
-                            val localPendingIds = localRoutines.filter { it.isPendingValidation }.map { it.id }.toSet()
-                            val localHistory = repository.loadHistory()
-                            val localPendingClaimIds = localHistory.filter { it.isPendingApproval }.map { it.id }.toSet()
-
-                            // Remove cleared pending items from notified sets
-                            notifiedTaskIds.retainAll(cloudData.routines.filter { it.isPendingValidation }.map { it.id }.toSet())
-                            notifiedClaimIds.retainAll(cloudData.history.filter { it.isPendingApproval }.map { it.id }.toSet())
+                            val persistedNotifiedTasks = repository.getNotifiedTaskIds()
+                            val persistedNotifiedClaims = repository.getNotifiedClaimIds()
 
                             // Parent alerts: pending task validations or reward claims (ONE notification per request)
                             if (deviceRole == DeviceRole.PARENT) {
                                 val newPendingTasks = cloudData.routines.filter {
-                                    it.isPendingValidation && !localPendingIds.contains(it.id) && !notifiedTaskIds.contains(it.id)
+                                    it.isPendingValidation && !persistedNotifiedTasks.contains(it.id)
                                 }
                                 for (task in newPendingTasks) {
-                                    notifiedTaskIds.add(task.id)
+                                    repository.addNotifiedTaskId(task.id)
                                     notificationHelper.sendSystemNotification(
                                         "⏳ Tâche à valider par ${cloudData.childName}",
                                         "Tâche : \"${task.title}\" (+${task.starsReward} ⭐)"
@@ -97,10 +88,10 @@ class RoutineSyncService : Service() {
                                 }
 
                                 val newClaims = cloudData.history.filter {
-                                    it.isPendingApproval && !localPendingClaimIds.contains(it.id) && !notifiedClaimIds.contains(it.id)
+                                    it.isPendingApproval && !persistedNotifiedClaims.contains(it.id)
                                 }
                                 for (claim in newClaims) {
-                                    notifiedClaimIds.add(claim.id)
+                                    repository.addNotifiedClaimId(claim.id)
                                     notificationHelper.sendSystemNotification(
                                         "🎁 Demande de récompense par ${cloudData.childName}",
                                         "Récompense réclamée : \"${claim.rewardTitle}\" (${claim.starCost} ⭐)"

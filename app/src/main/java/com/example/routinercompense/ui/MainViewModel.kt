@@ -208,6 +208,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun approveTaskValidation(task: RoutineItem) {
+        repository.removeNotifiedTaskId(task.id)
         val updatedRoutines = _routines.value.map { r ->
             if (r.id == task.id) r.copy(isCompleted = true, isPendingValidation = false, completedDate = repository.getTodayDateString()) else r
         }
@@ -230,6 +231,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun rejectTaskValidation(task: RoutineItem, reason: String = "") {
+        repository.removeNotifiedTaskId(task.id)
         val updatedRoutines = _routines.value.map { r ->
             if (r.id == task.id) r.copy(isCompleted = false, isPendingValidation = false, completedDate = "") else r
         }
@@ -250,6 +252,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun approveRewardClaim(claim: RewardClaimHistory) {
+        repository.removeNotifiedClaimId(claim.id)
         val updatedHistory = _history.value.map { h ->
             if (h.id == claim.id) h.copy(isPendingApproval = false) else h
         }
@@ -259,6 +262,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun rejectRewardClaim(claim: RewardClaimHistory) {
+        repository.removeNotifiedClaimId(claim.id)
         val updatedHistory = _history.value.filter { it.id != claim.id }
         _history.value = updatedHistory
         repository.saveHistory(updatedHistory)

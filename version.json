@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 51000,
-  "latestVersionName": "51.0",
-  "releaseNotes": "Mise à jour v51.0 majeure : Suppression des notifications système redondantes à l'ouverture de l'application pour garantir un son unique uniquement au moment de l'arrivée de l'alerte.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=51000"
+  "latestVersionCode": 52000,
+  "latestVersionName": "52.0",
+  "releaseNotes": "Mise à jour v52.0 majeure : Persistance SharedPreferences du registre des notifications envoyées pour éliminer à 100% tout doublon de notification à l'ouverture de l'application.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=52000"
 }
