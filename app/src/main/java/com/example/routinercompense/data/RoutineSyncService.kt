@@ -22,7 +22,7 @@ class RoutineSyncService : Service() {
     private lateinit var notificationHelper: NotificationHelper
     private var serviceWakeLock: PowerManager.WakeLock? = null
 
-    private val fgChannelId = "routine_fg_sync_channel"
+    private val fgChannelId = "routine_fg_sync_channel_v3"
     private val fgNotificationId = 9901
 
     override fun onCreate() {
@@ -52,11 +52,12 @@ class RoutineSyncService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 fgChannelId,
-                "Synchronisation en arrière-plan",
-                NotificationManager.IMPORTANCE_LOW
+                "Service d'arrière-plan discret",
+                NotificationManager.IMPORTANCE_MIN
             ).apply {
-                description = "Maintient la synchronisation en direct et la réception d'alertes 24h/24"
+                description = "Maintient la synchronisation discrète 24h/24"
                 setShowBadge(false)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_SECRET
             }
             notificationManager.createNotificationChannel(channel)
         }
@@ -65,7 +66,8 @@ class RoutineSyncService : Service() {
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Routine & Récompenses 🟢")
             .setContentText("Synchronisation en direct activée")
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
             .setOngoing(true)
             .build()
 

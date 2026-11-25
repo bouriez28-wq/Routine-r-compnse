@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 300000,
-  "latestVersionName": "300.0",
-  "releaseNotes": "Mise à jour v300.0 majeure : Alignement universel des notifications système avec dédoublonnage persistant Event ID et son/vibration unique.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=300000"
+  "latestVersionCode": 301000,
+  "latestVersionName": "301.0",
+  "releaseNotes": "Mise à jour v301.0 majeure : Masquage total de l'icône de notification persistante dans la barre de statut (IMPORTANCE_MIN / PRIORITY_MIN) pour maintenir la synchronisation discrète 24h/24.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=301000"
 }
