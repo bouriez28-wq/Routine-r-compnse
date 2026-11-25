@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 100000,
-  "latestVersionName": "100.0",
-  "releaseNotes": "Mise à jour v100.0 majeure : Registre persistant Event ID pour zéro doublon de notification, effacement automatique de la barre de statut au clic et ciblage direct au déclenchement.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=100000"
+  "latestVersionCode": 101000,
+  "latestVersionName": "101.0",
+  "releaseNotes": "Mise à jour v101.0 majeure : Raccourcis directs dans les Paramètres Parent pour autoriser les données en arrière-plan Samsung et désactiver l'optimisation de batterie.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=101000"
 }

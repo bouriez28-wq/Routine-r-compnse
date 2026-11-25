@@ -1,5 +1,10 @@
 package com.example.routinercompense.ui.parent
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.gestures.scrollBy
@@ -1740,6 +1745,68 @@ private fun ParentSettingsTab(
                         onClick = onChangeRoleClick
                     ) {
                         Text("Changer le rôle ou le Code Famille")
+                    }
+                }
+            }
+        }
+
+        // Samsung & Xiaomi Battery / Data Saver Settings
+        item {
+            val context = LocalContext.current
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "🔋 Arrière-plan & Données (Samsung / Xiaomi)", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Pour recevoir les notifications en direct (son + vibration) même écran verrouillé, autorisez l'utilisation des données en arrière-plan.",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = {
+                                try {
+                                    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.parse("package:${context.packageName}")
+                                    }
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("📶 Autoriser les données en arrière-plan (Samsung)", fontSize = 13.sp)
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                try {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+                                        if (powerManager != null) {
+                                            try {
+                                                val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                                    data = Uri.parse("package:${context.packageName}")
+                                                }
+                                                context.startActivity(intent)
+                                            } catch (e: Exception) {
+                                                val fallbackIntent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                                                context.startActivity(fallbackIntent)
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("🔋 Ignorer l'optimisation de batterie", fontSize = 13.sp)
+                        }
                     }
                 }
             }
