@@ -71,33 +71,45 @@ class RoutineSyncService : Service() {
                     if (familyCode.isNotBlank() && deviceRole != DeviceRole.UNSELECTED) {
                         val cloudData = cloudSync.fetchFamilyData(familyCode)
                         if (cloudData != null) {
-                            val persistedNotifiedTasks = repository.getNotifiedTaskIds()
-                            val persistedNotifiedClaims = repository.getNotifiedClaimIds()
-
                             // Parent alerts: pending task validations or reward claims (ONE notification per request)
                             if (deviceRole == DeviceRole.PARENT) {
-                                val newPendingTasks = cloudData.routines.filter {
-                                    it.isPendingValidation && !persistedNotifiedTasks.contains(it.id)
-                                }
+                                val newPendingTasks = cloudData.routines.filter { it.isPendingValidation }
                                 for (task in newPendingTasks) {
-                                    repository.addNotifiedTaskId(task.id)
-                                    notificationHelper.sendSystemNotification(
-                                        "⏳ Tâche à valider par ${cloudData.childName}",
-                                        "Tâche : \"${task.title}\" (+${task.starsReward} ⭐)",
-                                        notificationType = NotificationHelper.TYPE_PENDING_TASK
-                                    )
+                                    val eventId = "task_pending_${task.id}_${task.completedDate}"
+                                    if (!repository.isEventNotified(eventId)) {
+                                        repository.markEventNotified(eventId)
+                                        notificationHelper.sendSystemNotification(
+                                            "⏳ Tâche à valider par ${cloudData.childName}",
+                                            "Tâche : \"${task.title}\" (+${task.starsReward} ⭐)",
+                                            notificationType = NotificationHelper.TYPE_PENDING_TASK
+                                        )
+                                    }
                                 }
 
-                                val newClaims = cloudData.history.filter {
-                                    it.isPendingApproval && !persistedNotifiedClaims.contains(it.id)
-                                }
+                                val newClaims = cloudData.history.filter { it.isPendingApproval }
                                 for (claim in newClaims) {
-                                    repository.addNotifiedClaimId(claim.id)
-                                    notificationHelper.sendSystemNotification(
-                                        "🎁 Demande de récompense par ${cloudData.childName}",
-                                        "Récompense réclamée : \"${claim.rewardTitle}\" (${claim.starCost} ⭐)",
-                                        notificationType = NotificationHelper.TYPE_PENDING_REWARD
-                                    )
+                                    val eventId = "claim_pending_${claim.id}_${claim.timestamp}"
+                                    if (!repository.isEventNotified(eventId)) {
+                                        repository.markEventNotified(eventId)
+                                        notificationHelper.sendSystemNotification(
+                                            "🎁 Demande de récompense par ${cloudData.childName}",
+                                            "Récompense réclamée : \"${claim.rewardTitle}\" (${claim.starCost} ⭐)",
+                                            notificationType = NotificationHelper.TYPE_PENDING_REWARD
+                                        )
+                                    }
+                                }
+                            } else if (deviceRole == DeviceRole.CHILD) {
+                                val unreadStickers = cloudData.stickers.filter { !it.isReadByChild }
+                                for (st in unreadStickers) {
+                                    val eventId = "sticker_${st.id}"
+                                    if (!repository.isEventNotified(eventId)) {
+                                        repository.markEventNotified(eventId)
+                                        notificationHelper.sendSystemNotification(
+                                            "${st.icon} ${st.title}",
+                                            st.message,
+                                            notificationType = NotificationHelper.TYPE_STICKER
+                                        )
+                                    }
                                 }
                             }
 

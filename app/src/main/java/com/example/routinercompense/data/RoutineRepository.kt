@@ -34,6 +34,31 @@ class RoutineRepository(context: Context) {
         private const val KEY_FAMILY_CODE = "family_code"
         private const val KEY_NOTIFIED_TASKS = "notified_tasks_set"
         private const val KEY_NOTIFIED_CLAIMS = "notified_claims_set"
+        private const val KEY_NOTIFIED_EVENTS = "notified_events_registry_set"
+    }
+
+    fun getNotifiedEventIds(): MutableSet<String> {
+        return prefs.getStringSet(KEY_NOTIFIED_EVENTS, emptySet())?.toMutableSet() ?: mutableSetOf()
+    }
+
+    fun isEventNotified(eventId: String): Boolean {
+        if (eventId.isBlank()) return false
+        val currentSet = prefs.getStringSet(KEY_NOTIFIED_EVENTS, emptySet()) ?: emptySet()
+        return currentSet.contains(eventId)
+    }
+
+    fun markEventNotified(eventId: String) {
+        if (eventId.isBlank()) return
+        val currentSet = getNotifiedEventIds()
+        currentSet.add(eventId)
+        prefs.edit().putStringSet(KEY_NOTIFIED_EVENTS, currentSet).apply()
+    }
+
+    fun clearNotifiedEvent(eventId: String) {
+        if (eventId.isBlank()) return
+        val currentSet = getNotifiedEventIds()
+        currentSet.remove(eventId)
+        prefs.edit().putStringSet(KEY_NOTIFIED_EVENTS, currentSet).apply()
     }
 
     fun getNotifiedTaskIds(): MutableSet<String> {

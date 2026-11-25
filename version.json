@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 56000,
-  "latestVersionName": "56.0",
-  "releaseNotes": "Mise à jour v56.0 majeure : Ajout du secours universel d'autorisation de batterie d'arrière-plan pour tous les téléphones (Samsung, Xiaomi, Huawei, Google Pixel).",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=56000"
+  "latestVersionCode": 100000,
+  "latestVersionName": "100.0",
+  "releaseNotes": "Mise à jour v100.0 majeure : Registre persistant Event ID pour zéro doublon de notification, effacement automatique de la barre de statut au clic et ciblage direct au déclenchement.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=100000"
 }
