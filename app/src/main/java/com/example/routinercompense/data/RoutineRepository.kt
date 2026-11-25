@@ -452,6 +452,7 @@ class RoutineRepository(context: Context) {
             RoutineItem(id = "def_routine_1", title = "Faire son lit", icon = "🛏️", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
             RoutineItem(id = "def_routine_2", title = "Brosser ses dents", icon = "🪥", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
             RoutineItem(id = "def_routine_3", title = "Prendre son petit-déjeuner", icon = "🥣", timeOfDay = TimeOfDay.MORNING, starsReward = 1),
+            RoutineItem(id = "def_routine_after_school", title = "Après l'école", icon = "🎒", timeOfDay = TimeOfDay.AFTERNOON, frequency = RoutineFrequency.WEEKLY, daysOfWeek = listOf(1, 2, 4, 5), starsReward = 2),
             RoutineItem(id = "def_routine_4", title = "Faire ses devoirs", icon = "📚", timeOfDay = TimeOfDay.AFTERNOON, starsReward = 2),
             RoutineItem(id = "def_routine_5", title = "Ranger ses jouets", icon = "🧸", timeOfDay = TimeOfDay.AFTERNOON, starsReward = 2),
             RoutineItem(id = "def_routine_6", title = "Prendre sa douche", icon = "🚿", timeOfDay = TimeOfDay.EVENING, starsReward = 1),

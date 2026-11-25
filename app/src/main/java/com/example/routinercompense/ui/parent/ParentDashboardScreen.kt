@@ -361,9 +361,12 @@ private fun ParentHomeTab(
     val pendingTasks = routines.filter { it.isPendingValidation }
     val pendingRewards = history.filter { it.isPendingApproval }
     var sentStickerMessage by remember { mutableStateOf<String?>(null) }
-    var pendingStarAdjustmentAmount by remember { mutableStateOf<Int?>(null) }
     var taskPendingRejection by remember { mutableStateOf<RoutineItem?>(null) }
     var showResetStatsConfirmation by remember { mutableStateOf(false) }
+
+    var showAddStarsDialog by remember { mutableStateOf(false) }
+    var showDeductStarsDialog by remember { mutableStateOf(false) }
+    var showResetStarsConfirmation by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -390,22 +393,34 @@ private fun ParentHomeTab(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(text = "étoiles accumulées", fontSize = 13.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Button(onClick = { pendingStarAdjustmentAmount = 1 }) { Text("+1 ⭐") }
-                            Button(onClick = { pendingStarAdjustmentAmount = 5 }) { Text("+5 ⭐") }
-                            Button(onClick = { pendingStarAdjustmentAmount = 10 }) { Text("+10 ⭐") }
+                        Button(
+                            onClick = { showAddStarsDialog = true },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+                        ) {
+                            Text("➕ Ajouter", fontWeight = FontWeight.Bold)
                         }
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            OutlinedButton(onClick = { pendingStarAdjustmentAmount = -1 }) { Text("-1 ⭐") }
-                            OutlinedButton(onClick = { pendingStarAdjustmentAmount = -5 }) { Text("-5 ⭐") }
-                            OutlinedButton(onClick = { pendingStarAdjustmentAmount = -10 }) { Text("-10 ⭐") }
+                        Button(
+                            onClick = { showDeductStarsDialog = true },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
+                        ) {
+                            Text("➖ Retirer", fontWeight = FontWeight.Bold)
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(
+                        onClick = { showResetStarsConfirmation = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("🔄 Réinitialiser le solde à 0 ⭐", fontSize = 12.sp)
                     }
                 }
             }
@@ -723,26 +738,28 @@ private fun ParentHomeTab(
         )
     }
 
-    pendingStarAdjustmentAmount?.let { amount ->
-        var comment by remember { mutableStateOf("") }
+    if (showAddStarsDialog) {
+        var starsAmountText by remember { mutableStateOf("1") }
+        var commentReasonText by remember { mutableStateOf("") }
+
         AlertDialog(
-            onDismissRequest = { pendingStarAdjustmentAmount = null },
-            icon = { Text(text = if (amount >= 0) "⭐" else "🔻", fontSize = 40.sp) },
-            title = {
-                Text(
-                    text = if (amount >= 0) "Ajouter $amount étoile(s)" else "Retirer ${kotlin.math.abs(amount)} étoile(s)",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            },
+            onDismissRequest = { showAddStarsDialog = false },
+            icon = { Text(text = "⭐", fontSize = 40.sp) },
+            title = { Text("Ajouter des étoiles", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
             text = {
-                Column {
-                    Text(text = "Saisissez un commentaire / motif (optionnel) :", fontSize = 13.sp, color = Color.Gray)
-                    Spacer(modifier = Modifier.height(8.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
-                        value = comment,
-                        onValueChange = { comment = it },
-                        label = { Text("Motif (ex: Rangement parfait)") },
+                        value = starsAmountText,
+                        onValueChange = { starsAmountText = it.filter { c -> c.isDigit() } },
+                        label = { Text("Nombre d'étoiles à ajouter") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = commentReasonText,
+                        onValueChange = { commentReasonText = it },
+                        label = { Text("Motif (ex: Aide aux devoirs)") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -751,15 +768,93 @@ private fun ParentHomeTab(
             confirmButton = {
                 Button(
                     onClick = {
-                        onAdjustStarsWithComment(amount, comment)
-                        pendingStarAdjustmentAmount = null
-                    }
+                        val amount = starsAmountText.toIntOrNull() ?: 1
+                        if (amount > 0) {
+                            onAdjustStarsWithComment(amount, commentReasonText)
+                        }
+                        showAddStarsDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
                 ) {
-                    Text("Valider")
+                    Text("Ajouter")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingStarAdjustmentAmount = null }) {
+                TextButton(onClick = { showAddStarsDialog = false }) {
+                    Text("Annuler")
+                }
+            }
+        )
+    }
+
+    if (showDeductStarsDialog) {
+        var starsAmountText by remember { mutableStateOf("1") }
+        var commentReasonText by remember { mutableStateOf("") }
+
+        AlertDialog(
+            onDismissRequest = { showDeductStarsDialog = false },
+            icon = { Text(text = "🔻", fontSize = 40.sp) },
+            title = { Text("Retirer des étoiles", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(
+                        value = starsAmountText,
+                        onValueChange = { starsAmountText = it.filter { c -> c.isDigit() } },
+                        label = { Text("Nombre d'étoiles à retirer") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = commentReasonText,
+                        onValueChange = { commentReasonText = it },
+                        label = { Text("Motif (ex: Oubli des chaussures)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val amount = starsAmountText.toIntOrNull() ?: 1
+                        if (amount > 0) {
+                            onAdjustStarsWithComment(-amount, commentReasonText)
+                        }
+                        showDeductStarsDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
+                ) {
+                    Text("Retirer")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeductStarsDialog = false }) {
+                    Text("Annuler")
+                }
+            }
+        )
+    }
+
+    if (showResetStarsConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showResetStarsConfirmation = false },
+            icon = { Text(text = "🔄", fontSize = 40.sp) },
+            title = { Text("Réinitialiser le solde à 0 ⭐ ?") },
+            text = { Text("Voulez-vous vraiment remettre le solde d'étoiles de $childName à 0 ⭐ ?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onSetTotalStars(0)
+                        showResetStarsConfirmation = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD32F2F))
+                ) {
+                    Text("Oui, réinitialiser à 0")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetStarsConfirmation = false }) {
                     Text("Annuler")
                 }
             }
