@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 103000,
-  "latestVersionName": "103.0",
-  "releaseNotes": "Mise à jour v103.0 majeure : Verrouillage PARTIAL_WAKE_LOCK pour Samsung One UI maintenant la connexion socket réseau active 24h/24 écran verrouillé.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=103000"
+  "latestVersionCode": 104000,
+  "latestVersionName": "104.0",
+  "releaseNotes": "Mise à jour v104.0 majeure : Intégration du moteur d'alarme système AlarmManager au niveau du noyau Android (setExactAndAllowWhileIdle) garantissant le déclenchement 24h/24 des notifications (son + vibration) sur Samsung et tous les téléphones même application fermée ou écran verrouillé.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=104000"
 }
