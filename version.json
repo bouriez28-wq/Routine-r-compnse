@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 202000,
-  "latestVersionName": "202.0",
-  "releaseNotes": "Mise à jour v202.0 majeure : Demande d'autorisation système unique 1 seule fois au lancement pour les alarmes et rappels de précision Samsung.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=202000"
+  "latestVersionCode": 203000,
+  "latestVersionName": "203.0",
+  "releaseNotes": "Mise à jour v203.0 majeure : Raccourci direct dans les Paramètres Parent pour vérifier et autoriser la sonnerie système et l'affichage sur écran de verrouillage.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=203000"
 }

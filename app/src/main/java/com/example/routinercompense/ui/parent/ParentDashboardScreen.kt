@@ -1750,6 +1750,37 @@ private fun ParentSettingsTab(
             }
         }
 
+        // Notification System Settings Button
+        item {
+            val context = LocalContext.current
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(text = "🔔 Notifications & Sons Système", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = "Ouvrir les réglages système pour vérifier la sonnerie, la vibration et l'affichage sur l'écran de verrouillage.", fontSize = 12.sp, color = Color.Gray)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            try {
+                                val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                    putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                                }
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("🔔 Vérifier la sonnerie et les notifications système")
+                    }
+                }
+            }
+        }
+
         // Check For Updates
         item {
             Card(
