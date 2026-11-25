@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 39000,
-  "latestVersionName": "39.0",
-  "releaseNotes": "Mise à jour v39.0 majeure : Déverrouillage automatique de l'écran en veille lors d'une notification et dédoublonnage strict des alertes pour émettre un son unique.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=39000"
+  "latestVersionCode": 50000,
+  "latestVersionName": "50.0",
+  "releaseNotes": "Mise à jour v50.0 majeure : Déclenchement garanti de l'alerte de mise à jour v50.0 et installation directe.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=50000"
 }
