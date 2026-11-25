@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 50000,
-  "latestVersionName": "50.0",
-  "releaseNotes": "Mise à jour v50.0 majeure : Déclenchement garanti de l'alerte de mise à jour v50.0 et installation directe.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=50000"
+  "latestVersionCode": 51000,
+  "latestVersionName": "51.0",
+  "releaseNotes": "Mise à jour v51.0 majeure : Suppression des notifications système redondantes à l'ouverture de l'application pour garantir un son unique uniquement au moment de l'arrivée de l'alerte.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=51000"
 }
