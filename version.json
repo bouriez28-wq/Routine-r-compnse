@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 55000,
-  "latestVersionName": "55.0",
-  "releaseNotes": "Mise à jour v55.0 majeure : Exemption officielle de l'optimisation de batterie Android pour maintenir l'accès réseau et recevoir les alerte système 24h/24 même écran verrouillé et application fermée.",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=55000"
+  "latestVersionCode": 56000,
+  "latestVersionName": "56.0",
+  "releaseNotes": "Mise à jour v56.0 majeure : Ajout du secours universel d'autorisation de batterie d'arrière-plan pour tous les téléphones (Samsung, Xiaomi, Huawei, Google Pixel).",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=56000"
 }

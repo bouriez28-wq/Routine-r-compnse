@@ -113,10 +113,15 @@ class MainActivity : ComponentActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val powerManager = getSystemService(POWER_SERVICE) as? android.os.PowerManager
                 if (powerManager != null && !powerManager.isIgnoringBatteryOptimizations(packageName)) {
-                    val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                        data = Uri.parse("package:$packageName")
+                    try {
+                        val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:$packageName")
+                        }
+                        startActivity(intent)
+                    } catch (e: Exception) {
+                        val fallbackIntent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                        startActivity(fallbackIntent)
                     }
-                    startActivity(intent)
                 }
             }
         } catch (e: Exception) {
