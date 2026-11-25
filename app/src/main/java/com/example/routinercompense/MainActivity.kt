@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
         }
 
         handleNotificationIntent(intent)
+        requestBatteryOptimizationExemption()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -104,6 +105,22 @@ class MainActivity : ComponentActivity() {
             viewModel.requestParentMode()
         } else if (openUpdate || notifType == NotificationHelper.TYPE_APP_UPDATE) {
             viewModel.manualCheckForAppUpdates()
+        }
+    }
+
+    private fun requestBatteryOptimizationExemption() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val powerManager = getSystemService(POWER_SERVICE) as? android.os.PowerManager
+                if (powerManager != null && !powerManager.isIgnoringBatteryOptimizations(packageName)) {
+                    val intent = Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = Uri.parse("package:$packageName")
+                    }
+                    startActivity(intent)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 54000,
-  "latestVersionName": "54.0",
-  "releaseNotes": "Mise à jour v54.0 majeure : Schéma unifié en 4 étapes de ciblage direct au clic sur n'importe quelle notification (Tâches en attente, Récompenses, Stickers, Mises à jour).",
-  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=54000"
+  "latestVersionCode": 55000,
+  "latestVersionName": "55.0",
+  "releaseNotes": "Mise à jour v55.0 majeure : Exemption officielle de l'optimisation de batterie Android pour maintenir l'accès réseau et recevoir les alerte système 24h/24 même écran verrouillé et application fermée.",
+  "downloadUrl": "https://raw.githubusercontent.com/bouriez28-wq/Routine-r-compnse/main/Routine_Recompenses.apk?v=55000"
 }

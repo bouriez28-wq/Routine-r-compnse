@@ -43,8 +43,9 @@ class CloudSyncRepository {
             connection.requestMethod = "GET"
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; K)")
             connection.setRequestProperty("Accept", "application/json")
-            connection.connectTimeout = 8000
-            connection.readTimeout = 8000
+            connection.setRequestProperty("Cache-Control", "no-cache")
+            connection.connectTimeout = 4000
+            connection.readTimeout = 4000
 
             if (connection.responseCode == 200) {
                 val reader = BufferedReader(InputStreamReader(connection.inputStream))
